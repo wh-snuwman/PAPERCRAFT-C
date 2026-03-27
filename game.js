@@ -183,10 +183,45 @@ function sortRender(obj){
 }
 
 
+
+
+class entitySys {
+    constructor() {
+        this.allEntity = {}
+    }
+
+    newEntity(type_,name_,pos_,motion_,tag_,id_){
+        const e = {
+            type:type_,
+            name:name_,
+            pos:pos_,
+            motion:motion_,
+            tag:tag_,
+            id_:id_,
+            renderObj:phi.obj(null,[0,0],[0,0]),
+        }
+        this.allEntity[id_] = e;
+        return e;
+    }
+
+    rednerEntity(){
+        null;
+    }
+
+    removeEntity(id_){
+        delete this.allEntity[id_];
+    }
+
+}
+
+window.entity = new entitySys();
+
+// =========================== test =================================== //
+entity.newEntity('player','user192',[0,0],{},{},'12983871o8739');
+// =========================== test =================================== //
+
 document.body.style.cursor = "none";
 let pointerObj = phi.obj(IMG.MOUSE,[0,0])
-
-
 const testObj = phi.obj(IMG.UI.common_cancel,[0,0]) // 개발용 테스팅 OBJ. 이미지 크기 테스트및 기술테스트용
 phi.loop(() => {
     if (rightKey || leftKey || upKey || downKey) {
@@ -195,6 +230,7 @@ phi.loop(() => {
         isMove = false
     }
     phi.fill(255,255,255);
+    
     switch (SCENE){ // 스위치 케이스 문을 사용하여 장면나누기
         case 'menu_start' : {// 접속시 첫메뉴
             for (const name in COBJ['menu_start']){
@@ -202,14 +238,15 @@ phi.loop(() => {
                 phi.blit(obj)
             }
         }
-
+        
         case 'game_main' : { // 실제 인게임
-            // #region 입력
+            // #region 키입력
             if (upKey){moveU = speed; moveUc = speed} else {moveU = moveU * smooth; moveUc = moveUc * smooth}
             if (leftKey){moveL  = speed;moveLc  = speed} else {moveL = moveL * smooth;moveLc = moveLc * smooth}
             if (downKey){moveD  = speed;moveDc  = speed} else {moveD = moveD * smooth;moveDc = moveDc * smooth}
             if (rightKey){moveR  = speed;moveRc  = speed} else {moveR = moveR * smooth;moveRc = moveRc * smooth}
             // #endregion
+            
 
             for (let TINF of TILE){ //Tile INFormation
                 const obj = TINF.obj // 타일 물리엔진. 타일이 통과불가능 특성일때 플레이어가 통과하지 못하도록 막음.
@@ -309,13 +346,26 @@ phi.loop(() => {
                     reqeustChunckId.push(String(TINF.chunckId)) // 중복요청 방지
                 }
             }
+            
+            // 엔티티 시스템
+            for (let key in entity.allEntity){
+                let ntt = entity.allEntity[key];
+                
+                // 엔티티에 따라 렌더링 
+            
+            
+            }
 
+
+
+            // #region 오브젝트 렌더링 우선순위 정리및 렌더링
             objSortList = objSortList.sort((a,b) => (a.y + a.height) - (b.y + b.height));
-            // objSortList = objSortList.sort((a,b) => (a.y) - (b.y));
             for (let obj of objSortList){
                 phi.blit(obj);
             }
             objSortList = [];
+            // #endregion
+            
         }
 
         phi.goto(pointerObj,mousePos)
@@ -323,7 +373,7 @@ phi.loop(() => {
     }
 });
 
-document.addEventListener('mousemove',(e)=>{mousePos = [e.offsetX,e.offsetY]}); // 마우스좌표
+document.addEventListener('mousemove',(e)=>{mousePos = [e.offsetX*phi.dpr,e.offsetY*phi.dpr]}); // 마우스좌표
 document.addEventListener('mousedown',(e) => {click = true}); // 클릭
 document.addEventListener('keydown',(e)=>{ // 움직임(누르기)
     if (e.key == 'w' || e.key == 'W')upKey = true;
