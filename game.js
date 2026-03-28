@@ -23,6 +23,14 @@ const IMG = { // 게임내의 모든 이미지저장
     TILE : {
         tree_m : await phi.imgLoad("src/img/tile/tree_m.png"),
         chest : await phi.imgLoad("src/img/tile/chest.png"),
+    },
+
+    PLAYER : {
+        0 : await (phi.imgLoad("src/img/entity/player/basic/0.png")),
+        1 : await phi.imgLoad("src/img/entity/player/basic/1.png"),
+        2 : await phi.imgLoad("src/img/entity/player/basic/2.png"),
+        3 : await phi.imgLoad("src/img/entity/player/basic/3.png"),
+
     }
     
 }
@@ -110,6 +118,8 @@ let moveL = 0; //
 let moveU = 0; //
 let moveD = 0; //
 
+let moveX = 0;
+let moveY = 0;
 // ============================================================== CAMERA ============================================================== //
 //  <!! 주의 !! >
 // 로직에서 실제 움직임과 카메라의 움직임은 완전 개별이다.
@@ -130,7 +140,7 @@ window.reqeustChunckId=[] // 데이터 요청을 보낸 청크아이디(중복�
 
 let TILE = []; // 타일객체 저장
 let smooth = 0.9 // 움직임 보정용(부드럽기)
-let speed = 15 // 플레이어 이동속도
+let speed = 12 // 플레이어 이동속도
 
 const chunkSize = 24; // 청크사이즈 // 청크는 맵생성 최적화를 위해 사용한다.(마인크래프트 생각하세요.꽤 유사할 겁니다.)
 // 청크 시스템 예시(청크사이즈 = 10)
@@ -182,7 +192,7 @@ function sortRender(obj){
     objSortList.push(obj)
 }
 
-
+ 
 
 
 class entitySys {
@@ -217,12 +227,15 @@ class entitySys {
 window.entity = new entitySys();
 
 // =========================== test =================================== //
-entity.newEntity('player','user192',[0,0],{},{},'12983871o8739');
+entity.newEntity('player','user192',[1920/2,1080/2],{},{},'12983871o8739');
 // =========================== test =================================== //
+
 
 document.body.style.cursor = "none";
 let pointerObj = phi.obj(IMG.MOUSE,[0,0])
 const testObj = phi.obj(IMG.UI.common_cancel,[0,0]) // 개발용 테스팅 OBJ. 이미지 크기 테스트및 기술테스트용
+let test = 0;
+
 phi.loop(() => {
     if (rightKey || leftKey || upKey || downKey) {
         isMove = true
@@ -241,11 +254,34 @@ phi.loop(() => {
         
         case 'game_main' : { // 실제 인게임
             // #region 키입력
-            if (upKey){moveU = speed; moveUc = speed} else {moveU = moveU * smooth; moveUc = moveUc * smooth}
-            if (leftKey){moveL  = speed;moveLc  = speed} else {moveL = moveL * smooth;moveLc = moveLc * smooth}
-            if (downKey){moveD  = speed;moveDc  = speed} else {moveD = moveD * smooth;moveDc = moveDc * smooth}
-            if (rightKey){moveR  = speed;moveRc  = speed} else {moveR = moveR * smooth;moveRc = moveRc * smooth}
+
+            // 플레이어 움직임 제어
+            if (upKey){moveU = speed; } else {moveU = moveU * smooth; }
+            if (leftKey){moveL  = speed;} else {moveL = moveL * smooth;}
+            if (downKey){moveD  = speed;} else {moveD = moveD * smooth;}
+            if (rightKey){moveR  = speed;} else {moveR = moveR * smooth;}
+            
+            // 카메라
+            // if (upKey){moveUc = speed} else { moveUc = moveUc * smooth}
+            // if (leftKey){moveLc  = speed} else {moveLc = moveLc * smooth}
+            // if (downKey){moveDc  = speed} else {moveDc = moveDc * smooth}
+            // if (rightKey){moveRc  = speed} else {moveRc = moveRc * smooth}
+            
+
+            // cameraX += moveLc - moveRc;
+            // cameraY += moveUc - moveDc;
+            
+            test++;
+            
+            // moveLc = (test - cameraX)
+            // moveUc = (test - cameraY)
+            
+            
+
+            moveX -= moveL - moveR;
+            moveY -= moveU - moveD;
             // #endregion
+
             
 
             for (let TINF of TILE){ //Tile INFormation
@@ -254,28 +290,28 @@ phi.loop(() => {
                     phi.moveY(obj,speed)
                     if (phi.isEncounterObj(obj,playerObj[nickname].obj)){
                         moveU = 0
-                        moveUc = 0
+                        // moveUc = 0
                     }
                     phi.moveY(obj,-speed)
 
                     phi.moveY(obj,-speed)
                     if (phi.isEncounterObj(obj,playerObj[nickname].obj)){
                         moveD = 0
-                        moveDc = 0
+                        // moveDc = 0/
                     }
                     phi.moveY(obj,speed)
 
                     phi.moveX(obj,-speed)
                     if (phi.isEncounterObj(obj,playerObj[nickname].obj)){
                         moveR = 0
-                        moveRc = 0
+                        // moveRc = 0
                     }
                     phi.moveX(obj,speed)
                 
                     phi.moveX(obj,speed)
                     if (phi.isEncounterObj(obj,playerObj[nickname].obj)){
                         moveL = 0
-                        moveLc = 0
+                        // moveLc = 0
                     }
                     phi.moveX(obj,-speed)
                 }
@@ -352,8 +388,28 @@ phi.loop(() => {
                 let ntt = entity.allEntity[key];
                 
                 // 엔티티에 따라 렌더링 
-            
-            
+                // console.log(ntt)
+                // ntt.renderObj.img = 
+                let obj = ntt.renderObj;
+                if (!obj.img){
+                    obj = phi.obj(IMG.PLAYER[0],[obj.x,obj.y]);
+                    phi.reSizeBy(obj,0.6);
+                }
+                
+
+                ntt.pos = [moveX,moveY]
+                // console.log(ntt.pos)
+
+                moveLc = (ntt.pos[0] - cameraX)
+                moveUc = (ntt.pos[1] - cameraY)
+                cameraX += moveLc - moveRc;
+                cameraY += moveUc - moveDc;
+
+                phi.goto(obj,[ntt.pos[0],ntt.pos[1]]);
+                
+                phi.goto(obj,[ntt.pos[0]+cameraX,ntt.pos[1]+cameraY]);
+                phi.move(obj,[-obj.width/2,-obj.height])
+                sortRender(obj)
             }
 
 
@@ -370,6 +426,22 @@ phi.loop(() => {
 
         phi.goto(pointerObj,mousePos)
         phi.blit(pointerObj)
+        
+
+        // console.log(moveX)
+
+        // cameraX = (moveX - cameraX) / 10
+        // moveLc = cameraX - moveX
+
+        
+
+        // console.log(Math.round(moveX),Math.round(cameraX))
+        // moveLc = moveLc / 10
+        // moveLc = (moveX - cameraX) / 100
+        // moveRc -= (+moveY - moveR) / 10
+        // moveDc -= (+cameraX - moveD) / 10
+        // moveUc -= (+cameraX - moveU) / 10
+
     }
 });
 
