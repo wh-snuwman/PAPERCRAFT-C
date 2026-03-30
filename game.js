@@ -227,7 +227,8 @@ class entitySys {
 window.entity = new entitySys();
 
 // =========================== test =================================== //
-entity.newEntity('player','user192',[1920/2,1080/2],{},{},'12983871o8739');
+// entity.newEntity('player','user192',[1920/2,1080/2],{},{},'12983871o8739');
+
 // =========================== test =================================== //
 
 
@@ -267,22 +268,11 @@ phi.loop(() => {
             // if (downKey){moveDc  = speed} else {moveDc = moveDc * smooth}
             // if (rightKey){moveRc  = speed} else {moveRc = moveRc * smooth}
             
-
-            // cameraX += moveLc - moveRc;
-            // cameraY += moveUc - moveDc;
             
-            test++;
-            
-            // moveLc = (test - cameraX)
-            // moveUc = (test - cameraY)
-            
-            
-
             moveX -= moveL - moveR;
             moveY -= moveU - moveD;
-            // #endregion
-
             
+            // #endregion
 
             for (let TINF of TILE){ //Tile INFormation
                 const obj = TINF.obj // 타일 물리엔진. 타일이 통과불가능 특성일때 플레이어가 통과하지 못하도록 막음.
@@ -368,7 +358,7 @@ phi.loop(() => {
                             -TINF.TILEOBJ.height + tileSize*0.6,
                             // 0
                         ])
-                        phi.rotate(TINF.TILEOBJ,20,'center',[0,0])
+                        // phi.rotate(TINF.TILEOBJ,20,'center',[0,0])
                         // phi.flip(TINF.TILEOBJ)
                         sortRender(TINF.TILEOBJ);
                     }
@@ -386,27 +376,21 @@ phi.loop(() => {
             // 엔티티 시스템
             for (let key in entity.allEntity){
                 let ntt = entity.allEntity[key];
-                
-                // 엔티티에 따라 렌더링 
-                // console.log(ntt)
-                // ntt.renderObj.img = 
                 let obj = ntt.renderObj;
                 if (!obj.img){
-                    obj = phi.obj(IMG.PLAYER[0],[obj.x,obj.y]);
+                    obj = phi.obj(IMG.PLAYER[0],[obj.x,obj.y],null);
                     phi.reSizeBy(obj,0.6);
                 }
-                
-
                 ntt.pos = [moveX,moveY]
-                // console.log(ntt.pos)
-
-                moveLc = (ntt.pos[0] - cameraX)
-                moveUc = (ntt.pos[1] - cameraY)
-                cameraX += moveLc - moveRc;
-                cameraY += moveUc - moveDc;
+                
+                
+                
+                // moveLc = ((-ntt.pos[0]+phi.width/2) - cameraX);
+                // moveUc = ((-ntt.pos[1]+phi.height/2) - cameraY);
+                // cameraY += moveUc - moveDc;
+                // cameraX += moveLc - moveRc;
 
                 phi.goto(obj,[ntt.pos[0],ntt.pos[1]]);
-                
                 phi.goto(obj,[ntt.pos[0]+cameraX,ntt.pos[1]+cameraY]);
                 phi.move(obj,[-obj.width/2,-obj.height])
                 sortRender(obj)
@@ -414,7 +398,7 @@ phi.loop(() => {
 
 
 
-            // #region 오브젝트 렌더링 우선순위 정리및 렌더링
+            // #region 오브젝트 렌더링 우선순위 정리및 렌더링awd
             objSortList = objSortList.sort((a,b) => (a.y + a.height) - (b.y + b.height));
             for (let obj of objSortList){
                 phi.blit(obj);
@@ -427,20 +411,7 @@ phi.loop(() => {
         phi.goto(pointerObj,mousePos)
         phi.blit(pointerObj)
         
-
-        // console.log(moveX)
-
-        // cameraX = (moveX - cameraX) / 10
-        // moveLc = cameraX - moveX
-
         
-
-        // console.log(Math.round(moveX),Math.round(cameraX))
-        // moveLc = moveLc / 10
-        // moveLc = (moveX - cameraX) / 100
-        // moveRc -= (+moveY - moveR) / 10
-        // moveDc -= (+cameraX - moveD) / 10
-        // moveUc -= (+cameraX - moveU) / 10
 
     }
 });
@@ -461,5 +432,3 @@ document.addEventListener('keyup',(e)=>{// 움직임(뗴기)
     if(e.key == 'd' || e.key == 'D') rightKey = false;
 })
 })();
-
-
