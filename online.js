@@ -34,9 +34,9 @@ import {paperSignal} from "/@paperSignal/src/script/paperSignal.js"
                 window.entity.newEntity(
                     'player',name,pos,tag,{},id
                 );
-
                 break;
             }
+
             case('loadComplete'):{
                 clientId = DATA.objid
                 startLoadFinish = true;
@@ -48,15 +48,15 @@ import {paperSignal} from "/@paperSignal/src/script/paperSignal.js"
             }
 
 
-            case("entityEditData"):{
-                console.log('player data sned');
-                EDIT = DATA.edit;
-                ID = DATA.id;
-                console.log(DATA)
-            
+            case("entityDataEdit"):{
+                const EDIT = DATA.edit;
+                const ID = DATA.id;
+                // console.log(entity.allEntity)
+                // console.log(ID)
                 for (let editType of EDIT){
                     if (editType == 'pos'){
-                        window.entity[ID].pos = DATA.pos
+                        const playerEntity = window.entity.allEntity[ID];
+                        playerEntity.pos = DATA.pos;
                     } // elif 써서 다른 데이터 처리하기
                 }
                 break;
