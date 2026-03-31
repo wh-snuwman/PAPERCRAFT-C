@@ -142,7 +142,7 @@ let TILE = []; // 타일객체 저장
 let smooth = 0.9 // 움직임 보정용(부드럽기)
 let speed = 12 // 플레이어 이동속도
 
-const chunkSize = 24; // 청크사이즈 // 청크는 맵생성 최적화를 위해 사용한다.(마인크래프트 생각하세요.꽤 유사할 겁니다.)
+const chunkSize = 16; // 청크사이즈 // 청크는 맵생성 최적화를 위해 사용한다.(마인크래프트 생각하세요.꽤 유사할 겁니다.)
 // 청크 시스템 예시(청크사이즈 = 10)
 // 1 2 3 4 5 ...
 // 10 11 12 ...
@@ -384,12 +384,12 @@ phi.loop(() => {
                     cameraY += moveUc - moveDc;
                     cameraX += moveLc - moveRc;
 
-                    if (join){
-                        paper.send({
-                            'type':'playerData',
-                            'data':{ pos:[moveX,moveY]}
-                        })
-                    }
+                    // if (join){
+                    window.paper.send({
+                        'type':'playerData',
+                        'data':{edit:["pos"],'pos':[moveX,moveY]}
+                    })
+                    // }
 
                     
                 }

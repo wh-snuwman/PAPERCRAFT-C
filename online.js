@@ -8,14 +8,11 @@ import {paperSignal} from "/@paperSignal/src/script/paperSignal.js"
     window.join = false
     await paper.connect('ws://localhost:8080');
 
-    
+
 
     paper.recv((recvData)=>{
-        // console.log(window.entity)
         const TYPE = recvData.type // type은 무조건 받음.
         const DATA = recvData.data
-        // const entity = window.entity
-        // console.log(DATA)
 
         switch(TYPE){
             case('chunckData'):{
@@ -49,7 +46,21 @@ import {paperSignal} from "/@paperSignal/src/script/paperSignal.js"
                 })
                 break;
             }
+
+
+            case("entityEditData"):{
+                console.log('player data sned');
+                EDIT = DATA.edit;
+                ID = DATA.id;
+                console.log(DATA)
             
+                for (let editType of EDIT){
+                    if (editType == 'pos'){
+                        window.entity[ID].pos = DATA.pos
+                    } // elif 써서 다른 데이터 처리하기
+                }
+                break;
+            }
         }
         
         
