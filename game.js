@@ -19,6 +19,10 @@ const IMG = { // 게임내의 모든 이미지저장
         player_state : await phi.imgLoad("src/img/ui/player_state.png"),
         player_inventory_select : await phi.imgLoad("src/img/ui/player_inventory_select.png"),
         player_inventory : await phi.imgLoad("src/img/ui/player_inventory.png"),
+
+        
+
+        // 메인메뉴용 UI
     },
     TILE : {
         tree_m : await phi.imgLoad("src/img/tile/tree_m.png"),
@@ -42,7 +46,8 @@ const MAP_DATA_TRANSLATOR = {
 
 }
 
-let SCENE = 'game_main'; // 현재장면
+let SCENE = 'menu_main'; // 현재장면
+
 const SCENE_LIST = [ // 모든 장면을 처음에 선언(장면사용시 필수)
     'menu_start','menu_main','menu_load',
     'game_main'
@@ -193,42 +198,42 @@ function sortRender(obj){
 }
 
  
-class entitySys {
+class entitySys { // 엔티티 시스템
     constructor() {
-        this.allEntity = {}
+        this.allEntity = {}  // 엔티티 시스템에서 엔티티(객체)의 데이터를 저장
     }
 
     newEntity(type_,name_,pos_,motion_,tag_,id_){
         const e = {
-            type:type_,
-            name:name_,
-            pos:pos_,
-            motion:motion_,
-            tag:tag_,
-            id:id_,
-            renderObj:phi.obj(null,[0,0],[0,0]),
+            type:type_, // 엔티티 타입
+            name:name_, // 엔티티 이름(예: 플레이어 닉네임, 플레이어가 지정해주는 별명)
+            pos:pos_, //위치
+            motion:motion_, // 엔티티의 모션과 애니매이션 지정(추후 제작예정)
+            tag:tag_, // 고급설정 데이터(예 : 이벤트 명령어,태그,고유 데이터)
+            id:id_, // 엔티티 구별용 고유 ID
+            renderObj:phi.obj(null,[0,0],[0,0]), // 실제 엔티티 렌더링을 위한 오브젝트(phi 모듈)
         }
         this.allEntity[id_] = e;
         return e;
     }
 
-    rednerEntity(){
+    rednerEntity(){ // 엔티티 렌더링
         null;
     }
 
-    removeEntity(id_){
+    removeEntity(id_){ // 엔티티 삭제
         delete this.allEntity[id_];
     }
 }
 
 window.entity = new entitySys();
 
+document.body.style.cursor = "none";// 마우스 숨기기
+let pointerObj = phi.obj(IMG.MOUSE,[0,0]) // 게임전용 포인터 지정
 
-document.body.style.cursor = "none";
-let pointerObj = phi.obj(IMG.MOUSE,[0,0])
-
-
-paper.send({'type':'loadComplete'})
+paper.send({'type':'loadComplete'});
+// 기본적인 모든 로드가 끝났을때(이미지소스x,객체시스템o)
+//서버에 보내주는 데이터
 
 phi.loop(() => {
     if (rightKey || leftKey || upKey || downKey) {
