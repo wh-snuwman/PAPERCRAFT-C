@@ -36,6 +36,12 @@ import {paperSignal} from "/@paperSignal/src/script/paperSignal.js"
                 );
                 break;
             }
+            case('playerLeft'):{
+                // DATA = entity(player) id
+                window.entity.removeEntity(DATA)
+                break;
+            }
+
 
             case('loadComplete'):{ // 게임내에서 완전히 로딩이 끝나면 수신받는 명령
                 clientId = DATA.objid

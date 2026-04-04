@@ -46,7 +46,7 @@ const MAP_DATA_TRANSLATOR = {
 
 }
 
-let SCENE = 'menu_main'; // 현재장면
+let SCENE = 'game_main'; // 현재장면
 
 const SCENE_LIST = [ // 모든 장면을 처음에 선언(장면사용시 필수)
     'menu_start','menu_main','menu_load',
