@@ -19,14 +19,20 @@ const IMG = { // 게임내의 모든 이미지저장
         player_state : await phi.imgLoad("src/img/ui/player_state.png"),
         player_inventory_select : await phi.imgLoad("src/img/ui/player_inventory_select.png"),
         player_inventory : await phi.imgLoad("src/img/ui/player_inventory.png"),
-
-        
-
         // 메인메뉴용 UI
     },
     TILE : {
         tree_m : await phi.imgLoad("src/img/tile/tree_m.png"),
+        tree_s : await phi.imgLoad("src/img/tile/tree_s.png"),
         chest : await phi.imgLoad("src/img/tile/chest.png"),
+        plank : await phi.imgLoad("src/img/tile/plank.png"),
+        craft_table : await phi.imgLoad("src/img/tile/craft_table.png"),
+        fence : await phi.imgLoad("src/img/tile/fence.png"),
+        bush : await phi.imgLoad("src/img/tile/bush.png"),
+        error_block : await phi.imgLoad("src/img/tile/error_block.png"),
+        // chest : await phi.imgLoad("src/img/tile/chest.png"),
+        // chest : await phi.imgLoad("src/img/tile/chest.png"),
+        // chest : await phi.imgLoad("src/img/tile/chest.png"),
     },
 
     PLAYER : {
@@ -43,6 +49,10 @@ const MAP_DATA_TRANSLATOR = {
     0 : null,
     1 : 'chest',
     2 : 'tree_m',
+    3 : 'tree_s',
+    4 : 'plank',
+    5 : 'craft_table',
+    6 : 'bush',
 
 }
 
@@ -109,7 +119,6 @@ function mod(n, m){return ((n % m) + m) % m;}// % 보정함수. 나머지가 음
 
 let mousePos = [0,0]; // 마우스좌표
 let click = true; // 클릭여부(한번)
-let flip = false // 내캐릭터 뒤집힘여부
 let isMove = false
 let interaction = false
 
@@ -228,9 +237,27 @@ class entitySys { // 엔티티 시스템
 
 window.entity = new entitySys();
 
-document.body.style.cursor = "none";// 마우스 숨기기
-let pointerObj = phi.obj(IMG.MOUSE,[0,0]) // 게임전용 포인터 지정
 
+class motion {
+    constructor(parameters) {
+        this.type = '';
+    }   
+    typeSet(t){
+        this.type = t;
+    }
+    render(){
+
+    }
+
+}
+
+
+
+
+
+
+let pointerObj = phi.obj(IMG.MOUSE,[0,0]) // 게임전용 포인터 지정
+document.body.style.cursor = "none";// 마우스 숨기기
 paper.send({'type':'loadComplete'});
 // 기본적인 모든 로드가 끝났을때(이미지소스x,객체시스템o)
 //서버에 보내주는 데이터
@@ -378,6 +405,9 @@ phi.loop(() => {
                 if (!obj.img){
                     obj = phi.obj(IMG.PLAYER[0],[obj.x,obj.y],null);
                     phi.reSizeBy(obj,0.7);
+                    // console.log(obj.vertex)
+                    obj = phi.rotate(obj,90,'center');
+                    console.log(obj.angle)  
                 }
                 
                 sortRender(obj)

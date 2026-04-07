@@ -286,7 +286,7 @@ export class PHI {
                 rotated.push(rx, ry);
             }
         } else if (mark == 'custom') {
-            for (let i = 0; i < obj.vertex.length; i += 2) {
+            for (let i = 0; i <  obj.vertex.length; i += 2) {
                 const x = obj.vertex[i] - pos[0];
                 const y = obj.vertex[i + 1] - pos[1];
                 const rx = x * cos - y * sin + pos[0];
