@@ -36,7 +36,7 @@ const IMG = { // 게임내의 모든 이미지저장
     },
 
     PLAYER : {
-        0 : await (phi.imgLoad("src/img/entity/player/basic/0.png")),
+        0 : await phi.imgLoad("src/img/entity/player/basic/0.png"),
         1 : await phi.imgLoad("src/img/entity/player/basic/1.png"),
         2 : await phi.imgLoad("src/img/entity/player/basic/2.png"),
         3 : await phi.imgLoad("src/img/entity/player/basic/3.png"),
