@@ -75,13 +75,10 @@ export class paperSignal {
     }
 
     message(recvdata){
-
         const data = JSON.parse(recvdata.data)
         const type = data.dataType
-        const msg = JSON.parse(data.data)
-
         if (this.recvFn){
-            this.recvFn(msg)
+            this.recvFn(data)
         }
     }
     
