@@ -67,7 +67,7 @@ export class PHI {
         this.ctx.fillStyle = color;
         this.ctx.textAlign = align;
         this.ctx.textBaseline = 'alphabetic';
-        this.ctx.fillText(text, pos[0],pos[1]);
+        this.ctx.fillText(text, pos[0]*this.dpr,pos[1]*this.dpr);
         this.ctx.textAlign = 'left';
         this.ctx.restore();
     }
@@ -124,25 +124,6 @@ export class PHI {
     }
 
     
-
-    blit(obj_, mark='null'){
-        if (!obj_.img) return;
-        let renderVertex = [...obj_.vertex];
-        for(let i=0; i<renderVertex.length; i++){
-            renderVertex[i] *= this.dpr;
-        }
-        if (mark === 'center') {
-            const offsetX = (obj_.width / 2) * this.dpr;
-            const offsetY = (obj_.height / 2) * this.dpr;
-            for(let i=0; i<renderVertex.length; i+=2){
-                renderVertex[i] -= offsetX;
-                renderVertex[i+1] -= offsetY;
-            }
-        }
-        this.app.drawImage(obj_.img, obj_.x, obj_.y, obj_.width, obj_.height, renderVertex, obj_.texcoord, obj_.fillColor);
-        return true;
-    }
-
 
     fill(r,g,b,a=255){
         if (this.ctx != null && this.textCanvas != null) {this.ctx.clearRect(0, 0, this.textCanvas.width, this.textCanvas.height)}
@@ -323,6 +304,29 @@ export class PHI {
                 obj.texcoord[i+1] = 1 - obj.texcoord[i+1]
             }
         }
+    }
+
+    // blit(obj_, mark='null'){
+    //     this.reSizeBy(obj_,this.dpr);
+    //     this.app.drawImage(obj_.img, obj_.x, obj_.y, obj_.width, obj_.height, obj_.vertex, obj_.texcoord, obj_.fillColor);
+    //     this.reSizeBy(obj_,1/this.dpr);
+    // }
+    blit(obj_, mark='null'){
+        if (!obj_.img) return;
+        let renderVertex = [...obj_.vertex];
+        for(let i=0; i<renderVertex.length; i++){
+            renderVertex[i] *= this.dpr;
+        }
+        if (mark === 'center') {
+            const offsetX = (obj_.width / 2) * this.dpr;
+            const offsetY = (obj_.height / 2) * this.dpr;
+            for(let i=0; i<renderVertex.length; i+=2){
+                renderVertex[i] -= offsetX;
+                renderVertex[i+1] -= offsetY;
+            }
+        }
+        this.app.drawImage(obj_.img, obj_.x, obj_.y, obj_.width, obj_.height, renderVertex, obj_.texcoord, obj_.fillColor);
+        return true;
     }
 }
 

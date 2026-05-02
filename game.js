@@ -89,25 +89,7 @@ CBOJ_RESIZE()
 window.addEventListener('resize',()=>{
     phi.reSizeDisplay() // 화면 비율및 해상도 자동조정
     CBOJ_RESIZE() // 자동 위치재조정
-    window.horTileCount = Math.round(phi.width  / tileSize /phi.dpr) + 2; // 화면의 가로에 채워지는 타일수
-    window.verTileCount = Math.round(phi.height / tileSize  /phi.dpr) + 2; // 화면의 세로에 채워지는 타일수
-    TILE = [];
-    for (let i=0; i<window.horTileCount; i++){ // 화면의 가로안에 들어가는 타일수 만큼 반복
-        for (let j=0; j<window.verTileCount; j++){ // 화면의 세로안에 들어가는 타일수 만큼 반복
-            TILE.push({
-                obj: phi.object(IMG.GROUND,[(i*tileSize*phi.dpr)+ cameraAdjX,(j*tileSize*phi.dpr) + cameraAdjY],[tileSize,tileSize]), // 로직및 시스템용 obj
-                horNum:i, // 가로줄 
-                verNum:j, // 세로줄
-                innerChunckId:0,
-                chunckId:[],
-                id:[],
-                Isblock:false, // 일반 통과가능 여부
-                TILE:0, // 타일종류
-                TILEOBJ:phi.obj(null,[0,0],[0,0]) // 렌더링용 obj
-            });
-        }
-    }
-    console.log(horTileCount*verTileCount);
+    tileRelocation() // 타일재배치
     
 })
 
@@ -152,9 +134,9 @@ let cameraY = 0;
 window.MAP_DATA = {}
 window.reqeustChunckId=[] // 데이터 요청을 보낸 청크아이디(중복요청 방지)
 
-let TILE = []; // 타일객체 저장
+window.TILE = []; // 타일객체 저장
 let smooth = 0.9 // 움직임 보정용(부드럽기)
-let speed = 24// 플레이어 이동속도
+let speed = 16// 플레이어 이동속도
 
 const chunkSize = 16; // 청크사이즈 // 청크는 맵생성 최적화를 위해 사용한다.(마인크래프트 생각하세요.꽤 유사할 겁니다.)
 // 청크 시스템 예시(청크사이즈 = 10)
@@ -165,47 +147,54 @@ const chunkSize = 16; // 청크사이즈 // 청크는 맵생성 최적화를 위
 const tileSize = 160; // 타일크기는 120의 배수를 상용한다(권장사항). FHD(1920X1080) 의최대공약수.
 // 아래두 변수는 무조건 정수여야 한다.
 // 메모 : 뒷쪽의 정수는 설정에 따라 직접 조정하여 사용한다. 2정도로 설정하면 왠만하면 자연스럽게 렌더링된다.
-window.horTileCount = Math.round(phi.width  / tileSize /phi.dpr) + 2; // 화면의 가로에 채워지는 타일수
-window.verTileCount = Math.round(phi.height / tileSize  /phi.dpr) + 2; // 화면의 세로에 채워지는 타일수
 
 const adjX = -tileSize*1.5; // 전체타일의 위치조정
 const adjY = -tileSize*1.5;  // 전체타일의 위치조정
 
-let cameraAdjX = (phi.width - 100) / 2 // 카메라 위치조정
-let cameraAdjY = (phi.height - 100) / 2 // 카메라 위치조정
+let cameraRun = 1;
+let cameraAdjX = (phi.width) / 2 - (tileSize/2) // 카메라 위치조정
+let cameraAdjY = (phi.height) / 2 - (tileSize)// 카메라 위치조정
+// let cameraAdjX = 0 // 카메라 위치조정
+// let cameraAdjY = 0 // 카메라 위치조정
 
-for (let i=0; i<horTileCount; i++){ // 화면의 가로안에 들어가는 타일수 만큼 반복
-    for (let j=0; j<verTileCount; j++){ // 화면의 세로안에 들어가는 타일수 만큼 반복
-        // ================= DEV ================= //
-        // 테스트용 이미지 랜덤을 지정
-        let img = null; 
-        if (phi.random(0,1) == 0){
-            img = IMG.TILE.basic
-        } else {
-            img = IMG.TILE.basic2
+
+
+function  tileRelocation(){
+    window.TILE = []
+    window.horTileCount = Math.round(phi.width  / tileSize) + 2; // 화면의 가로에 채워지는 타일수
+    window.verTileCount = Math.round(phi.height / tileSize) + 2; // 화면의 세로에 채워지는 타일수
+
+    for (let i=0; i<horTileCount; i++){ // 화면의 가로안에 들어가는 타일수 만큼 반복
+        for (let j=0; j<verTileCount; j++){ // 화면의 세로안에 들어가는 타일수 만큼 반복
+            window.TILE.push({
+                obj: phi.object(  // 로직및 시스템용 obj
+                    IMG.GROUND,
+                    [
+                        (i*tileSize)+ cameraAdjX + cameraX,
+                        (j*tileSize) + cameraAdjY + cameraY
+                    ],
+                    [tileSize,tileSize]
+                ),
+                horNum:i,//가로줄 
+                verNum:j,//세로줄
+                innerChunckId:0,
+                chunckId:[],
+                id:[],
+                Isblock:false, //일반 통과가능 여부
+                TILE:0, //타일종류
+                TILEOBJ:phi.obj(null,[cameraX,cameraY],[0,0]) //렌더링용
+            });
         }
-        // ================= DEV ================= //
-
-        TILE.push({
-            obj: phi.object(IMG.GROUND,[(i*tileSize*phi.dpr)+ cameraAdjX,(j*tileSize*phi.dpr) + cameraAdjY],[tileSize,tileSize]), // 로직및 시스템용 obj
-            horNum:i, // 가로줄 
-            verNum:j, // 세로줄
-            innerChunckId:0,
-            chunckId:[],
-            id:[],
-            Isblock:false, // 일반 통과가능 여부
-            TILE:0, // 타일종류
-            TILEOBJ:phi.obj(null,[0,0],[0,0]) // 렌더링용 obj
-        });
     }
-}
+} 
+
+
+tileRelocation()
+
+
 
 let objSortList = []
-
-function sortRender(obj){
-    objSortList.push(obj)
-}
-
+function sortRender(obj){objSortList.push(obj)}
  
 class entitySys { // 엔티티 시스템
     constructor() {
@@ -233,6 +222,11 @@ class entitySys { // 엔티티 시스템
     removeEntity(id_){ // 엔티티 삭제
         delete this.allEntity[id_];
     }
+
+
+    getAll(){
+        return this.allEntity
+    }
 }
 
 window.entity = new entitySys();
@@ -250,6 +244,16 @@ class motion {
     }
 
 }
+
+
+function cameraMove(x,y){
+    cameraX += x
+    cameraY += y
+    moveLc = x
+    moveDc = -y
+}
+
+
 
 
 let pointerObj = phi.obj(IMG.MOUSE,[0,0]) // 게임전용 포인터 지정
@@ -277,94 +281,86 @@ phi.loop(() => {
         
         case 'game_main' : { // 실제 인게임
             // #region 키입력
-
-            // 플레이어 움직임 제어
+            // 유저의 플레이어 움직임
             if (upKey){moveU = speed; } else {moveU = moveU * smooth; }
             if (leftKey){moveL  = speed;} else {moveL = moveL * smooth;}
             if (downKey){moveD  = speed;} else {moveD = moveD * smooth;}
             if (rightKey){moveR  = speed;} else {moveR = moveR * smooth;}
-            
-            // 카메라
-            // if (upKey){moveUc = speed} else { moveUc = moveUc * smooth}
-            // if (leftKey){moveLc  = speed} else {moveLc = moveLc * smooth}
-            // if (downKey){moveDc  = speed} else {moveDc = moveDc * smooth}
-            // if (rightKey){moveRc  = speed} else {moveRc = moveRc * smooth}
-            
-            
             moveX -= moveL - moveR;
             moveY -= moveU - moveD;
-            
+
+            // if (cameraRun){
+            //     if (upKey){moveUc = speed; } else {moveUc = moveUc * smooth;}
+            //     if (leftKey){moveLc  = speed;} else {moveLc = moveLc * smooth;}
+            //     if (downKey){moveDc  = speed;} else {moveDc = moveDc * smooth;}
+            //     if (rightKey){moveRc  = speed;} else {moveRc = moveRc * smooth;}
+            // }
             // #endregion
 
-            for (let TINF of TILE){ //Tile INFormation
+            for (let TINF of window.TILE){ //Tile INFormation
                 const obj = TINF.obj // 타일 물리엔진. 타일이 통과불가능 특성일때 플레이어가 통과하지 못하도록 막음.
                 if (TINF.id in MAP_DATA && TINF.Isblock){
                     phi.moveY(obj,speed)
                     if (phi.isEncounterObj(obj,playerObj[nickname].obj)){
                         moveU = 0
-                        // moveUc = 0
                     }
                     phi.moveY(obj,-speed)
 
                     phi.moveY(obj,-speed)
                     if (phi.isEncounterObj(obj,playerObj[nickname].obj)){
                         moveD = 0
-                        // moveDc = 0/
                     }
                     phi.moveY(obj,speed)
 
                     phi.moveX(obj,-speed)
                     if (phi.isEncounterObj(obj,playerObj[nickname].obj)){
                         moveR = 0
-                        // moveRc = 0
                     }
                     phi.moveX(obj,speed)
                 
                     phi.moveX(obj,speed)
                     if (phi.isEncounterObj(obj,playerObj[nickname].obj)){
                         moveL = 0
-                        // moveLc = 0
                     }
                     phi.moveX(obj,-speed)
                 }
                 // #region 타일물리엔진
+                phi.moveX(obj,moveLc); // 실제 이동량 적용
                 phi.moveY(obj,-moveDc); // 실제 이동량 적용
                 phi.moveY(obj,moveUc); // 실제 이동량 적용
-                phi.moveX(obj,moveLc); // 실제 이동량 적용
                 phi.moveX(obj,-moveRc); // 실제 이동량 적용
+
                 TINF.innerChunckId = mod(TINF.verNum,chunkSize) * chunkSize + mod(TINF.horNum, chunkSize) // 타일이 속한 청크내에서의 ID
                 TINF.chunckId = [Math.floor(TINF.horNum / chunkSize),Math.floor(TINF.verNum / chunkSize)] // 타일이 속한 청크의 ID
                 TINF.id = [TINF.chunckId[0],TINF.chunckId[1],TINF.innerChunckId] // 타일의 ID. 리스트 형대로 저장되고 [<청크내애서의_아이디1>,<청크내애서의_아이디2>,<청크>]
                 // 타일이 화면 끝에 있을때 반대쪽화면으로 이동 하는 코드
-                if (obj.x > (horTileCount*tileSize*phi.dpr) + adjX){
-                    phi.moveX(obj,-horTileCount*tileSize*phi.dpr)
+                if (obj.x > (horTileCount*tileSize) + adjX){
+                    phi.moveX(obj,-horTileCount*tileSize)
                     TINF.horNum -= horTileCount
                     tileRelaod(TINF)
                 } else if (obj.x < adjX){
-                    phi.moveX(obj,horTileCount*tileSize*phi.dpr)
+                    phi.moveX(obj,horTileCount*tileSize)
                     TINF.horNum += horTileCount
                     tileRelaod(TINF)
-                } else if (obj.y > verTileCount*tileSize*phi.dpr + adjY){
-                    phi.moveY(obj,-verTileCount*tileSize*phi.dpr)
+                } else if (obj.y > verTileCount*tileSize + adjY){
+                    phi.moveY(obj,-verTileCount*tileSize)
                     TINF.verNum -= verTileCount
                     tileRelaod(TINF)
                 } else if (obj.y < adjY){ 
-                    phi.moveY(obj,verTileCount*tileSize*phi.dpr)
+                    phi.moveY(obj,verTileCount*tileSize)
                     TINF.verNum += verTileCount
                     tileRelaod(TINF) 
                 }  
                 // #endregion
-
                 // TINF.innerChunckId // 타일이 속한 청크내에서의 ID
                 // TINF.chunckId // 타일이 속한 청크의 ID
                 // TINF.id // 타일의 ID. 리스트 형대로 저장되고 [<청크내애서의_아이디1>,<청크내애서의_아이디2>,<청크>]
-
-                // console.log(String(TINF.chunckId))
                 if (String(TINF.chunckId) in MAP_DATA){ // 청크데이터가 있는지 확인
                     // ============================ DEV ============================  //
+                    // phi.rotate(obj,(moveL-moveR)/100,'custom',[moveX,moveY])
+
                     phi.blit(obj); // 기본 바닥
-                    phi.text(`${TINF.id}`,[obj.x+obj.width/2 - 40,obj.y+obj.height/2],'20px');
-                    // console.log(TINF.id)
+                    phi.text(`${TINF.id}`,[obj.x+(obj.width/2) - 40,obj.y+(obj.height/2)],`${20*phi.dpr}px`,null,'center');
                     
                     const TILE_DATA = MAP_DATA[String(TINF.chunckId)][TINF.innerChunckId]; // 진짜 맵데이터
                     const TILE = MAP_DATA_TRANSLATOR[TILE_DATA.tile]; // (정수x) 엔티티 이름 문자열
@@ -380,7 +376,7 @@ phi.loop(() => {
                             -TINF.TILEOBJ.height + tileSize*0.6,
                             // 0
                         ])
-                        // phi.rotate(TINF.TILEOBJ,20,'center',[0,0])
+                        // phi.rotate(TINF.TILEOBJ,0.1,'custom',[0,100])
                         // phi.flip(TINF.TILEOBJ)
                         sortRender(TINF.TILEOBJ);
                     }
@@ -396,44 +392,62 @@ phi.loop(() => {
             }
             
             // 엔티티 시스템
+            
+
             for (let key in entity.allEntity){
                 let ntt = entity.allEntity[key];
                 let obj = ntt.renderObj;
 
+                
+                
+
+                
+
+                
 
                 if (!obj.img){
                     obj = phi.obj(IMG.PLAYER[0],[obj.x,obj.y],null);
                     phi.reSizeBy(obj,0.7);
                     // obj = phi.rotate(obj,moveL/3-moveR/3,'center');
                 }
+                
+                phi.goto(obj,[
+                    ntt.pos[0] + cameraAdjX + cameraX,
+                    ntt.pos[1] + cameraAdjY + cameraY
+                ]);
                 sortRender(obj)
-
-
                 if (window.playerId == ntt.id){
                     ntt.pos = [moveX,moveY]
-                    moveLc = ((-ntt.pos[0]+phi.width/2) - cameraX);
-                    moveUc = ((-ntt.pos[1]+obj.height/2+phi.height/2) - cameraY);
-                    cameraY += moveUc - moveDc;
-                    cameraX += moveLc - moveRc;
                     window.paper.send({
                         'type':'playerData',
                         'data':{edit:["pos"],'pos':[moveX,moveY]}
-                    })
-                    
+                    }) 
                 }
-                phi.goto(obj,[
-                    ntt.pos[0]+cameraX + (-obj.width/2),
-                    ntt.pos[1]+cameraY + (-obj.height)
-                ]);
+                
 
-                // phi.moveY(obj,moveD/1.5-moveU/1.5);
-
+                
             }
+
+            // #region 카메라 움직임제어
+            // cameraMove(
+            //     (moveL - moveR),
+            //     (moveU - moveD),
+            // )
+            if (cameraRun){
+                cameraMove(
+                    ((-moveX) - cameraX) / 5,
+                    ((-moveY) - cameraY) / 5,
+                )
+            }    
+            // #endregion
+            
+
 
             // #region 오브젝트 렌더링 우선순위 정리및 렌더링
             objSortList = objSortList.sort((a,b) => (a.y + a.height) - (b.y + b.height));
             for (let obj of objSortList){
                 phi.blit(obj);
+
             }
             objSortList = [];
             // #endregion
@@ -449,7 +463,7 @@ phi.loop(() => {
 });
 
 
-document.addEventListener('mousemove',(e)=>{mousePos = [e.offsetX*phi.dpr,e.offsetY*phi.dpr]}); // 마우스좌표
+document.addEventListener('mousemove',(e)=>{mousePos = [e.offsetX,e.offsetY]}); // 마우스좌표
 document.addEventListener('mousedown',(e) => {click = true}); // 클릭
 document.addEventListener('keydown',(e)=>{ // 움직임(누르기)
     if (e.key == 'w' || e.key == 'W')upKey = true;

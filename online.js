@@ -45,7 +45,6 @@ import {paperSignal} from "/@paperSignal/src/script/paperSignal.js"
                 break;
             }
 
-
             case('loadComplete'):{ // 게임내에서 완전히 로딩이 끝나면 수신받는 명령
                 clientId = DATA.objid
                 startLoadFinish = true;
@@ -55,8 +54,6 @@ import {paperSignal} from "/@paperSignal/src/script/paperSignal.js"
                 })
                 break;
             }
-
-
             case("entityDataEdit"):{
                 // 엔티티의 부가적인 모든 데이터를 수정하기 위해 서버에서 받는 신뢰성이
                 // 보장되어야 하는 명령
@@ -64,8 +61,15 @@ import {paperSignal} from "/@paperSignal/src/script/paperSignal.js"
                 const ID = DATA.id;
                 for (let editType of EDIT){
                     if (editType == 'pos'){
-                        const playerEntity = window.entity.allEntity[ID];
-                        playerEntity.pos = DATA.pos;
+                        try{
+                            const playerEntity = window.entity.getAll()[ID];
+                            playerEntity.pos = DATA.pos;
+                            
+                        } catch {
+                            // 위치데이터 오류시 예외처리
+                            // 허나 위치는 조금 누락되어도 상관없어서 딱히? 처리할필요 없다
+                        }
+                    
                     }
                     // elif 써서 다른 데이터 처리하기
                 }
