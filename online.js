@@ -34,8 +34,9 @@ import {paperSignal} from "/@paperSignal/src/script/paperSignal.js"
                     join = true
                 }
 
+                let n = new window.motion()
                 window.entity.newEntity(
-                    'player',name,pos,tag,{},id
+                    'player',name,pos,n,tag,id
                 );
                 break;
             }
@@ -44,7 +45,6 @@ import {paperSignal} from "/@paperSignal/src/script/paperSignal.js"
                 window.entity.removeEntity(DATA)
                 break;
             }
-
             case('loadComplete'):{ // 게임내에서 완전히 로딩이 끝나면 수신받는 명령
                 clientId = DATA.objid
                 startLoadFinish = true;

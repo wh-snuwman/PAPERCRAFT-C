@@ -17,6 +17,8 @@ export class PHI {
         this.width = 0;
         this.height = 0;
         this.settingList = {}
+        // new update : Identification render all deviced
+        this.screenRatio = (1920 / this.width);
         
     }
 
@@ -67,7 +69,7 @@ export class PHI {
         this.ctx.fillStyle = color;
         this.ctx.textAlign = align;
         this.ctx.textBaseline = 'alphabetic';
-        this.ctx.fillText(text, pos[0]*this.dpr,pos[1]*this.dpr);
+        this.ctx.fillText(text, pos[0]*this.screenRatio,pos[1]*this.screenRatio);
         this.ctx.textAlign = 'left';
         this.ctx.restore();
     }
@@ -92,6 +94,7 @@ export class PHI {
         this.dpr = this.app.dpr
         this.width = this.canvas.width;
         this.height = this.canvas.height;
+        this.screenRatio = (this.width / 1920);
         this.resizeTextCanvas(this.width,this.height)
     }
 
@@ -217,6 +220,7 @@ export class PHI {
     }
 
     reSizeBy(obj_,ratio,mark='center'){
+        const an = obj_.angle;
         if (mark == 'center'){
             const obj = {
                 ...obj_,
@@ -233,7 +237,7 @@ export class PHI {
             const x2 = obj_.x + obj_.width;
             const y2 = obj_.y + obj_.height;
             obj_.vertex = [x1, y1,x2, y1,x1, y2,x1, y2,x2, y1,x2, y2]
-            return obj_
+            // return obj_
         } else {
             const obj = {
                 ...obj_,
@@ -246,9 +250,12 @@ export class PHI {
             const x2 = obj_.x + obj_.width;
             const y2 = obj_.y + obj_.height;
             obj_.vertex = [x1, y1,x2, y1,x1, y2,x1, y2,x2, y1,x2, y2]
-            return obj_
         }
+        this.rotate(obj_,an);
+        return obj_
     }
+
+
     
     move(obj,pos=Array){
         obj.x += pos[0]
@@ -306,27 +313,29 @@ export class PHI {
         }
     }
 
-    // blit(obj_, mark='null'){
-    //     this.reSizeBy(obj_,this.dpr);
-    //     this.app.drawImage(obj_.img, obj_.x, obj_.y, obj_.width, obj_.height, obj_.vertex, obj_.texcoord, obj_.fillColor);
-    //     this.reSizeBy(obj_,1/this.dpr);
-    // }
-    blit(obj_, mark='null'){
-        if (!obj_.img) return;
-        let renderVertex = [...obj_.vertex];
-        for(let i=0; i<renderVertex.length; i++){
-            renderVertex[i] *= this.dpr;
-        }
-        if (mark === 'center') {
-            const offsetX = (obj_.width / 2) * this.dpr;
-            const offsetY = (obj_.height / 2) * this.dpr;
-            for(let i=0; i<renderVertex.length; i+=2){
-                renderVertex[i] -= offsetX;
-                renderVertex[i+1] -= offsetY;
-            }
-        }
-        this.app.drawImage(obj_.img, obj_.x, obj_.y, obj_.width, obj_.height, renderVertex, obj_.texcoord, obj_.fillColor);
-        return true;
+
+    blit(obj, mark = 'null') {  
+        if (!obj.img) return;
+
+        const { img, x, y, width, height, vertex, texcoord, fillColor } = obj;
+        const ratioMulp =  this.screenRatio;
+
+        const renderX = x * ratioMulp;
+        const renderY = y * ratioMulp;
+        const renderW = width * ratioMulp;
+        const renderH = height * ratioMulp;
+        const scaledVertex = vertex ? vertex.map(v => v * ratioMulp) : null;
+
+        this.app.drawImage(
+            img, 
+            renderX, 
+            renderY, 
+            renderW, 
+            renderH, 
+            scaledVertex || vertex, 
+            texcoord, 
+            fillColor
+        );
     }
 }
 
