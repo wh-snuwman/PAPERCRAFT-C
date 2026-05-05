@@ -134,7 +134,7 @@ window.TILE = []; // 타일객체 저장
 let smooth = 0.9 // 움직임 보정용(부드럽기)
 let speed = 10// 플레이어 이동속도
 
-const chunkSize = 16; // 청크사이즈 // 청크는 맵생성 최적화를 위해 사용한다.(마인크래프트 생각하세요.꽤 유사할 겁니다.)
+const chunkSize = 8; // 청크사이즈 // 청크는 맵생성 최적화를 위해 사용한다.(마인크래프트 생각하세요.꽤 유사할 겁니다.)
 // 청크 시스템 예시(청크사이즈 = 10)
 // 1 2 3 4 5 ...
 // 10 11 12 ...
@@ -146,12 +146,14 @@ const tileSize = 160; // 타일크기는 120의 배수를 상용한다(권장사
 const adjX = -tileSize*1.5; // 전체타일의 위치조정
 const adjY = -tileSize*1.5;  // 전체타일의 위치조정
 
+let renderLimitUse = true;
+let renderLimitDistant = tileSize * 5; // 기기의 성능이 너무 낮을시 렌더링되는 타일의 수를 낮춘다.(화면중앙 기준 거리)
+
 // ========================= CAMERA ========================= //
 let cameraRun = 1; // 카메라의 사용여부(고정여부)
-window.cameraAdjX = (phi.width) / 2 - (tileSize/2) // 카메라 위치조정
-window.cameraAdjY = (phi.height) / 2 - (tileSize)// 카메라 위치조정
+window.cameraAdjX = 0 // 카메라 위치조정
+window.cameraAdjY = 0 //
 // ========================= CAMERA ========================= //
-
 
 // ========================= MOTION ========================= //
 let isMove = false // 움직이고 있는가
@@ -219,10 +221,10 @@ function  tileRelocation(){
     window.TILE = []
     // window.horTileCount = Math.round(phi.width  / tileSize) + 2; // 화면의 가로에 채워지는 타일수
     // window.verTileCount = Math.round(phi.height / tileSize) + 2; // 화면의 세로에 채워지는 타일수
-    cameraAdjX = (phi.width) / 2 - (tileSize/2) // 카메라 위치조정
+    cameraAdjX = (phi.width - tileSize) / 2 // 카메라 위치조정
     cameraAdjY = (phi.height) / 2 - (tileSize)// 카메라 위치조정
     window.horTileCount = 14; // 화면의 가로에 채워지는 타일수
-    window.verTileCount = 8; // 화면의 세로에 채워지는 타일수
+    window.verTileCount = 10; // 화면의 세로에 채워지는 타일수
     console.log(horTileCount,verTileCount)
 
     for (let i=0; i<horTileCount; i++){ // 화면의 가로안에 들어가는 타일수 만큼 반복
@@ -375,6 +377,8 @@ phi.loop(() => {
                 phi.moveX(obj,-moveRc); // 실제 이동량 적용
 
                 TINF.innerChunckId = mod(TINF.verNum,chunkSize) * chunkSize + mod(TINF.horNum, chunkSize) // 타일이 속한 청크내에서의 ID
+                TINF.chunc
+                
                 TINF.chunckId = [Math.floor(TINF.horNum / chunkSize),Math.floor(TINF.verNum / chunkSize)] // 타일이 속한 청크의 ID
                 TINF.id = [TINF.chunckId[0],TINF.chunckId[1],TINF.innerChunckId] // 타일의 ID. 리스트 형대로 저장되고 [<청크내애서의_아이디1>,<청크내애서의_아이디2>,<청크>]
                 // 타일이 화면 끝에 있을때 반대쪽화면으로 이동 하는 코드
@@ -400,13 +404,12 @@ phi.loop(() => {
                 // TINF.chunckId // 타일이 속한 청크의 ID
                 // TINF.id // 타일의 ID. 리스트 형대로 저장되고 [<청크내애서의_아이디1>,<청크내애서의_아이디2>,<청크>]
                 if (String(TINF.chunckId) in MAP_DATA){ // 청크데이터가 있는지 확인
-                    // ============================ DEV ============================  //
-                    // phi.rotate(obj,(moveL-moveR)/100,'custom',[moveX,moveY])
 
+                    // 최적화 모드를 켰을때만 작동  
                     phi.blit(obj); // 기본 바닥
-                    // console
-                    // console.log(phi.screenRatio, phi.dpr)
-                    phi.text(`${TINF.id}`,[obj.x+(obj.width/2) - 40,obj.y+(obj.height/2)],`${20*phi.screenRatio}px`,null,'center');
+                    if (!renderLimitUse || renderLimitDistant > phi.distanceGetObj(obj,phi.obj(null,[phi.width/2,phi.height/2],[0,0]))){
+                        // phi.text(`${TINF.id}`,[obj.x+(obj.width/2) - 40,obj.y+(obj.height/2)],`${20*phi.screenRatio}px`,null,'center');
+                    }
                     
                     const TILE_DATA = MAP_DATA[String(TINF.chunckId)][TINF.innerChunckId]; // 진짜 맵데이터
                     const TILE = MAP_DATA_TRANSLATOR[TILE_DATA.tile]; // (정수x) 엔티티 이름 문자열
@@ -422,9 +425,11 @@ phi.loop(() => {
                             -TINF.TILEOBJ.height + tileSize*0.6,
                             // 0
                         ])
-                        // phi.rotate(TINF.TILEOBJ,0.1,'custom',[0,100])
-                        // phi.flip(TINF.TILEOBJ)
-                        sortRender(TINF.TILEOBJ);
+                        if (!renderLimitUse || renderLimitUse && renderLimitDistant > phi.distanceGetObj(TINF.TILEOBJ,phi.obj(null,[phi.width/2,phi.height/2],[0,0]))){
+                            sortRender(TINF.TILEOBJ);
+                        }
+
+                        
                     }
                     // ============================ DEV ============================  //
 
