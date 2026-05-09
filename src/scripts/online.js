@@ -1,4 +1,4 @@
-import {paperSignal} from "/@paperSignal/src/script/paperSignal.js"
+import {paperSignal} from "../../@paperSignal/src/script/paperSignal.js"
 
 (async () => {
     window.paper = new paperSignal();
@@ -37,7 +37,7 @@ import {paperSignal} from "/@paperSignal/src/script/paperSignal.js"
                 let n = new window.motion()
                 window.entity.newEntity(
                     'player',name,pos,n,tag,id
-                );
+                ); 
                 break;
             }
             case('playerLeft'):{
@@ -53,7 +53,7 @@ import {paperSignal} from "/@paperSignal/src/script/paperSignal.js"
                     'data':clientId,
                 })
                 break;
-            }
+            }   
             case("entityDataEdit"):{
                 // 엔티티의 부가적인 모든 데이터를 수정하기 위해 서버에서 받는 신뢰성이
                 // 보장되어야 하는 명령
@@ -75,7 +75,17 @@ import {paperSignal} from "/@paperSignal/src/script/paperSignal.js"
                 }
                 break;
             }
+            case("itemSpwan"):{
+                console.log('asde')
+                const itmeType = DATA.itmeType
+                const itemPos = DATA.itemPos
+                const itemId = DATA.itemId
+                entity.newEntity('item','None',itemPos,null,{},itemId)
+
+
+            }
         }
+
         
         
     })

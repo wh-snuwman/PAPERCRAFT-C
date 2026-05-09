@@ -1,55 +1,7 @@
-import {PHI} from "/@phi/src/script/PHI.js" // webgl2 기반 그래픽조정 모듈
+import { IMG } from "./imgLoad.js" // webgl2 기반 그래픽조정  모듈
+import { entitySys } from "./entity.js" // webgl2 기반 그래픽조정  모듈
 
 (async () => {
-const phi = new PHI("display-canvas"); // 캔버스 연결
-phi.display([innerWidth, innerHeight]); // 초기 화면 설정
-phi.textDisplay("text-canvas"); // 캔버스에서 텍스트렌더링 사용
-
-const IMG = { // 게임내의 모든 이미지저장
-    GROUND : {
-        0 : await phi.imgLoad("src/img/ground/0.png"),
-        1 : await phi.imgLoad("src/img/ground/1.png"),
-        2 : await phi.imgLoad("src/img/ground/2.png"),
-        3 : await phi.imgLoad("src/img/ground/3.png"),
-        4 : await phi.imgLoad("src/img/ground/4.png"),
-    },
-    MOUSE : await phi.imgLoad("src/img/mouse/0.png"),
-    UI : {
-        common_cancel : await phi.imgLoad("src/img/ui/common_cancel.png"),
-        common_checkbox_off : await phi.imgLoad("src/img/ui/common_checkbox_off.png"),
-        common_checkbox_on : await phi.imgLoad("src/img/ui/common_checkbox_on.png"),
-        common_msgbox : await phi.imgLoad("src/img/ui/common_msgbox.png"),
-        main_back : await phi.imgLoad("src/img/ui/main_back.png"),
-        main_title : await phi.imgLoad("src/img/ui/main_title.png"),
-        player_craft : await phi.imgLoad("src/img/ui/player_craft.png"),
-        player_state : await phi.imgLoad("src/img/ui/player_state.png"),
-        player_inventory_select : await phi.imgLoad("src/img/ui/player_inventory_select.png"),
-        player_inventory : await phi.imgLoad("src/img/ui/player_inventory.png"),
-        // 메인메뉴용 UI
-    },
-    TILE : {
-        tree_m : await phi.imgLoad("src/img/tile/tree_m.png"),
-        tree_s : await phi.imgLoad("src/img/tile/tree_s.png"),
-        chest : await phi.imgLoad("src/img/tile/chest.png"),
-        plank : await phi.imgLoad("src/img/tile/plank.png"),
-        craft_table : await phi.imgLoad("src/img/tile/craft_table.png"),
-        fence : await phi.imgLoad("src/img/tile/fence.png"),
-        bush : await phi.imgLoad("src/img/tile/bush.png"),
-        error_block : await phi.imgLoad("src/img/tile/error_block.png"),
-        // chest : await phi.imgLoad("src/img/tile/chest.png"),
-        // chest : await phi.imgLoad("src/img/tile/chest.png"),
-        // chest : await phi.imgLoad("src/img/tile/chest.png"),
-    },
-
-    PLAYER : {
-        0 : await phi.imgLoad("src/img/entity/player/basic/0.png"),
-        1 : await phi.imgLoad("src/img/entity/player/basic/1.png"),
-        2 : await phi.imgLoad("src/img/entity/player/basic/2.png"),
-        3 : await phi.imgLoad("src/img/entity/player/basic/3.png"),
-
-    }
-    
-}
 
 const MAP_DATA_TRANSLATOR = {
     0 : null,
@@ -76,7 +28,7 @@ for (let scene of SCENE_LIST){
     }
 }
 
-let COBJ= { // Common OBJ. 자동으로 그려지고 위치가 조정되는 OBJ를 저장.
+let COBJ = { // Common OBJ. 자동으로 그려지고 위치가 조정되는 OBJ를 저장.
     'menu_start':{ // 이코드에서는 선언과 이미지적용만 한다
         back : phi.obj(IMG.UI.main_back,[0,0]), 
         title : phi.obj(IMG.UI.main_title,[0,0]),
@@ -92,8 +44,7 @@ function CBOJ_RESIZE(){ // COBJ에서 장면에 따라 위치가 자동으로 �
     const sr = phi.screenRatio
     phi.goto(COBJ['menu_start'].back,[(phi.width/sr-IMG.UI.main_back.width)/2,(phi.height/sr-IMG.UI.main_back.height)/2])
     phi.goto(COBJ['menu_start'].title,[(phi.width/sr-IMG.UI.main_title.width)/2,((phi.height-IMG.UI.main_title.height)/2/sr)])
-    phi.goto(COBJ['menu_start'].list_btn,[(phi.width/sr-IMG.UI.common_msgbox.width)/2,phi.height/sr*0.6])
-    
+    phi.goto(COBJ['menu_start'].list_btn,[(phi.width/sr-IMG.UI.common_msgbox.width)/2,phi.height/sr*0.6]) 
     phi.goto(COBJ['game_main'].invenObj,[phi.width/phi.screenRatio-IMG.UI.player_inventory.width,phi.height/phi.screenRatio-IMG.UI.player_inventory.height])
 }
 
@@ -102,10 +53,6 @@ window.addEventListener('resize',()=>{
     phi.reSizeDisplay() // 화면 비율및 해상도 자동조정
     CBOJ_RESIZE() // 자동 위치재조정
     tileRelocation() // 타일재배치
-    
-    // window.playerInventoryObj = phi.obj(temp,[phi.width/phi.screenRatio-temp.width,phi.height/phi.screenRatio-temp.height],null)
-    
-    
 })
 
 function tileRelaod(tile){ // 게임내의 시스템에서 사용하는 타일특성 초기화 함수
@@ -115,7 +62,8 @@ function tileRelaod(tile){ // 게임내의 시스템에서 사용하는 타일�
 function mod(n, m){return ((n % m) + m) % m;}// % 보정함수. 나머지가 음수여도 다시양수로 변환.ex) (-1 % 5 = -1 [x]) => (-1 % 5 = 4 [o])
 
 let mousePos = [0,0]; // 마우스좌표
-let click = true; // 클릭여부(한번)
+let click_l = true; // 클릭여부(한번)
+let click_r = true; // 클릭여부(한번)
 
 let upKey = false;
 let leftKey= false;
@@ -269,38 +217,7 @@ let objSortList = []
 function sortRender(obj){objSortList.push(obj)}
 //#endregion
 
-//#region  엔티티 시스템
-class entitySys { 
-    constructor() {
-        // 엔티티 시스템에서 엔티티(객체)의 데이터를 저장
-        this.allEntity = {} 
-    }
-    newEntity(type_,name_,pos_,motion_,tag_,id_){
-        const e = {
-            type:type_, // 엔티티 타입
-            name:name_, // 엔티티 이름(예: 플레이어 닉네임, 플레이어가 지정해주는 별명)
-            pos:pos_, //위치
-            motion:motion_, // 엔티티의 모션과 애니매이션 지정(추후 제작예정)
-            tag:tag_, // 고급설정 데이터(예 : 이벤트 명령어,태그,고유 데이터)
-            id:id_, // 엔티티 구별용 고유 ID
-            renderObj:phi.obj(null,[0,0],[0,0]), // 실제 엔티티 렌더링을 위한 오브젝트(phi 모듈)
-        }
-        this.allEntity[id_] = e;
-        return e;
-    }
-    rednerEntity(){ // 엔티티 렌더링
-        null;
-    }
-    removeEntity(id_){ // 엔티티 삭제
-        delete this.allEntity[id_];
-    }
-    getAll(){
-        return this.allEntity
-    }
-}
 window.entity = new entitySys();
-//#endregion
-
 
 // 카메라의 움직임을 제어할떄 사용하는 함수
 // 내부 관련변수를 직접제어하는 것보다 유지보수성이 좋음
@@ -325,10 +242,11 @@ phi.loop(() => {
     } else {
         isMove = false
     }
+
     phi.fill(255,255,255);
 
     switch (SCENE){ // 스위치 케이스 문을 사용하여 장면나누기
-        case 'menu_start' : {// 접속시 첫메뉴
+        case 'menu_start' : {// 접속시 첫메뉴s
             for (const name in COBJ['menu_start']){
                 let obj = COBJ['menu_start'][name]
                 phi.blit(obsj)
@@ -380,8 +298,6 @@ phi.loop(() => {
                 phi.moveX(obj,-moveRc); // 실제 이동량 적용
 
                 TINF.innerChunckId = mod(TINF.verNum,chunkSize) * chunkSize + mod(TINF.horNum, chunkSize) // 타일이 속한 청크내에서의 ID
-                TINF.chunc
-                
                 TINF.chunckId = [Math.floor(TINF.horNum / chunkSize),Math.floor(TINF.verNum / chunkSize)] // 타일이 속한 청크의 ID
                 TINF.id = [TINF.chunckId[0],TINF.chunckId[1],TINF.innerChunckId] // 타일의 ID. 리스트 형대로 저장되고 [<청크내애서의_아이디1>,<청크내애서의_아이디2>,<청크>]
                 // 타일이 화면 끝에 있을때 반대쪽화면으로 이동 하는 코드
@@ -448,57 +364,48 @@ phi.loop(() => {
             for (let key in entity.allEntity){
                 let ntt = entity.allEntity[key];
                 let obj = ntt.renderObj;
-
-                
                 phi.goto(obj,[
                     ntt.pos[0] +(cameraAdjX+ cameraX),
                     ntt.pos[1] +(cameraAdjY+ cameraY)
                 ]);
-                // console.log(obj.x,obj.y)
-                // phi.blit(obj)
 
-                if (!obj.img){
-                    if (window.playerId == ntt.id){
-                        obj = ntt.motion.render([
-                            obj.x,
-                            obj.y
-                        ],
-                        {
-                            Rk:rightKey,Lk:leftKey,isMv:isMove
-                        })
-
-                    } else {
-                        obj = ntt.motion.render([
-                            obj.x,
-                            obj.y
-                        ],
-                        {
-                            
-                        })
-                        // obj = ntt.motion._devtest([obj.x,obj.y])
-                    }
+                if (ntt.type == 'player' && !obj.img){
+                    if (window.playerId == ntt.id){obj = ntt.motion.render([obj.x,obj.y],{Rk:rightKey,Lk:leftKey,isMv:isMove})} 
+                    else {obj = ntt.motion.render([obj.x,obj.y],{})}
                 }
-
+                
+                sortRender(obj)
+                
                 
 
-                //#region 데이터송신 및 세부설정
-                sortRender(obj)
+
                 if (window.playerId == ntt.id){
+                    //#region 데이터송신 및 세부설정
                     ntt.pos = [moveX,moveY]
                     window.paper.send({
                         'type':'playerData',
                         'data':{edit:["pos"],'pos':[moveX,moveY]}
                     }) 
                 }
-                //#endregion        
-            
             }
+
             if (cameraRun){
                 cameraMove(
                     ((-moveX) - cameraX) / 1,
                     ((-moveY) - cameraY) / 1,
                 )
             }    
+
+            if (click_l){
+                paper.send({type:"itemSpwan",data:{
+                    'itemType':0,
+                    'itemPos':[moveX,moveY],
+                }})
+            }
+
+
+
+
 
             objSortList = objSortList.sort((a,b) => (a.y + a.height) - (b.y + b.height));
             for (let obj of objSortList){
@@ -515,9 +422,16 @@ phi.loop(() => {
         phi.blit(pointerObj)
         break;
     }
+
+    if (click_l) click_l=false;
+    if (click_r) click_r=false;
+
 });
 document.addEventListener('mousemove',(e)=>{mousePos = [e.offsetX/phi.screenRatio,e.offsetY/phi.screenRatio]}); // 마우스좌표
-document.addEventListener('mousedown',(e) => {click = true}); // 클릭
+document.addEventListener('mousedown',(e) => { // 클릭
+    if (e.button == 0)click_l = true;
+    if (e.button == 2)click_r = true;
+});
 document.addEventListener('keydown',(e)=>{ // 움직임(누르기)
     if (e.key == 'w' || e.key == 'W')upKey = true;
     if(e.key == 'a' || e.key == 'A') leftKey= true;
@@ -532,6 +446,7 @@ document.addEventListener('keyup',(e)=>{// 움직임(뗴기)
     if(e.key == 'd' || e.key == 'D') rightKey = false;
     if(e.key == 'e' || e.key == 'E') interaction = false;
 })
-
-
 })();
+
+
+
