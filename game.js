@@ -6,7 +6,13 @@ phi.display([innerWidth, innerHeight]); // 초기 화면 설정
 phi.textDisplay("text-canvas"); // 캔버스에서 텍스트렌더링 사용
 
 const IMG = { // 게임내의 모든 이미지저장
-    GROUND : await phi.imgLoad("src/img/ground/0.png"),
+    GROUND : {
+        0 : await phi.imgLoad("src/img/ground/0.png"),
+        1 : await phi.imgLoad("src/img/ground/1.png"),
+        2 : await phi.imgLoad("src/img/ground/2.png"),
+        3 : await phi.imgLoad("src/img/ground/3.png"),
+        4 : await phi.imgLoad("src/img/ground/4.png"),
+    },
     MOUSE : await phi.imgLoad("src/img/mouse/0.png"),
     UI : {
         common_cancel : await phi.imgLoad("src/img/ui/common_cancel.png"),
@@ -77,12 +83,18 @@ let COBJ= { // Common OBJ. 자동으로 그려지고 위치가 조정되는 OBJ�
         list_btn : phi.obj(IMG.UI.common_msgbox,[0,0]),
         // title : phi.obj(IMG.UI.main_title,[0,0]),
     },
+    "game_main":{
+        invenObj : phi.obj(IMG.UI.player_inventory,[phi.width/phi.screenRatio-IMG.UI.player_inventory.width,phi.height/phi.screenRatio-IMG.UI.player_inventory.height],null)
+    }
 }
 
-function CBOJ_RESIZE(){ // COBJ에서 장면에 따라 위치가 자동으로 조정되게 하는 함수. 
-    phi.goto(COBJ['menu_start'].back,  [(phi.width-IMG.UI.main_back.width)/2,(phi.height-IMG.UI.main_back.height)/2])
-    phi.goto(COBJ['menu_start'].title,  [(phi.width-IMG.UI.main_title.width)/2,phi.height*0.1])
-    phi.goto(COBJ['menu_start'].list_btn,  [(phi.width-IMG.UI.common_msgbox.width)/2,phi.height*0.6])
+function CBOJ_RESIZE(){ // COBJ에서 장면에 따라 위치가 자동으로 조정되게 하는 함수.  
+    const sr = phi.screenRatio
+    phi.goto(COBJ['menu_start'].back,[(phi.width/sr-IMG.UI.main_back.width)/2,(phi.height/sr-IMG.UI.main_back.height)/2])
+    phi.goto(COBJ['menu_start'].title,[(phi.width/sr-IMG.UI.main_title.width)/2,((phi.height-IMG.UI.main_title.height)/2/sr)])
+    phi.goto(COBJ['menu_start'].list_btn,[(phi.width/sr-IMG.UI.common_msgbox.width)/2,phi.height/sr*0.6])
+    
+    phi.goto(COBJ['game_main'].invenObj,[phi.width/phi.screenRatio-IMG.UI.player_inventory.width,phi.height/phi.screenRatio-IMG.UI.player_inventory.height])
 }
 
 CBOJ_RESIZE() 
@@ -90,6 +102,9 @@ window.addEventListener('resize',()=>{
     phi.reSizeDisplay() // 화면 비율및 해상도 자동조정
     CBOJ_RESIZE() // 자동 위치재조정
     tileRelocation() // 타일재배치
+    
+    // window.playerInventoryObj = phi.obj(temp,[phi.width/phi.screenRatio-temp.width,phi.height/phi.screenRatio-temp.height],null)
+    
     
 })
 
@@ -134,7 +149,7 @@ window.TILE = []; // 타일객체 저장
 let smooth = 0.9 // 움직임 보정용(부드럽기)
 let speed = 10// 플레이어 이동속도
 
-const chunkSize = 8; // 청크사이즈 // 청크는 맵생성 최적화를 위해 사용한다.(마인크래프트 생각하세요.꽤 유사할 겁니다.)
+const chunkSize = 10; // 청크사이즈 // 청크는 맵생성 최적화를 위해 사용한다.(마인크래프트 생각하세요.꽤 유사할 겁니다.)
 // 청크 시스템 예시(청크사이즈 = 10)
 // 1 2 3 4 5 ...
 // 10 11 12 ...
@@ -146,8 +161,8 @@ const tileSize = 160; // 타일크기는 120의 배수를 상용한다(권장사
 const adjX = -tileSize*1.5; // 전체타일의 위치조정
 const adjY = -tileSize*1.5;  // 전체타일의 위치조정
 
-let renderLimitUse = true;
-let renderLimitDistant = tileSize * 5; // 기기의 성능이 너무 낮을시 렌더링되는 타일의 수를 낮춘다.(화면중앙 기준 거리)
+let renderLimitUse = false;
+let renderLimitDistant = tileSize * 5; // 기기의 성능이 너무 낮을시 렌더링되는 타일의 수를 낮춘다.(화면중앙 기준 거리)=-9
 
 // ========================= CAMERA ========================= //
 let cameraRun = 1; // 카메라의 사용여부(고정여부)
@@ -216,22 +231,18 @@ window.motion = class {
     }
 }
 
-//#region 타일맵 생성ad
+//#region 타일맵 생성
 function  tileRelocation(){
     window.TILE = []
-    // window.horTileCount = Math.round(phi.width  / tileSize) + 2; // 화면의 가로에 채워지는 타일수
-    // window.verTileCount = Math.round(phi.height / tileSize) + 2; // 화면의 세로에 채워지는 타일수
-    cameraAdjX = (phi.width - tileSize) / 2 // 카메라 위치조정
-    cameraAdjY = (phi.height) / 2 - (tileSize)// 카메라 위치조정
+    cameraAdjX = ((phi.width-tileSize+(1920*(1-phi.screenRatio))) / 2) // 카메라 위치조정
+    cameraAdjY = ((phi.height-(tileSize*2)+(1080*(1-phi.screenRatio))) / 2)// 카메라 위치조정
     window.horTileCount = 14; // 화면의 가로에 채워지는 타일수
     window.verTileCount = 10; // 화면의 세로에 채워지는 타일수
-    console.log(horTileCount,verTileCount)
-
     for (let i=0; i<horTileCount; i++){ // 화면의 가로안에 들어가는 타일수 만큼 반복
         for (let j=0; j<verTileCount; j++){ // 화면의 세로안에 들어가는 타일수 만큼 반복
             window.TILE.push({
                 obj: phi.object(  // 로직및 시스템용 obj
-                    IMG.GROUND,
+                    IMG.GROUND[phi.random(0,3)],
                     [
                         (i*tileSize)+ cameraAdjX + cameraX,
                         (j*tileSize) + cameraAdjY + cameraY
@@ -301,11 +312,12 @@ function cameraMove(x,y){
 }
 
 let pointerObj = phi.obj(IMG.MOUSE,[0,0]) // 게임전용 포인터 지정
-document.body.style.cursor = "none";// 마우스 숨기기
+// document.body.style.cursor = "none";// 마우스 숨기기
 paper.send({'type':'loadComplete'});
 // 기본적인 모든 로드가 끝났을때(이미지소스x,객체시스템o)
 //서버에 보내주는 데이터
 let test = 0;
+
 
 phi.loop(() => {
     if (rightKey || leftKey || upKey || downKey) {
@@ -314,18 +326,17 @@ phi.loop(() => {
         isMove = false
     }
     phi.fill(255,255,255);
-    
-    // console.log(phi.width,phi.canvas.width)
 
     switch (SCENE){ // 스위치 케이스 문을 사용하여 장면나누기
         case 'menu_start' : {// 접속시 첫메뉴
             for (const name in COBJ['menu_start']){
-                const obj = COBJ['menu_start'][name] 
-                phi.blit(obj)
+                let obj = COBJ['menu_start'][name]
+                phi.blit(obsj)
             }
+            break;
         }
-        
-        case 'game_main' : { // 실제 인게임
+        // 실제 인게임
+        case 'game_main' : { 
             // #region 키입력
             // 유저의 플레이어 움직임
             if (upKey){moveU = speed; } else {moveU = moveU * smooth; }
@@ -334,15 +345,7 @@ phi.loop(() => {
             if (rightKey){moveR  = speed;} else {moveR = moveR * smooth;}
             moveX -= moveL - moveR;
             moveY -= moveU - moveD;
-
-            // if (cameraRun){
-            //     if (upKey){moveUc = speed; } else {moveUc = moveUc * smooth;}
-            //     if (leftKey){moveLc  = speed;} else {moveLc = moveLc * smooth;}
-            //     if (downKey){moveDc  = speed;} else {moveDc = moveDc * smooth;}
-            //     if (rightKey){moveRc  = speed;} else {moveRc = moveRc * smooth;}
-            // }
             // #endregion
-
             for (let TINF of window.TILE){ //Tile INFormation
                 const obj = TINF.obj // 타일 물리엔진. 타일이 통과불가능 특성일때 플레이어가 통과하지 못하도록 막음.
                 if (TINF.id in MAP_DATA && TINF.Isblock){
@@ -406,8 +409,8 @@ phi.loop(() => {
                 if (String(TINF.chunckId) in MAP_DATA){ // 청크데이터가 있는지 확인
 
                     // 최적화 모드를 켰을때만 작동  
-                    phi.blit(obj); // 기본 바닥
                     if (!renderLimitUse || renderLimitDistant > phi.distanceGetObj(obj,phi.obj(null,[phi.width/2,phi.height/2],[0,0]))){
+                        phi.blit(obj); // 기본 바닥
                         // phi.text(`${TINF.id}`,[obj.x+(obj.width/2) - 40,obj.y+(obj.height/2)],`${20*phi.screenRatio}px`,null,'center');
                     }
                     
@@ -441,7 +444,6 @@ phi.loop(() => {
                     reqeustChunckId.push(String(TINF.chunckId)) // 중복요청 방지
                 }
             }
-            
             // 엔티티 시스템
             for (let key in entity.allEntity){
                 let ntt = entity.allEntity[key];
@@ -449,16 +451,31 @@ phi.loop(() => {
 
                 
                 phi.goto(obj,[
-                    ntt.pos[0] + cameraAdjX + cameraX,
-                    ntt.pos[1] + cameraAdjY + cameraY
+                    ntt.pos[0] +(cameraAdjX+ cameraX),
+                    ntt.pos[1] +(cameraAdjY+ cameraY)
                 ]);
                 // console.log(obj.x,obj.y)
+                // phi.blit(obj)
 
                 if (!obj.img){
                     if (window.playerId == ntt.id){
-                        obj = ntt.motion.render([880,295],{Rk:rightKey,Lk:leftKey,isMv:isMove})
+                        obj = ntt.motion.render([
+                            obj.x,
+                            obj.y
+                        ],
+                        {
+                            Rk:rightKey,Lk:leftKey,isMv:isMove
+                        })
+
                     } else {
-                        obj = ntt.motion._devtest([obj.x,obj.y])
+                        obj = ntt.motion.render([
+                            obj.x,
+                            obj.y
+                        ],
+                        {
+                            
+                        })
+                        // obj = ntt.motion._devtest([obj.x,obj.y])
                     }
                 }
 
@@ -476,40 +493,30 @@ phi.loop(() => {
                 //#endregion        
             
             }
+            if (cameraRun){
+                cameraMove(
+                    ((-moveX) - cameraX) / 1,
+                    ((-moveY) - cameraY) / 1,
+                )
+            }    
 
-            // #region 카메라 움직임제어
-            cameraMove(
-                (moveL - moveR),
-                (moveU - moveD),
-            )
-            // if (cameraRun){
-            //     cameraMove(
-            //         ((-moveX) - cameraX) / 1,
-            //         ((-moveY) - cameraY) / 1,
-            //     )
-            // }    
-            // #endregion
-            
-
-
-            // #region 오브젝트 렌더링 우선순위 정리및 렌더링
             objSortList = objSortList.sort((a,b) => (a.y + a.height) - (b.y + b.height));
             for (let obj of objSortList){
                 phi.blit(obj);
-
             }
             objSortList = [];
-            // #endregion
-            
         }
 
+        for (const name in COBJ['game_main']){
+            let obj = COBJ['game_main'][name]
+            phi.blit(obj)
+        }
         phi.goto(pointerObj,mousePos)
         phi.blit(pointerObj)
+        break;
     }
 });
-
-
-document.addEventListener('mousemove',(e)=>{mousePos = [e.offsetX,e.offsetY]}); // 마우스좌표
+document.addEventListener('mousemove',(e)=>{mousePos = [e.offsetX/phi.screenRatio,e.offsetY/phi.screenRatio]}); // 마우스좌표
 document.addEventListener('mousedown',(e) => {click = true}); // 클릭
 document.addEventListener('keydown',(e)=>{ // 움직임(누르기)
     if (e.key == 'w' || e.key == 'W')upKey = true;
@@ -524,6 +531,7 @@ document.addEventListener('keyup',(e)=>{// 움직임(뗴기)
     if(e.key == 's' || e.key == 'S') downKey = false;
     if(e.key == 'd' || e.key == 'D') rightKey = false;
     if(e.key == 'e' || e.key == 'E') interaction = false;
-
 })
+
+
 })();

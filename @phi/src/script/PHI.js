@@ -237,7 +237,7 @@ export class PHI {
             const x2 = obj_.x + obj_.width;
             const y2 = obj_.y + obj_.height;
             obj_.vertex = [x1, y1,x2, y1,x1, y2,x1, y2,x2, y1,x2, y2]
-            // return obj_
+            
         } else {
             const obj = {
                 ...obj_,
