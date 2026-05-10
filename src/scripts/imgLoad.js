@@ -1,4 +1,4 @@
-export const IMG = { // 게임내의 모든 이미지저장
+window.IMG = { // 게임내의 모든 이미지저장
     MOUSE : await phi.imgLoad("src/img/mouse/0.png"),
     GROUND : {
         0 : await phi.imgLoad("src/img/ground/0.png"),

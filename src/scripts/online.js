@@ -1,4 +1,6 @@
 import {paperSignal} from "../../@paperSignal/src/script/paperSignal.js"
+import './game.js'
+// import './entity.js'
 
 (async () => {
     window.paper = new paperSignal();
@@ -7,23 +9,14 @@ import {paperSignal} from "../../@paperSignal/src/script/paperSignal.js"
     window.clientId = ''// 클라이언트 고요 ID
     window.join = false
     await paper.connect('ws://localhost:8080');
-
-
-
     paper.recv((recvData)=>{
         const TYPE = recvData.type // type은 무조건 받음.
         const DATA = recvData.data
         
-        // console.log(recvData)
-
-
         switch(TYPE){
             case('chunckData'):{ // 게임내의 청크데이터 불러오기
                 const chunckId = DATA.chunckId;
                 window.MAP_DATA[chunckId] = DATA.data;
-                // console.log(recvData['data'])
-                // reqeustChunckId.pop(chunckId);
-                // console.log(window.MAP_DATA[chunckId])
                 break;
             }
             case('playerJoin'):{ // 플레이어가 참가했을때 최초로 실행되는 코드
@@ -61,17 +54,19 @@ import {paperSignal} from "../../@paperSignal/src/script/paperSignal.js"
                 // 보장되어야 하는 명령
                 const EDIT = DATA.edit;
                 const ID = DATA.id;
+                
                 for (let editType of EDIT){
                     if (editType == 'pos'){
-                        try{
-                            const playerEntity = window.entity.getAll()[ID];
-                            playerEntity.pos = DATA.pos;
-                            
-                        } catch {
-                            // 위치데이터 오류시 예외처리
-                            // 허나 위치는 조금 누락되어도 상관없어서 딱히? 처리할필요 없다
+                        if (ID != playerId){
+                            entity.editEntity(ID,'pos',DATA.pos)
+                            // try{
+                            //     // console.log('⭐성공')
+                            // } catch {
+                            //     console.log(entity.get(ID))
+                            // }
                         }
-                    
+                            
+
                     }
                     // elif 써서 다른 데이터 처리하기
                 }
@@ -90,21 +85,26 @@ import {paperSignal} from "../../@paperSignal/src/script/paperSignal.js"
                 const id = DATA.id
                 const tileData = DATA.tileData
                 const chunkId = `${id[0]},${id[1]}`
-                
-                
-                // console.log(tile)
                 MAP_DATA[chunkId][id[2]] = tileData
-                
-
-
-                // console.log(MAP_DATA[chunkId][id[2]])
-                // console.log(MAP_DATA[chunkId])
                 break;
+            }
+            case('entitySpwan'):{
+                const name = DATA.name
+                const id = DATA.id
+                const pos = DATA.pos
+                const tag = DATA.tag
+                const type = DATA.type
+                let renderObj = null
+                
+                if (type == 'bullet'){
+                    renderObj = window.IMG.ITEM['apple']
+                }
+                window.entity.newEntity(
+                    type,name,pos,{},tag,id,renderObj
+                ); 
             }
         }
 
-        
-        
     })
 
 })(); 

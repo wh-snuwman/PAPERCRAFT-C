@@ -1,7 +1,7 @@
 import "./phiInit.js" // webgl2 기반 그래픽조정  모듈
-import { IMG } from "./imgLoad.js" // webgl2 기반 그래픽조정  모듈
+import "./imgLoad.js" // webgl2 기반 그래픽조정  모듈
+import "./online.js" // webgl2 기반 그래픽조정  모듈
 import { entitySys } from "./entity.js" // webgl2 기반 그래픽조정  모듈
-// import "./online.js" // webgl2 기반 그래픽조정  모듈
 
 (async () => {
 
@@ -256,10 +256,8 @@ phi.loop(() => {
     } else {
         isMove = false
     }
-
     phi.fill(255,255,255);
-
-    switch (SCENE){ // 스위치 케이스 문을 사용하여 장면나누기
+    switch (SCENE){ // 스위치 케이스 문을 사용하여 d장면나누기
         case 'menu_start' : {// 접속시 첫메뉴s
             for (const name in COBJ['menu_start']){
                 let obj = COBJ['menu_start'][name]
@@ -352,27 +350,19 @@ phi.loop(() => {
                             //     'itemType':'log',
                             //     'itemPos':[obj.x+obj.width/2- cameraAdjX+moveX,obj.y+obj.height/2 - cameraAdjY+moveY],
                             //     // 'itemPos':[moveX+mousePos[0]*phi.screenRatio - cameraAdjX,moveY+mousePos[1]*phi.screenRatio - cameraAdjY],
-                            // }})
-                            // paper.send({type:"entitySpwan",data:{
-                            //     'entityType':'bullet',
-                            //     'entityPos':[obj.x+obj.width/2- cameraAdjX+moveX,obj.y+obj.height/2 - cameraAdjY+moveY],
-                            //     'entityDirection': 45
+                            // }})  
+                            
+                            
+                            // paper.send({type:"tileEdit",data:{
+                            //     'mode':'build',
+                            //     'id':TINF.id,
+                            //     'tile':3,
                             //     // 'itemPos':[moveX+mousePos[0]*phi.screenRatio - cameraAdjX,moveY+mousePos[1]*phi.screenRatio - cameraAdjY],
                             // }})
-                            
-                            
-                            paper.send({type:"tileEdit",data:{
-                                'mode':'build',
-                                'id':TINF.id,
-                                'tile':3,
-                                // 'itemPos':[moveX+mousePos[0]*phi.screenRatio - cameraAdjX,moveY+mousePos[1]*phi.screenRatio - cameraAdjY],
-                            }})
                             
                         }
                     }
             
-                    
-                    
                     const TILE_DATA = MAP_DATA[String(TINF.chunckId)][TINF.innerChunckId]; // 진짜 맵데이터
                     // console.log(TILE_DATA)
                     const TILE = MAP_DATA_TRANSLATOR[TILE_DATA.tile]; // (정수x) 엔티티 이름 문자열
@@ -393,9 +383,7 @@ phi.loop(() => {
                         } 
                     }
 
-                    if (TINF.TILE == 4){
-                        console.log('asd')
-                    }
+
                     // ============================ DEV ============================  //
 
                 } else {
@@ -419,11 +407,12 @@ phi.loop(() => {
                     if (window.playerId == ntt.id){obj = ntt.motion.render([obj.x,obj.y],{Rk:rightKey,Lk:leftKey,isMv:isMove})} 
                     else {obj = ntt.motion.render([obj.x,obj.y],{})}
                 }
-                if (ntt.type == 'item'){
-                    // console.log(obj)
+
+                if (ntt.type == 'bullet'){
+                    // console.log(obj.x,obj.y)
                 }
-                
                 sortRender(obj)
+                // phi.blit(obj)
             
 
                 if (window.playerId == ntt.id){
@@ -433,6 +422,21 @@ phi.loop(() => {
                         'type':'playerData',
                         'data':{edit:["pos"],'pos':[moveX,moveY]}
                     }) 
+                    if (click_l){
+
+                        const centerX = obj.x+obj.width/2- cameraAdjX+moveX + (obj.width / 2);
+                        const centerY = obj.y+obj.height/2 - cameraAdjY+moveY + (obj.height / 2);
+
+                        const dx = mousePos[0]*phi.screenRatio - centerX;
+                        const dy = mousePos[1]*phi.screenRatio - centerY;
+                        const rad = Math.atan2(dy, dx);
+                        let deg = (rad * (180 / Math.PI) + 360) % 360;
+                        paper.send({type:"entitySpwan",data:{
+                            'entityType':'bullet',
+                            'entityPos':[centerX,centerY],
+                            'entityDirection': deg
+                        }})
+                    }
                 }
             }
 
@@ -444,7 +448,7 @@ phi.loop(() => {
             }    
 
             
-
+            
 
 
 
