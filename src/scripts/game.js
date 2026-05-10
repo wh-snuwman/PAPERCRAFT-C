@@ -1,5 +1,7 @@
+import "./phiInit.js" // webgl2 기반 그래픽조정  모듈
 import { IMG } from "./imgLoad.js" // webgl2 기반 그래픽조정  모듈
 import { entitySys } from "./entity.js" // webgl2 기반 그래픽조정  모듈
+// import "./online.js" // webgl2 기반 그래픽조정  모듈
 
 (async () => {
 
@@ -62,9 +64,8 @@ function tileRelaod(tile){ // 게임내의 시스템에서 사용하는 타일�
 function mod(n, m){return ((n % m) + m) % m;}// % 보정함수. 나머지가 음수여도 다시양수로 변환.ex) (-1 % 5 = -1 [x]) => (-1 % 5 = 4 [o])
 
 let mousePos = [0,0]; // 마우스좌표
-let click_l = true; // 클릭여부(한번)
-let click_r = true; // 클릭여부(한번)
-
+let click_l = false; // 클릭여부(한번)
+let click_r = false; // 클릭여부(한번)
 let upKey = false;
 let leftKey= false;
 let downKey = false;
@@ -179,7 +180,7 @@ window.motion = class {
     }
 }
 
-//#region 타일맵 생성
+// 타일맵 생성
 function  tileRelocation(){
     window.TILE = []
     cameraAdjX = ((phi.width-tileSize+(1920*(1-phi.screenRatio))) / 2) // 카메라 위치조정
@@ -210,12 +211,10 @@ function  tileRelocation(){
     }
 } 
 tileRelocation()
-//#endregion
 
-//#region 정렬렌더링 초기화
+// 정렬렌더링 초기화
 let objSortList = []
 function sortRender(obj){objSortList.push(obj)}
-//#endregion
 
 window.entity = new entitySys();
 
@@ -229,10 +228,25 @@ function cameraMove(x,y){
 }
 
 let pointerObj = phi.obj(IMG.MOUSE,[0,0]) // 게임전용 포인터 지정
+let tileSelecterObj = [
+    phi.reSizeBy(phi.obj(IMG.UI.tile_selecter_up,[0,0]),tileSize/IMG.UI.tile_selecter_up.width),
+    phi.reSizeBy(phi.obj(IMG.UI.tile_selecter_down,[0,0]),tileSize/IMG.UI.tile_selecter_down.width),
+]
+
+function renderTileSlecter(pos) {
+    phi.goto(tileSelecterObj[0],pos)
+    phi.goto(tileSelecterObj[1],[pos[0],pos[1]+tileSize/2 -  3])
+    phi.blit(tileSelecterObj[0])
+    phi.blit(tileSelecterObj[1])
+}
+
+
+
 // document.body.style.cursor = "none";// 마우스 숨기기
 paper.send({'type':'loadComplete'});
 // 기본적인 모든 로드가 끝났을때(이미지소스x,객체시스템o)
-//서버에 보내주는 데이터
+
+
 let test = 0;
 
 
@@ -327,10 +341,40 @@ phi.loop(() => {
                     // 최적화 모드를 켰을때만 작동  
                     if (!renderLimitUse || renderLimitDistant > phi.distanceGetObj(obj,phi.obj(null,[phi.width/2,phi.height/2],[0,0]))){
                         phi.blit(obj); // 기본 바닥
-                        // phi.text(`${TINF.id}`,[obj.x+(obj.width/2) - 40,obj.y+(obj.height/2)],`${20*phi.screenRatio}px`,null,'center');
+                        phi.text(`${TINF.TILE}`,[obj.x+(obj.width/2) - 40,obj.y+(obj.height/2)],`${20*phi.screenRatio}px`,null,'center');
+                        // console.log(TINF)
                     }
+
+                    if (phi.isEncounterPos(obj,mousePos)){
+                        renderTileSlecter([obj.x,obj.y])
+                        if (click_l){
+                            // paper.send({type:"itemSpwan",data:{
+                            //     'itemType':'log',
+                            //     'itemPos':[obj.x+obj.width/2- cameraAdjX+moveX,obj.y+obj.height/2 - cameraAdjY+moveY],
+                            //     // 'itemPos':[moveX+mousePos[0]*phi.screenRatio - cameraAdjX,moveY+mousePos[1]*phi.screenRatio - cameraAdjY],
+                            // }})
+                            // paper.send({type:"entitySpwan",data:{
+                            //     'entityType':'bullet',
+                            //     'entityPos':[obj.x+obj.width/2- cameraAdjX+moveX,obj.y+obj.height/2 - cameraAdjY+moveY],
+                            //     'entityDirection': 45
+                            //     // 'itemPos':[moveX+mousePos[0]*phi.screenRatio - cameraAdjX,moveY+mousePos[1]*phi.screenRatio - cameraAdjY],
+                            // }})
+                            
+                            
+                            paper.send({type:"tileEdit",data:{
+                                'mode':'build',
+                                'id':TINF.id,
+                                'tile':3,
+                                // 'itemPos':[moveX+mousePos[0]*phi.screenRatio - cameraAdjX,moveY+mousePos[1]*phi.screenRatio - cameraAdjY],
+                            }})
+                            
+                        }
+                    }
+            
+                    
                     
                     const TILE_DATA = MAP_DATA[String(TINF.chunckId)][TINF.innerChunckId]; // 진짜 맵데이터
+                    // console.log(TILE_DATA)
                     const TILE = MAP_DATA_TRANSLATOR[TILE_DATA.tile]; // (정수x) 엔티티 이름 문자열
                     if (TILE != null){
                         if (TINF.TILE == TILE_DATA.tile){
@@ -346,9 +390,11 @@ phi.loop(() => {
                         ])
                         if (!renderLimitUse || renderLimitUse && renderLimitDistant > phi.distanceGetObj(TINF.TILEOBJ,phi.obj(null,[phi.width/2,phi.height/2],[0,0]))){
                             sortRender(TINF.TILEOBJ);
-                        }
+                        } 
+                    }
 
-                        
+                    if (TINF.TILE == 4){
+                        console.log('asd')
                     }
                     // ============================ DEV ============================  //
 
@@ -373,11 +419,12 @@ phi.loop(() => {
                     if (window.playerId == ntt.id){obj = ntt.motion.render([obj.x,obj.y],{Rk:rightKey,Lk:leftKey,isMv:isMove})} 
                     else {obj = ntt.motion.render([obj.x,obj.y],{})}
                 }
+                if (ntt.type == 'item'){
+                    // console.log(obj)
+                }
                 
                 sortRender(obj)
-                
-                
-
+            
 
                 if (window.playerId == ntt.id){
                     //#region 데이터송신 및 세부설정
@@ -396,12 +443,7 @@ phi.loop(() => {
                 )
             }    
 
-            if (click_l){
-                paper.send({type:"itemSpwan",data:{
-                    'itemType':0,
-                    'itemPos':[moveX,moveY],
-                }})
-            }
+            
 
 
 

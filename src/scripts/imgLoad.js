@@ -1,12 +1,19 @@
 export const IMG = { // 게임내의 모든 이미지저장
+    MOUSE : await phi.imgLoad("src/img/mouse/0.png"),
     GROUND : {
         0 : await phi.imgLoad("src/img/ground/0.png"),
         1 : await phi.imgLoad("src/img/ground/1.png"),
         2 : await phi.imgLoad("src/img/ground/2.png"),
         3 : await phi.imgLoad("src/img/ground/3.png"),
-        // 4 : await phi.imgLoad("src/img/ground/4.png"),
     },
-    MOUSE : await phi.imgLoad("src/img/mouse/0.png"),
+    ITEM:{
+        log : await phi.imgLoad("src/img/entity/item/log.png"),
+        apple : await phi.imgLoad("src/img/entity/item/apple.png"),
+        plank : await phi.imgLoad("src/img/entity/item/plank.png"),
+        // log : await phi.imgLoad("src/img/entity/item/log.png"),
+
+    },
+
     UI : {
         common_cancel : await phi.imgLoad("src/img/ui/common_cancel.png"),
         common_checkbox_off : await phi.imgLoad("src/img/ui/common_checkbox_off.png"),
@@ -18,6 +25,9 @@ export const IMG = { // 게임내의 모든 이미지저장
         player_state : await phi.imgLoad("src/img/ui/player_state.png"),
         player_inventory_select : await phi.imgLoad("src/img/ui/player_inventory_select.png"),
         player_inventory : await phi.imgLoad("src/img/ui/player_inventory.png"),
+
+        tile_selecter_up : await phi.imgLoad("src/img/ui/tile_selecter_up.png"),
+        tile_selecter_down : await phi.imgLoad("src/img/ui/tile_selecter_down.png"),
         // 메인메뉴용 UI
     },
     TILE : {

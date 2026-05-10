@@ -1,7 +1,8 @@
+import { IMG } from "./imgLoad.js" // webgl2 기반 그래픽조정  모듈
+
 export class entitySys { 
     constructor() {
-        // 엔티티 시스템에서 엔티티(객체)의 데이터를 저장
-        this.allEntity = {} 
+        this.allEntity = {} // 엔티티 시스템에서 엔티티(객체)의 데이터를 저장
     }
     newEntity(type_,name_,pos_,motion_,tag_,id_){
         const e = {
@@ -16,6 +17,24 @@ export class entitySys {
         this.allEntity[id_] = e;
         return e;
     }
+
+    newItem(type_,pos_,id_){
+        // console.log(IMG)
+        // console.log(type_)
+        const obj = phi.obj(IMG.ITEM[type_],[0,0],null)
+        const e = {
+            type:'item', 
+            name:null,
+            pos:pos_,
+            motion:null,
+            tag:{'itemType':type_},
+            id:id_,
+            renderObj:obj,
+        }
+        this.allEntity[id_] = e;
+        return e;
+    }
+
     editEntity(id,editType,data){ // 엔티티 렌더링
         this.allEntity[id].editType = data
     }

@@ -19,9 +19,11 @@ import {paperSignal} from "../../@paperSignal/src/script/paperSignal.js"
 
         switch(TYPE){
             case('chunckData'):{ // 게임내의 청크데이터 불러오기
-                const chunckId = recvData['data2'];
-                window.MAP_DATA[chunckId] = recvData['data'];
-                reqeustChunckId.pop(chunckId);
+                const chunckId = DATA.chunckId;
+                window.MAP_DATA[chunckId] = DATA.data;
+                // console.log(recvData['data'])
+                // reqeustChunckId.pop(chunckId);
+                // console.log(window.MAP_DATA[chunckId])
                 break;
             }
             case('playerJoin'):{ // 플레이어가 참가했을때 최초로 실행되는 코드
@@ -32,7 +34,7 @@ import {paperSignal} from "../../@paperSignal/src/script/paperSignal.js"
                 if (recvData.me){
                     playerId = id
                     join = true
-                }
+                } 
 
                 let n = new window.motion()
                 window.entity.newEntity(
@@ -44,7 +46,7 @@ import {paperSignal} from "../../@paperSignal/src/script/paperSignal.js"
                 // DATA = entity(player) id
                 window.entity.removeEntity(DATA)
                 break;
-            }
+            } 
             case('loadComplete'):{ // 게임내에서 완전히 로딩이 끝나면 수신받는 명령
                 clientId = DATA.objid
                 startLoadFinish = true;
@@ -76,13 +78,28 @@ import {paperSignal} from "../../@paperSignal/src/script/paperSignal.js"
                 break;
             }
             case("itemSpwan"):{
-                console.log('asde')
-                const itmeType = DATA.itmeType
+                const itemType = DATA.itemType
                 const itemPos = DATA.itemPos
                 const itemId = DATA.itemId
-                entity.newEntity('item','None',itemPos,null,{},itemId)
+                window.entity.newItem(itemType,itemPos,itemId)
+                console.log(itemPos)
+                break;
+            }
+            case("tileEdit"):{
+                const mode = DATA.mode
+                const id = DATA.id
+                const tileData = DATA.tileData
+                const chunkId = `${id[0]},${id[1]}`
+                
+                
+                // console.log(tile)
+                MAP_DATA[chunkId][id[2]] = tileData
+                
 
 
+                // console.log(MAP_DATA[chunkId][id[2]])
+                // console.log(MAP_DATA[chunkId])
+                break;
             }
         }
 
@@ -90,4 +107,10 @@ import {paperSignal} from "../../@paperSignal/src/script/paperSignal.js"
         
     })
 
-})();
+})(); 
+
+document.addEventListener('keydown',(e)=>{
+    if (e.key == 'a'){
+        // console.log(MAP_DATA)
+    }
+})
