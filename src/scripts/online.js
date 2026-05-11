@@ -9,6 +9,7 @@ import './game.js'
     window.clientId = ''// 클라이언트 고요 ID
     window.join = false
     await paper.connect('ws://localhost:8080');
+
     paper.recv((recvData)=>{
         const TYPE = recvData.type // type은 무조건 받음.
         const DATA = recvData.data
@@ -36,7 +37,9 @@ import './game.js'
                 break;
             }
             case('playerLeft'):{
-                // DATA = entity(player) id
+                if (DATA == window.playerId){
+                    window.location.reload()   
+                }
                 window.entity.removeEntity(DATA)
                 break;
             } 
@@ -103,6 +106,10 @@ import './game.js'
                     type,name,pos,{},tag,id,renderObj
                 ); 
             }
+            case('entityRemove'):{
+                window.entity.removeEntity(DATA)
+                break;
+            } 
         }
 
     })
