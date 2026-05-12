@@ -47,8 +47,12 @@ window.IMG = { // 게임내의 모든 이미지저장
     PLAYER : {
         0 : await phi.imgLoad("src/img/entity/player/basic/0.png"),
         1 : await phi.imgLoad("src/img/entity/player/basic/1.png"),
-        2 : await phi.imgLoad("src/img/entity/player/basic/2.png"),
-        3 : await phi.imgLoad("src/img/entity/player/basic/3.png"),
+        2 : await phi.imgLoad("src/img/entity/player/grab/0.png"),
+        3 : await phi.imgLoad("src/img/entity/player/grab/1.png"),
+        4 : await phi.imgLoad("src/img/entity/player/punch/0.png"),
+        5 : await phi.imgLoad("src/img/entity/player/punch/1.png"),
+        6 : await phi.imgLoad("src/img/entity/player/attack/0.png"),
+        7 : await phi.imgLoad("src/img/entity/player/attack/1.png"),
 
     }
     

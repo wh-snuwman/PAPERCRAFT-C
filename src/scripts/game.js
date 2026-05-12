@@ -422,24 +422,21 @@ phi.loop(() => {
                         'type':'playerData',
                         'data':{edit:["pos"],'pos':[moveX,moveY]}
                     }) 
-                    if (click_l){
-                       
-
-                            
-                            const centerX = obj.x+obj.width/2- cameraAdjX+moveX + (obj.width / 2);
-                            const centerY = obj.y+obj.height/2 - cameraAdjY+moveY + (obj.height / 2);
-    
-                            const dx = mousePos[0]*phi.screenRatio - centerX;
-                            const dy = mousePos[1]*phi.screenRatio - centerY;
-                            const rad = Math.atan2(dy, dx);
-                            let deg = (rad * (180 / Math.PI) + 360) % 360;
-                            paper.send({type:"entitySpwan",data:{
-                                'entityType':'bullet',
-                                'entityPos':[centerX,centerY],
-                                'entityDirection': deg
-                            }})
-                        
+                    if (upKey || downKey || rightKey || leftKey){
+                        const centerX = obj.x+obj.width/2- cameraAdjX+moveX + (obj.width / 2);
+                        const centerY = obj.y+obj.height/2 - cameraAdjY+moveY + (obj.height / 2);
+                        const dx = mousePos[0]*phi.screenRatio - centerX;
+                        const dy = mousePos[1]*phi.screenRatio - centerY;
+                        const rad = Math.atan2(dy, dx);
+                        let deg = (rad * (180 / Math.PI) + 360) % 360;
+                        paper.send({type:"entitySpwan",data:{
+                            'entityType':'bullet',
+                            'entityPos':[centerX,centerY],
+                            'entityDirection': deg
+                        }})
                     }
+
+
                 }
             }
 

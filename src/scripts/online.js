@@ -13,7 +13,6 @@ import './game.js'
     paper.recv((recvData)=>{
         const TYPE = recvData.type // type은 무조건 받음.
         const DATA = recvData.data
-        
         switch(TYPE){
             case('chunckData'):{ // 게임내의 청크데이터 불러오기
                 const chunckId = DATA.chunckId;
