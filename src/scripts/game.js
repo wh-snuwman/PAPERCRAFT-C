@@ -243,7 +243,7 @@ function renderTileSlecter(pos) {
 
 
 // document.body.style.cursor = "none";// 마우스 숨기기
-paper.send({'type':'loadComplete'});
+paper.send('loadComplete',{});
 // 기본적인 모든 로드가 끝났을때(이미지소스x,객체시스템o)
 
 
@@ -387,10 +387,10 @@ phi.loop(() => {
                     // ============================ DEV ============================  //
 
                 } else {
-                    window.paper.send({ // 데이터 요청
-                        "type":"noChunkData",
-                        "data":String(TINF.chunckId)
-                    })
+                    window.paper.send( // 데이터 요청
+                        "noChunkData",
+                        String(TINF.chunckId)
+                    )
                     reqeustChunckId.push(String(TINF.chunckId)) // 중복요청 방지
                 }
             }
@@ -418,10 +418,10 @@ phi.loop(() => {
                 if (window.playerId == ntt.id){
                     //#region 데이터송신 및 세부설정
                     ntt.pos = [moveX,moveY]
-                    window.paper.send({
-                        'type':'playerData',
-                        'data':{edit:["pos"],'pos':[moveX,moveY]}
-                    }) 
+                    window.paper.send(
+                        'playerData',
+                        {edit:["pos"],'pos':[moveX,moveY]}
+                    ) 
                     if (upKey || downKey || rightKey || leftKey){
                         const centerX = obj.x+obj.width/2- cameraAdjX+moveX + (obj.width / 2);
                         const centerY = obj.y+obj.height/2 - cameraAdjY+moveY + (obj.height / 2);
@@ -429,11 +429,14 @@ phi.loop(() => {
                         const dy = mousePos[1]*phi.screenRatio - centerY;
                         const rad = Math.atan2(dy, dx);
                         let deg = (rad * (180 / Math.PI) + 360) % 360;
-                        paper.send({type:"entitySpwan",data:{
+                        paper.send(
+                            "entitySpwan",
+                            {
                             'entityType':'bullet',
                             'entityPos':[centerX,centerY],
                             'entityDirection': deg
-                        }})
+                            }   
+                        )
                     }
 
 

@@ -1,22 +1,29 @@
-import {paperSignal} from "../../@paperSignal/src/script/paperSignal.js"
+import {wingAPI} from "../../wingAPI/src/script/wingAPI.js"
 import './game.js'
 // import './entity.js'
 
 (async () => {
-    window.paper = new paperSignal();
+    window.paper = new wingAPI();
     window.startLoadFinish = false // 게임파일의 완전한 로딩 끝남 여부
     window.playerId = ''//  내 아이디 
     window.clientId = ''// 클라이언트 고요 ID
     window.join = false
-    await paper.connect('ws://localhost:8080');
+    await paper.connect('localhost',1111);
+
+    paper.signup('hello','12341234')
+    paper.login('hello','12341234')
+
 
     paper.recv((recvData)=>{
-        const TYPE = recvData.type // type은 무조건 받음.
+        const TYPE = recvData.code // type은 무조건 받음.
         const DATA = recvData.data
+
         switch(TYPE){
             case('chunckData'):{ // 게임내의 청크데이터 불러오기
                 const chunckId = DATA.chunckId;
-                window.MAP_DATA[chunckId] = DATA.data;
+                window.MAP_DATA[ chunckId] = DATA.data;
+                // console.log(DATA)
+
                 break;
             }
             case('playerJoin'):{ // 플레이어가 참가했을때 최초로 실행되는 코드
@@ -45,10 +52,7 @@ import './game.js'
             case('loadComplete'):{ // 게임내에서 완전히 로딩이 끝나면 수신받는 명령
                 clientId = DATA.objid
                 startLoadFinish = true;
-                paper.send({
-                    "type":'playerJoin',
-                    'data':clientId,
-                })
+                paper.send('playerJoin',{id:clientId})
                 break;
             }   
             case("entityDataEdit"):{
@@ -109,6 +113,8 @@ import './game.js'
                 window.entity.removeEntity(DATA)
                 break;
             } 
+            break;
+
         }
 
     })
