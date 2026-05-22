@@ -10,9 +10,9 @@ export class wingAPI {
         this.isOpen = false;
         this.openPromise = null;
         this.useLog = false;
-
         this.nickname = null;
         this.isLogin = false;
+        // this.nickname = ''
     }
 
     async connect(domain,port){
@@ -95,6 +95,8 @@ export class wingAPI {
                 } else if (CODE_SYS == 'login'){
                     if (DATA.login){
                         this.log.Info("로그인완료:" + DATA.nickname)
+                        this.nickname = DATA.nickname
+                        this.isLogin = true
                     } else {
                         this.log.Info("로그인 실패. 계정이 없거나 비밀번호가 틀려렸습니다.")
                     }

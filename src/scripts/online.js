@@ -8,30 +8,34 @@ import './game.js'
     window.playerId = ''//  내 아이디 
     window.clientId = ''// 클라이언트 고요 ID
     window.join = false
+    window.isLogin = false
     await paper.connect('localhost',1111);
 
     paper.signup('hello','12341234')
     paper.login('hello','12341234')
 
-
     paper.recv((recvData)=>{
-        const TYPE = recvData.code // type은 무조건 받음.
+        const CODE = recvData.code // code은 무조건 받음.
         const DATA = recvData.data
 
-        switch(TYPE){
-            case('chunckData'):{ // 게임내의 청크데이터 불러오기
-                const chunckId = DATA.chunckId;
-                window.MAP_DATA[ chunckId] = DATA.data;
-                // console.log(DATA)
+        // if (CODE != 'chunkData') {
+        //     console.log(CODE,DATA)
+        // }
+
+        switch(CODE){
+            case('chunkData'):{ // 게임내의 청크데이터 불러오기
+                const chunkId = DATA.chunkId;
+                window.MAP_DATA[ chunkId] = DATA.data;
 
                 break;
             }
             case('playerJoin'):{ // 플레이어가 참가했을때 최초로 실행되는 코드
-                const name = DATA.name
-                const id = DATA.id
-                const pos = DATA.pos
-                const tag = DATA.tag
-                if (recvData.me){
+                const name = DATA.ntt.name
+                const id = DATA.ntt.id
+                const pos = DATA.ntt.pos
+                const tag = DATA.ntt.tag
+                // console.log(DATA.ntt)
+                if (DATA.me){
                     playerId = id
                     join = true
                 } 
@@ -61,8 +65,8 @@ import './game.js'
                 const EDIT = DATA.edit;
                 const ID = DATA.id;
                 
-                for (let editType of EDIT){
-                    if (editType == 'pos'){
+                for (let editCODE of EDIT){
+                    if (editCODE == 'pos'){
                         if (ID != playerId){
                             entity.editEntity(ID,'pos',DATA.pos)
                             // try{
@@ -79,11 +83,11 @@ import './game.js'
                 break;
             }
             case("itemSpwan"):{
-                const itemType = DATA.itemType
+                const itemCODE = DATA.itemCODE
                 const itemPos = DATA.itemPos
                 const itemId = DATA.itemId
-                window.entity.newItem(itemType,itemPos,itemId)
-                console.log(itemPos)
+                window.entity.newItem(itemCODE,itemPos,itemId)
+                // console.log(itemPos)
                 break;
             }
             case("tileEdit"):{
@@ -99,14 +103,14 @@ import './game.js'
                 const id = DATA.id
                 const pos = DATA.pos
                 const tag = DATA.tag
-                const type = DATA.type
+                const code = DATA.code
                 let renderObj = null
                 
-                if (type == 'bullet'){
+                if (code == 'bullet'){
                     renderObj = window.IMG.ITEM['apple']
                 }
                 window.entity.newEntity(
-                    type,name,pos,{},tag,id,renderObj
+                    code,name,pos,{},tag,id,renderObj
                 ); 
             }
             case('entityRemove'):{

@@ -92,7 +92,7 @@ let cameraY = 0;
 
 // 모든맵데이터 저장
 window.MAP_DATA = {}
-window.reqeustChunckId=[] // 데이터 요청을 보낸 청크아이디(중복요청 방지)
+window.reqeustChunkId=[] // 데이터 요청을 보낸 청크아이디(중복요청 방지)
 
 window.TILE = []; // 타일객체 저장
 let smooth = 0.9 // 움직임 보정용(부드럽기)
@@ -200,8 +200,8 @@ function  tileRelocation(){
                 ),
                 horNum:i,//가로줄 
                 verNum:j,//세로줄
-                innerChunckId:0,
-                chunckId:[],
+                innerChunkId:0,
+                chunkId:[],
                 id:[],
                 Isblock:false, //일반 통과가능 여부
                 TILE:0, //타일종류
@@ -243,12 +243,10 @@ function renderTileSlecter(pos) {
 
 
 // document.body.style.cursor = "none";// 마우스 숨기기
-paper.send('loadComplete',{});
+paper.send('loadComplete',{'nickname':paper.nickname});
 // 기본적인 모든 로드가 끝났을때(이미지소스x,객체시스템o)
 
-
 let test = 0;
-
 
 phi.loop(() => {
     if (rightKey || leftKey || upKey || downKey) {
@@ -309,9 +307,9 @@ phi.loop(() => {
                 phi.moveY(obj,moveUc); // 실제 이동량 적용
                 phi.moveX(obj,-moveRc); // 실제 이동량 적용
 
-                TINF.innerChunckId = mod(TINF.verNum,chunkSize) * chunkSize + mod(TINF.horNum, chunkSize) // 타일이 속한 청크내에서의 ID
-                TINF.chunckId = [Math.floor(TINF.horNum / chunkSize),Math.floor(TINF.verNum / chunkSize)] // 타일이 속한 청크의 ID
-                TINF.id = [TINF.chunckId[0],TINF.chunckId[1],TINF.innerChunckId] // 타일의 ID. 리스트 형대로 저장되고 [<청크내애서의_아이디1>,<청크내애서의_아이디2>,<청크>]
+                TINF.innerChunkId = mod(TINF.verNum,chunkSize) * chunkSize + mod(TINF.horNum, chunkSize) // 타일이 속한 청크내에서의 ID
+                TINF.chunkId = [Math.floor(TINF.horNum / chunkSize),Math.floor(TINF.verNum / chunkSize)] // 타일이 속한 청크의 ID
+                TINF.id = [TINF.chunkId[0],TINF.chunkId[1],TINF.innerChunkId] // 타일의 ID. 리스트 형대로 저장되고 [<청크내애서의_아이디1>,<청크내애서의_아이디2>,<청크>]
                 // 타일이 화면 끝에 있을때 반대쪽화면으로 이동 하는 코드
                 if (obj.x > (horTileCount*tileSize) + adjX){
                     phi.moveX(obj,-horTileCount*tileSize)
@@ -331,10 +329,10 @@ phi.loop(() => {
                     tileRelaod(TINF) 
                 }  
                 // #endregion
-                // TINF.innerChunckId // 타일이 속한 청크내에서의 ID
-                // TINF.chunckId // 타일이 속한 청크의 ID
+                // TINF.innerChunkId // 타일이 속한 청크내에서의 ID
+                // TINF.chunkId // 타일이 속한 청크의 ID
                 // TINF.id // 타일의 ID. 리스트 형대로 저장되고 [<청크내애서의_아이디1>,<청크내애서의_아이디2>,<청크>]
-                if (String(TINF.chunckId) in MAP_DATA){ // 청크데이터가 있는지 확인
+                if (String(TINF.chunkId) in MAP_DATA){ // 청크데이터가 있는지 확인
 
                     // 최적화 모드를 켰을때만 작동  
                     if (!renderLimitUse || renderLimitDistant > phi.distanceGetObj(obj,phi.obj(null,[phi.width/2,phi.height/2],[0,0]))){
@@ -363,7 +361,7 @@ phi.loop(() => {
                         }
                     }
             
-                    const TILE_DATA = MAP_DATA[String(TINF.chunckId)][TINF.innerChunckId]; // 진짜 맵데이터
+                    const TILE_DATA = MAP_DATA[String(TINF.chunkId)][TINF.innerChunkId]; // 진짜 맵데이터
                     // console.log(TILE_DATA)
                     const TILE = MAP_DATA_TRANSLATOR[TILE_DATA.tile]; // (정수x) 엔티티 이름 문자열
                     if (TILE != null){
@@ -389,15 +387,16 @@ phi.loop(() => {
                 } else {
                     window.paper.send( // 데이터 요청
                         "noChunkData",
-                        String(TINF.chunckId)
+                        String(TINF.chunkId)
                     )
-                    reqeustChunckId.push(String(TINF.chunckId)) // 중복요청 방지
+                    reqeustChunkId.push(String(TINF.chunkId)) // 중복요청 방지
                 }
             }
             // 엔티티 시스템
             for (let key in entity.allEntity){
                 let ntt = entity.allEntity[key];
                 let obj = ntt.renderObj;
+                // console.log(obj)
                 phi.goto(obj,[
                     ntt.pos[0] +(cameraAdjX+ cameraX),
                     ntt.pos[1] +(cameraAdjY+ cameraY)
