@@ -242,13 +242,16 @@ function renderTileSlecter(pos) {
 
 
 
-// document.body.style.cursor = "none";// 마우스 숨기기
-paper.send('loadComplete',{'nickname':paper.nickname});
-// 기본적인 모든 로드가 끝났을때(이미지소스x,객체시스템o)
-
-let test = 0;
+let connectTrigger_flag = false
+let test = true;
 
 phi.loop(() => {
+    if (!connectTrigger_flag && paper.nickname){
+        paper.send('playerJoin',{});
+        connectTrigger_flag = true
+    }
+
+
     if (rightKey || leftKey || upKey || downKey) {
         isMove = true
     } else {
@@ -410,7 +413,10 @@ phi.loop(() => {
                 if (ntt.type == 'bullet'){
                     // console.log(obj.x,obj.y)
                 }
+
+                // phi.goto(obj,[100,100])
                 sortRender(obj)
+                // console.log(obj)
                 // phi.blit(obj)
             
 
@@ -421,21 +427,25 @@ phi.loop(() => {
                         'playerData',
                         {edit:["pos"],'pos':[moveX,moveY]}
                     ) 
-                    if (upKey || downKey || rightKey || leftKey){
-                        const centerX = obj.x+obj.width/2- cameraAdjX+moveX + (obj.width / 2);
-                        const centerY = obj.y+obj.height/2 - cameraAdjY+moveY + (obj.height / 2);
-                        const dx = mousePos[0]*phi.screenRatio - centerX;
-                        const dy = mousePos[1]*phi.screenRatio - centerY;
-                        const rad = Math.atan2(dy, dx);
-                        let deg = (rad * (180 / Math.PI) + 360) % 360;
+                    if (click_l){
+                        const centerX = obj.x + moveX + (obj.width / 2) - cameraAdjX ;
+                        const centerY = obj.y + moveY + (obj.height / 2) - cameraAdjY;
+                        const mouseWorldX = (mousePos[0]) + moveX - cameraAdjX;
+                        const mouseWorldY = (mousePos[1]) + moveY - cameraAdjY;
+                        const dx =  centerX - mouseWorldX;
+                        const dy = centerY - mouseWorldY;
+                        const rad = (-1* Math.atan2(dy, dx))
+
+                        let deg = rad * (180 / Math.PI) - 90
+                        console.log(deg)
+
                         paper.send(
-                            "entitySpwan",
-                            {
-                            'entityType':'bullet',
-                            'entityPos':[centerX,centerY],
-                            'entityDirection': deg
-                            }   
-                        )
+                        "entitySpwan",
+                        {
+                        'entityType':'bullet',
+                        'entityPos':[centerX,centerY],
+                        'entityDirection': deg
+                        })
                     }
 
 
@@ -475,13 +485,13 @@ phi.loop(() => {
     if (click_r) click_r=false;
 
 });
-document.addEventListener('mousemove',(e)=>{mousePos = [e.offsetX/phi.screenRatio,e.offsetY/phi.screenRatio]}); // 마우스좌표
+document.addEventListener('mousemove',(e)=>{mousePos = [e.offsetX/phi.screenRatio*phi.dpr,e.offsetY/phi.screenRatio*phi.dpr]}); // 마우스좌표
 document.addEventListener('mousedown',(e) => { // 클릭
     if (e.button == 0)click_l = true;
     if (e.button == 2)click_r = true;
 });
 document.addEventListener('keydown',(e)=>{ // 움직임(누르기)
-    if (e.key == 'w' || e.key == 'W')upKey = true;
+    if (e.key == 'w' || e.key == 'W')upKey = true; test = false;
     if(e.key == 'a' || e.key == 'A') leftKey= true;
     if(e.key == 's' || e.key == 'S') downKey = true;
     if(e.key == 'd' || e.key == 'D') rightKey = true;

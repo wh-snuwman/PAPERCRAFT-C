@@ -39,7 +39,7 @@ export class entitySys {
         return e;
     }
 
-    editEntity(id,editType,data){ // 엔티티 렌더링
+    editEntity(id,editType,data){
         this.allEntity[id][editType] = data
     }
     removeEntity(id_){ // 엔티티 삭제

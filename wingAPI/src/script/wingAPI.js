@@ -80,6 +80,7 @@ export class wingAPI {
         const msgLoads = JSON.parse(recvdata.data)
         const CODE = msgLoads.code
         const DATA = msgLoads.data
+
         if (this.recvFn){
             if (this._isSysMsg(CODE)){
                 const CODE_SYS = this._SysMsgEdit(CODE)

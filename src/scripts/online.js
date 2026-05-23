@@ -1,6 +1,7 @@
 import {wingAPI} from "../../wingAPI/src/script/wingAPI.js"
+import "./imgLoad.js" // webgl2 기반 그래픽조정  모듈
 import './game.js'
-// import './entity.js'
+
 
 (async () => {
     window.paper = new wingAPI();
@@ -11,22 +12,19 @@ import './game.js'
     window.isLogin = false
     await paper.connect('localhost',1111);
 
-    paper.signup('hello','12341234')
-    paper.login('hello','12341234')
+    const tmep = (Math.random())
+    paper.signup(`${tmep}`,'12345')
+    paper.login(`${tmep}`,'12345')
+
 
     paper.recv((recvData)=>{
         const CODE = recvData.code // code은 무조건 받음.
         const DATA = recvData.data
 
-        // if (CODE != 'chunkData') {
-        //     console.log(CODE,DATA)
-        // }
-
         switch(CODE){
             case('chunkData'):{ // 게임내의 청크데이터 불러오기
                 const chunkId = DATA.chunkId;
                 window.MAP_DATA[ chunkId] = DATA.data;
-
                 break;
             }
             case('playerJoin'):{ // 플레이어가 참가했을때 최초로 실행되는 코드
@@ -34,7 +32,6 @@ import './game.js'
                 const id = DATA.ntt.id
                 const pos = DATA.ntt.pos
                 const tag = DATA.ntt.tag
-                // console.log(DATA.ntt)
                 if (DATA.me){
                     playerId = id
                     join = true
@@ -44,6 +41,7 @@ import './game.js'
                 window.entity.newEntity(
                     'player',name,pos,n,tag,id
                 ); 
+                
                 break;
             }
             case('playerLeft'):{
@@ -52,12 +50,11 @@ import './game.js'
                 }
                 window.entity.removeEntity(DATA)
                 break;
-            } 
-            case('loadComplete'):{ // 게임내에서 완전히 로딩이 끝나면 수신받는 명령
-                clientId = DATA.objid
-                startLoadFinish = true;
-                paper.send('playerJoin',{id:clientId})
-                break;
+             
+            // case('loadComplete'):{ // 게임내에서 완전히 로딩이 끝나면 수신받는 명령
+            //     startLoadFinish = true;
+            //     paper.send('playerJoin',{})
+            //     break;
             }   
             case("entityDataEdit"):{
                 // 엔티티의 부가적인 모든 데이터를 수정하기 위해 서버에서 받는 신뢰성이
@@ -68,15 +65,9 @@ import './game.js'
                 for (let editCODE of EDIT){
                     if (editCODE == 'pos'){
                         if (ID != playerId){
-                            entity.editEntity(ID,'pos',DATA.pos)
-                            // try{
-                            //     // console.log('⭐성공')
-                            // } catch {
-                            //     console.log(entity.get(ID))
-                            // }
+                            // console.log(DATA.pos)
+                            entity.editEntity(ID,'pos',[DATA.pos[0],DATA.pos[1]])
                         }
-                            
-
                     }
                     // elif 써서 다른 데이터 처리하기
                 }
@@ -103,14 +94,17 @@ import './game.js'
                 const id = DATA.id
                 const pos = DATA.pos
                 const tag = DATA.tag
-                const code = DATA.code
+                const type = DATA.type
                 let renderObj = null
                 
-                if (code == 'bullet'){
+                // console.log(DATA)
+
+                if (type == 'bullet'){
+                    // console.log(IMG.ITEM['apple'])
                     renderObj = window.IMG.ITEM['apple']
                 }
                 window.entity.newEntity(
-                    code,name,pos,{},tag,id,renderObj
+                    type,name,pos,{},tag,id,renderObj
                 ); 
             }
             case('entityRemove'):{
