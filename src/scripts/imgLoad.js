@@ -14,6 +14,10 @@ window.IMG = { // 게임내의 모든 이미지저장
 
     },
 
+    PAGE : {
+        error : await phi.imgLoad("src/img/page/error.png"),
+    },
+
     UI : {
         common_cancel : await phi.imgLoad("src/img/ui/common_cancel.png"),
         common_checkbox_off : await phi.imgLoad("src/img/ui/common_checkbox_off.png"),

@@ -1,7 +1,7 @@
 import "./phiInit.js" // webgl2 기반 그래픽조정  모듈
 import "./imgLoad.js" // webgl2 기반 그래픽조정  모듈
 import "./online.js" // webgl2 기반 그래픽조정  모듈
-import { entitySys } from "./entity.js" // webgl2 기반 그래픽조정  모듈
+import { EntitySys } from "./entity.js" // webgl2 기반 그래픽조정  모듈
 
 (async () => {
 
@@ -16,11 +16,12 @@ const MAP_DATA_TRANSLATOR = {
 
 }
 
-let SCENE = 'game_main'; // 현재장면
+window.SCENE = 'error'; // 현재장면
 
 const SCENE_LIST = [ // 모든 장면을 처음에 선언(장면사용시 필수)
     'menu_start','menu_main','menu_load',
-    'game_main'
+    'game_main',
+    'error'
 ]
 const SCENE_INF = {}// 장면전환,플래그등 장면에 대한 부가정보 저장
 for (let scene of SCENE_LIST){
@@ -39,6 +40,9 @@ let COBJ = { // Common OBJ. 자동으로 그려지고 위치가 조정되는 OBJ
     },
     "game_main":{
         invenObj : phi.obj(IMG.UI.player_inventory,[phi.width/phi.screenRatio-IMG.UI.player_inventory.width,phi.height/phi.screenRatio-IMG.UI.player_inventory.height],null)
+    },
+    'error':{
+        art : phi.obj(IMG.PAGE.error,[(phi.width-IMG.PAGE.error.width)/2,(phi.height-IMG.PAGE.error.height)/2],null)
     }
 }
 
@@ -48,6 +52,7 @@ function CBOJ_RESIZE(){ // COBJ에서 장면에 따라 위치가 자동으로 �
     phi.goto(COBJ['menu_start'].title,[(phi.width/sr-IMG.UI.main_title.width)/2,((phi.height-IMG.UI.main_title.height)/2/sr)])
     phi.goto(COBJ['menu_start'].list_btn,[(phi.width/sr-IMG.UI.common_msgbox.width)/2,phi.height/sr*0.6]) 
     phi.goto(COBJ['game_main'].invenObj,[phi.width/phi.screenRatio-IMG.UI.player_inventory.width,phi.height/phi.screenRatio-IMG.UI.player_inventory.height])
+    phi.goto(COBJ['error'].art,[0,0])
 }
 
 CBOJ_RESIZE() 
@@ -139,6 +144,7 @@ window.motion = class {
         this.type = '';
         this.retObj = phi.obj(null,[0,0],[0,0]);
         this.isFlip = false;
+        this.frame = null
         this.sinN = 0
         this.onHand = false
         this.isMove = false;
@@ -181,17 +187,17 @@ window.motion = class {
             if (this.rightKey) this.isFlip = 0;
         }
 
-
         if (!this.isAttack){
             if (this.isMove && !(this.rightKey && this.leftKey)){
                 this.sinN++;
 
                 if (this.onHand){
                     this.retObj = phi.obj(IMG.PLAYER[3],pos)
+                    this.frame = 3
                 } else {
                     this.retObj = phi.obj(IMG.PLAYER[1],pos)
+                    this.frame = 1
                     this.rotate += (0 - this.rotate) /10
-
                 }
 
                 // phi.rotate(this.retObj,Math.sin(this.sinN/7)*5)
@@ -200,10 +206,11 @@ window.motion = class {
             } else {
                 if (this.onHand){
                     this.retObj = phi.obj(IMG.PLAYER[2],pos)
+                    this.frame = 2
                 } else {
                     this.retObj = phi.obj(IMG.PLAYER[0],pos)
                     this.rotate += (0 - this.rotate) /10
-
+                    this.frame = 0
                 }
             }
         } else {
@@ -215,6 +222,7 @@ window.motion = class {
             if (this.isMove && !(this.rightKey && this.leftKey)){
                 this.sinN++;
                 this.retObj = phi.obj(IMG.PLAYER[7],pos)
+                this.frame = 7
                 this.rotate = Math.sin(this.sinN/7)*5
                 phi.moveY(this.retObj,Math.cos(this.sinN/3.5)*5)
 
@@ -230,8 +238,10 @@ window.motion = class {
                 }
                 if (Math.abs(this.rotate) > 2){
                     this.retObj = phi.obj(IMG.PLAYER[7],pos)
+                    this.frame = 7
                 } else {
                     this.retObj = phi.obj(IMG.PLAYER[6],pos)
+                    this.frame = 6
                 }
             }
         }
@@ -242,6 +252,14 @@ window.motion = class {
         phi.rotate(this.retObj,this.rotate)
         phi.reSizeBy(this.retObj,0.7,'default');
 
+        return this.retObj
+
+    }
+    renderOther(pos,motion){
+        this.retObj = phi.obj(IMG.PLAYER[motion],pos)
+        // if (this.isFlip){phi.flip(this.retObj,'hor')}
+        phi.rotate(this.retObj,this.rotate)
+        phi.reSizeBy(this.retObj,0.7,'default');
         return this.retObj
 
     }
@@ -283,7 +301,7 @@ tileRelocation()
 let objSortList = []
 function sortRender(obj){objSortList.push(obj)}
 
-window.entity = new entitySys();
+window.entity = new EntitySys();
 
 // 카메라의 움직임을 제어할떄 사용하는 함수
 // 내부 관련변수를 직접제어하는 것보다 유지보수성이 좋음
@@ -313,8 +331,8 @@ let connectTrigger_flag = false
 let test = true;
 
 phi.loop(() => {
-    if (!connectTrigger_flag && paper.nickname){
-        paper.send('playerJoin',{});
+    if (!connectTrigger_flag && wing.nickname){
+        wing.send('playerJoin',{});
         connectTrigger_flag = true
     }
 
@@ -324,7 +342,7 @@ phi.loop(() => {
     } else {
         isMove = false
     }
-    phi.fill(255,255,255);
+    phi.fill(254, 227, 120);
     switch (SCENE){ // 스위치 케이스 문을 사용하여 d장면나누기
         case 'menu_start' : {// 접속시 첫메뉴s
             for (const name in COBJ['menu_start']){
@@ -333,6 +351,16 @@ phi.loop(() => {
             }
             break;
         }
+
+        case "error" : {
+            for (const name in COBJ['error']){
+                let obj = COBJ['error'][name]
+                phi.blit(obj)
+            }
+
+            break;
+        }
+
         // 실제 인게임
         case 'game_main' : { 
             // #region 키입력
@@ -412,15 +440,15 @@ phi.loop(() => {
                     if (phi.isEncounterPos(obj,mousePos)){
                         renderTileSlecter([obj.x,obj.y])
                         if (click_l){
-                            // paper.send("itemSpwan",
+                            // wing.send("itemSpwan",
                             //     {
                             //     'itemType':'log',
-                                // 'itemPos':[obj.x+obj.width/2- cameraAdjX+moveX,obj.y+obj.height/2 - cameraAdjY+moveY],
+                            //     'itemPos':[obj.x+obj.width/2- cameraAdjX+moveX,obj.y+obj.height/2 - cameraAdjY+moveY],
                             //     // 'itemPos':[moveX+mousePos[0]*phi.screenRatio - cameraAdjX,moveY+mousePos[1]*phi.screenRatio - cameraAdjY],
                             //     }
                             // )          
 
-                            // paper.send("tileEdit",
+                            // wing.send("tileEdit",
                             //     {
                             //     'mode':'build',
                             //     'id':TINF.id,
@@ -452,7 +480,7 @@ phi.loop(() => {
                     }
 
                 } else {
-                    window.paper.send( // 데이터 요청
+                    window.wing.send( // 데이터 요청
                         "noChunkData",
                         String(TINF.chunkId)
                     )
@@ -472,27 +500,25 @@ phi.loop(() => {
                 if (ntt.type == 'player' && !obj.img){
                     if (window.playerId == ntt.id){obj = ntt.motion.render([obj.x,obj.y],{Rk:rightKey,Lk:leftKey,isMv:isMove,CL:click_l,CR:click_r,mousePos:mousePos})} 
                     else {
-                        if (ntt['tag'] && 'motionKeyData' in ntt['tag']){
-                            obj = ntt.motion.render([obj.x,obj.y],ntt['tag']['motionKeyData'])
+                        if (ntt.tag && 'motionKeyData' in ntt.tag){
+                            obj = ntt.motion.renderOther([obj.x,obj.y],ntt.tag['motionKeyData'])
                         }
                     }
                 } else if (ntt.type == 'bullet'){
                     phi.rotate(obj,20)
                 }
 
-
                 sortRender(obj)
 
                 if (window.playerId == ntt.id){
                     ntt.pos = [moveX,moveY]
-                    window.paper.send(
+                    window.wing.send(
                         'playerData',
                         {edit:["pos"],'pos':[moveX,moveY]}
                     )
-
-                    window.paper.send(
+                    window.wing.send(
                         'playerMotionEdit',
-                        {Rk:rightKey,Lk:leftKey,isMv:isMove,CL:click_l,CR:click_r,mousePos:mousePos}
+                        {'frame':ntt.motion.frame,''}
                     )
                     
                     // ================================ SPEED CONTROL ========================= //
@@ -515,7 +541,7 @@ phi.loop(() => {
                         const dy = centerY - mouseWorldY;
                         const rad = (-1* Math.atan2(dy, dx))
                         let deg = rad * (180 / Math.PI) - 90
-                        paper.send(
+                        wing.send(
                         "entitySpwan",
                         {
                         'entityType':'bullet',

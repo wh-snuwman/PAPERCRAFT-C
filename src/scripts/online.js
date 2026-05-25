@@ -4,20 +4,37 @@ import './game.js'
 
 
 (async () => {
-    window.paper = new wingAPI();
+    window.wing = new wingAPI();
     window.startLoadFinish = false // 게임파일의 완전한 로딩 끝남 여부
     window.playerId = ''//  내 아이디 
     window.clientId = ''// 클라이언트 고요 ID
     window.join = false
     window.isLogin = false
-    await paper.connect('localhost',1111);
-
+    window.host = 'localhost'
+    window.port = 1111
+    window.isOnlineError = false
     const tmep = (Math.random())
-    paper.signup(`${tmep}`,'12345')
-    paper.login(`${tmep}`,'12345')
 
 
-    paper.recv((recvData)=>{
+    wing.start(()=>{
+        window.SCENE = 'game_main'
+    })
+
+    wing.close(()=>{
+        if (wing.isManualClose){
+            window.SCENE = 'close'
+        } else {
+            window.SCENE = 'error'
+        }
+    });
+
+    wing.error((error)=>{
+        isOnlineError = trued
+        window.SCENE = 'error'
+        console.log(SCENE)
+    });
+    
+    wing.recv((recvData)=>{
         const CODE = recvData.code // code은 무조건 받음.
         const DATA = recvData.data
 
@@ -46,14 +63,14 @@ import './game.js'
             }
             case('playerLeft'):{
                 if (DATA == window.playerId){
-                    window.location.reload()   
+                    window.location.reload()
                 }
                 window.entity.removeEntity(DATA)
                 break;
              
             // case('loadComplete'):{ // 게임내에서 완전히 로딩이 끝나면 수신받는 명령
             //     startLoadFinish = true;
-            //     paper.send('playerJoin',{})
+            //     wing.send('playerJoin',{})
             //     break;
             }   
             case("entityDataEdit"):{
@@ -113,17 +130,22 @@ import './game.js'
                 const motion = DATA.motion
                 if (DATA.id == playerId)break;
                 
-                entity.editEntityTag(id,'motionKeyData',motion)
+                entity.editEntityTag(id,'motionKeyData',motion.motion)
                 // console.log(entity.get(id)['tag'])
                 break;
                 
             }
-
-
+            case('playerHealthChange'):{
+                
+                
+                break;
+            }
         }
-
-
     })
+    
+    await wing.connect(host,port);
+    wing.signup(`${tmep}`,'12345')
+    wing.login(`${tmep}`,'12345')
 
 })(); 
 
