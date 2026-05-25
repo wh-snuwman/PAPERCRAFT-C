@@ -42,6 +42,11 @@ export class entitySys {
     editEntity(id,editType,data){
         this.allEntity[id][editType] = data
     }
+    
+    editEntityTag(id,Intag,data){
+        this.allEntity[id]['tag'][Intag] = data
+    }
+
     removeEntity(id_){ // 엔티티 삭제
         delete this.allEntity[id_];
     }

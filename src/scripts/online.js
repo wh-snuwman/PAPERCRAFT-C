@@ -65,7 +65,6 @@ import './game.js'
                 for (let editCODE of EDIT){
                     if (editCODE == 'pos'){
                         if (ID != playerId){
-                            // console.log(DATA.pos)
                             entity.editEntity(ID,'pos',[DATA.pos[0],DATA.pos[1]])
                         }
                     }
@@ -74,11 +73,10 @@ import './game.js'
                 break;
             }
             case("itemSpwan"):{
-                const itemCODE = DATA.itemCODE
+                const itemType = DATA.itemType
                 const itemPos = DATA.itemPos
                 const itemId = DATA.itemId
-                window.entity.newItem(itemCODE,itemPos,itemId)
-                // console.log(itemPos)
+                window.entity.newItem(itemType,itemPos,itemId)
                 break;
             }
             case("tileEdit"):{
@@ -96,8 +94,6 @@ import './game.js'
                 const tag = DATA.tag
                 const type = DATA.type
                 let renderObj = null
-                
-                // console.log(DATA)
 
                 if (type == 'bullet'){
                     // console.log(IMG.ITEM['apple'])
@@ -106,14 +102,26 @@ import './game.js'
                 window.entity.newEntity(
                     type,name,pos,{},tag,id,renderObj
                 ); 
+                break;
             }
             case('entityRemove'):{
-                window.entity.removeEntity(DATA)
+                window.entity.removeEntity(DATA.id)
                 break;
             } 
-            break;
+            case('playerMotionEdit'):{
+                const id = DATA.id
+                const motion = DATA.motion
+                if (DATA.id == playerId)break;
+                
+                entity.editEntityTag(id,'motionKeyData',motion)
+                // console.log(entity.get(id)['tag'])
+                break;
+                
+            }
+
 
         }
+
 
     })
 

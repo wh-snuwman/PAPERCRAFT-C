@@ -117,6 +117,16 @@ let renderLimitDistant = tileSize * 5; // 기기의 성능이 너무 낮을시 �
 let cameraRun = 1; // 카메라의 사용여부(고정여부)
 window.cameraAdjX = 0 // 카메라 위치조정
 window.cameraAdjY = 0 //
+let cameraShakeX = 0
+let cameraShakeY = 0
+
+let attackCancelTime = 0
+
+
+function cameraShake(power){
+    cameraShakeX += phi.random(-power,power)
+    cameraShakeY += phi.random(-power,power)
+}
 // ========================= CAMERA ========================= //
 
 // ========================= MOTION ========================= //
@@ -135,7 +145,14 @@ window.motion = class {
         this.interaction = false;
         this.leftKey = false;
         this.rightKey = false;
+        this.click_l = false
+        this.click_r = false
+        this.mousePos
+        this.isAttack = false
+        this.attackCancelTime = 0
+        this.rotate = 0
     }
+
 
     _devtest(pos){
         this.retObj = phi.obj(IMG.PLAYER[0],pos)
@@ -143,38 +160,88 @@ window.motion = class {
         return this.retObj
     }
 
-    render(pos,data={Rk:false,Lk:false,isMv:false}){
+    render(pos,data={Rk:false,Lk:false,isMv:false,CL:false,CR:false,mousePos:false}){
         this.rightKey = data.Rk
         this.leftKey = data.Lk
         this.isMove = data.isMv
-
-
-        if (this.isMove && !(this.rightKey && this.leftKey)){
-            this.sinN++;
-
-            if (this.onHand){
-                this.retObj = phi.obj(IMG.PLAYER[3],pos)
-            } else {
-                this.retObj = phi.obj(IMG.PLAYER[1],pos)
-            }
-
-            phi.rotate(this.retObj,Math.sin(this.sinN/7)*5)
-            phi.moveY(this.retObj,Math.cos(this.sinN/3.5)*5)
-        } else {
-            if (this.onHand){
-                this.retObj = phi.obj(IMG.PLAYER[2],pos)
-            } else {
-                this.retObj = phi.obj(IMG.PLAYER[0],pos)
-            }
+        this.click_l = data.CL
+        this.click_r = data.CR
+        this.mousePos = data.mousePos
+        
+        if (this.click_l){
+            this.attackCancelTime = Date.now() + 1500
+            this.isAttack = true
+        }
+        if (this.attackCancelTime < Date.now()){
+            this.isAttack = false
+        }
+        
+        if (!this.isAttack){
+            if (this.leftKey) this.isFlip = 1;
+            if (this.rightKey) this.isFlip = 0;
         }
 
 
-        // 텍스쳐반전
-        if (this.leftKey) this.isFlip = 1;
-        if (this.rightKey) this.isFlip = 0;
+        if (!this.isAttack){
+            if (this.isMove && !(this.rightKey && this.leftKey)){
+                this.sinN++;
+
+                if (this.onHand){
+                    this.retObj = phi.obj(IMG.PLAYER[3],pos)
+                } else {
+                    this.retObj = phi.obj(IMG.PLAYER[1],pos)
+                    this.rotate += (0 - this.rotate) /10
+
+                }
+
+                // phi.rotate(this.retObj,Math.sin(this.sinN/7)*5)
+                this.rotate = Math.sin(this.sinN/7)*5
+                phi.moveY(this.retObj,Math.cos(this.sinN/3.5)*5)
+            } else {
+                if (this.onHand){
+                    this.retObj = phi.obj(IMG.PLAYER[2],pos)
+                } else {
+                    this.retObj = phi.obj(IMG.PLAYER[0],pos)
+                    this.rotate += (0 - this.rotate) /10
+
+                }
+            }
+        } else {
+            if (mousePos[0] < pos[0]){
+                this.isFlip = 1
+            } else {
+                this.isFlip = 0
+            }
+            if (this.isMove && !(this.rightKey && this.leftKey)){
+                this.sinN++;
+                this.retObj = phi.obj(IMG.PLAYER[7],pos)
+                this.rotate = Math.sin(this.sinN/7)*5
+                phi.moveY(this.retObj,Math.cos(this.sinN/3.5)*5)
+
+            } else {
+                this.rotate += (0 - this.rotate) /10
+
+                if (click_l){
+                    if (this.isFlip){
+                        this.rotate += 7
+                    } else {
+                        this.rotate -= 7
+                    } 
+                }
+                if (Math.abs(this.rotate) > 2){
+                    this.retObj = phi.obj(IMG.PLAYER[7],pos)
+                } else {
+                    this.retObj = phi.obj(IMG.PLAYER[6],pos)
+                }
+            }
+        }
+
+        // 텍스쳐반전   
         if (this.isFlip){phi.flip(this.retObj,'hor')}
-            
+        
+        phi.rotate(this.retObj,this.rotate)
         phi.reSizeBy(this.retObj,0.7,'default');
+
         return this.retObj
 
     }
@@ -340,27 +407,27 @@ phi.loop(() => {
                     // 최적화 모드를 켰을때만 작동  
                     if (!renderLimitUse || renderLimitDistant > phi.distanceGetObj(obj,phi.obj(null,[phi.width/2,phi.height/2],[0,0]))){
                         phi.blit(obj); // 기본 바닥
-                        phi.text(`${TINF.TILE}`,[obj.x+(obj.width/2) - 40,obj.y+(obj.height/2)],`${20*phi.screenRatio}px`,null,'center');
-                        // console.log(TINF)
+                        // phi.text(`${TINF.TILE}`,[obj.x+(obj.width/2) - 40,obj.y+(obj.height/2)],`${20*phi.screenRatio}px`,null,'center');
                     }
-
                     if (phi.isEncounterPos(obj,mousePos)){
                         renderTileSlecter([obj.x,obj.y])
                         if (click_l){
-                            // paper.send({type:"itemSpwan",data:{
+                            // paper.send("itemSpwan",
+                            //     {
                             //     'itemType':'log',
-                            //     'itemPos':[obj.x+obj.width/2- cameraAdjX+moveX,obj.y+obj.height/2 - cameraAdjY+moveY],
+                                // 'itemPos':[obj.x+obj.width/2- cameraAdjX+moveX,obj.y+obj.height/2 - cameraAdjY+moveY],
                             //     // 'itemPos':[moveX+mousePos[0]*phi.screenRatio - cameraAdjX,moveY+mousePos[1]*phi.screenRatio - cameraAdjY],
-                            // }})  
-                            
-                            
-                            // paper.send({type:"tileEdit",data:{
+                            //     }
+                            // )          
+
+                            // paper.send("tileEdit",
+                            //     {
                             //     'mode':'build',
                             //     'id':TINF.id,
                             //     'tile':3,
                             //     // 'itemPos':[moveX+mousePos[0]*phi.screenRatio - cameraAdjX,moveY+mousePos[1]*phi.screenRatio - cameraAdjY],
-                            // }})
-                            
+                            //     }
+                            // )
                         }
                     }
             
@@ -384,9 +451,6 @@ phi.loop(() => {
                         } 
                     }
 
-
-                    // ============================ DEV ============================  //
-
                 } else {
                     window.paper.send( // 데이터 요청
                         "noChunkData",
@@ -399,35 +463,50 @@ phi.loop(() => {
             for (let key in entity.allEntity){
                 let ntt = entity.allEntity[key];
                 let obj = ntt.renderObj;
-                // console.log(obj)
+
                 phi.goto(obj,[
                     ntt.pos[0] +(cameraAdjX+ cameraX),
                     ntt.pos[1] +(cameraAdjY+ cameraY)
                 ]);
 
                 if (ntt.type == 'player' && !obj.img){
-                    if (window.playerId == ntt.id){obj = ntt.motion.render([obj.x,obj.y],{Rk:rightKey,Lk:leftKey,isMv:isMove})} 
-                    else {obj = ntt.motion.render([obj.x,obj.y],{})}
+                    if (window.playerId == ntt.id){obj = ntt.motion.render([obj.x,obj.y],{Rk:rightKey,Lk:leftKey,isMv:isMove,CL:click_l,CR:click_r,mousePos:mousePos})} 
+                    else {
+                        if (ntt['tag'] && 'motionKeyData' in ntt['tag']){
+                            obj = ntt.motion.render([obj.x,obj.y],ntt['tag']['motionKeyData'])
+                        }
+                    }
+                } else if (ntt.type == 'bullet'){
+                    phi.rotate(obj,20)
                 }
 
-                if (ntt.type == 'bullet'){
-                    // console.log(obj.x,obj.y)
-                }
 
-                // phi.goto(obj,[100,100])
                 sortRender(obj)
-                // console.log(obj)
-                // phi.blit(obj)
-            
 
                 if (window.playerId == ntt.id){
-                    //#region 데이터송신 및 세부설정
                     ntt.pos = [moveX,moveY]
                     window.paper.send(
                         'playerData',
                         {edit:["pos"],'pos':[moveX,moveY]}
-                    ) 
+                    )
+
+                    window.paper.send(
+                        'playerMotionEdit',
+                        {Rk:rightKey,Lk:leftKey,isMv:isMove,CL:click_l,CR:click_r,mousePos:mousePos}
+                    )
+                    
+                    // ================================ SPEED CONTROL ========================= //
+                    if (attackCancelTime < Date.now()){
+                        speed = 10 
+                    } else {
+                        speed = 5
+                    }
+                    // ================================ SPEED CONTROL ========================= //
+
+
                     if (click_l){
+                        cameraShake(70)
+                        attackCancelTime = Date.now() + 1500
                         const centerX = obj.x + moveX + (obj.width / 2) - cameraAdjX ;
                         const centerY = obj.y + moveY + (obj.height / 2) - cameraAdjY;
                         const mouseWorldX = (mousePos[0]) + moveX - cameraAdjX;
@@ -435,10 +514,7 @@ phi.loop(() => {
                         const dx =  centerX - mouseWorldX;
                         const dy = centerY - mouseWorldY;
                         const rad = (-1* Math.atan2(dy, dx))
-
                         let deg = rad * (180 / Math.PI) - 90
-                        console.log(deg)
-
                         paper.send(
                         "entitySpwan",
                         {
@@ -447,24 +523,15 @@ phi.loop(() => {
                         'entityDirection': deg
                         })
                     }
-
-
                 }
             }
 
             if (cameraRun){
                 cameraMove(
-                    ((-moveX) - cameraX) / 1,
-                    ((-moveY) - cameraY) / 1,
+                    ((-moveX+cameraShakeX) - cameraX) / 8,
+                    ((-moveY+cameraShakeY) - cameraY) / 8,
                 )
             }    
-
-            
-            
-
-
-
-
             objSortList = objSortList.sort((a,b) => (a.y + a.height) - (b.y + b.height));
             for (let obj of objSortList){
                 phi.blit(obj);
@@ -476,6 +543,9 @@ phi.loop(() => {
             let obj = COBJ['game_main'][name]
             phi.blit(obj)
         }
+
+        cameraShakeX += (0 - cameraShakeX) / 10
+        cameraShakeY += (0 - cameraShakeY) / 10
         phi.goto(pointerObj,mousePos)
         phi.blit(pointerObj)
         break;
