@@ -127,12 +127,14 @@ import './game.js'
             } 
             case('playerMotionEdit'):{
                 const id = DATA.id
-                const motion = DATA.motion
+                // const motion = DATA.motion
                 if (DATA.id == playerId)break;
                 
-                entity.editEntityTag(id,'motionKeyData',motion.motion)
-                // console.log(entity.get(id)['tag'])
-                break;
+                console.log(motion)
+                entity.editEntityTag(id,'motionKeyData',DATA)
+                
+                
+                break;  
                 
             }
             case('playerHealthChange'):{

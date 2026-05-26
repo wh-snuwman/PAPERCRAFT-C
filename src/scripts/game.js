@@ -255,9 +255,10 @@ window.motion = class {
         return this.retObj
 
     }
-    renderOther(pos,motion){
-        this.retObj = phi.obj(IMG.PLAYER[motion],pos)
-        // if (this.isFlip){phi.flip(this.retObj,'hor')}
+    renderOther(pos,frame,isFlip,isMove){
+        this.retObj = phi.obj(IMG.PLAYER[frame],pos)
+
+        if (isFlip){phi.flip(this.retObj,'hor')}
         phi.rotate(this.retObj,this.rotate)
         phi.reSizeBy(this.retObj,0.7,'default');
         return this.retObj
@@ -501,7 +502,8 @@ phi.loop(() => {
                     if (window.playerId == ntt.id){obj = ntt.motion.render([obj.x,obj.y],{Rk:rightKey,Lk:leftKey,isMv:isMove,CL:click_l,CR:click_r,mousePos:mousePos})} 
                     else {
                         if (ntt.tag && 'motionKeyData' in ntt.tag){
-                            obj = ntt.motion.renderOther([obj.x,obj.y],ntt.tag['motionKeyData'])
+                            const motionData = ntt.tag['motionKeyData']         
+                            obj = ntt.motion.renderOther([obj.x,obj.y],motionData.frame,motionData.isFlip,motionData.isMove)
                         }
                     }
                 } else if (ntt.type == 'bullet'){
@@ -518,7 +520,7 @@ phi.loop(() => {
                     )
                     window.wing.send(
                         'playerMotionEdit',
-                        {'frame':ntt.motion.frame,''}
+                        {'frame':ntt.motion.frame,'isFlip':ntt.motion.isFlip,'isMove':ntt.motion.isMove}
                     )
                     
                     // ================================ SPEED CONTROL ========================= //
