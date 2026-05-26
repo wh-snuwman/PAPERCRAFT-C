@@ -29,8 +29,6 @@ export class Entity {
         return this.health <= 0;
     }
 
-    
-
 }
 
 

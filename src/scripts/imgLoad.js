@@ -14,8 +14,16 @@ window.IMG = { // 게임내의 모든 이미지저장
 
     },
 
+    PARTICLE : {
+        sculpture : await phi.imgLoad("src/img/entity/particle/sculpture.png"),
+        bang : await phi.imgLoad("src/img/entity/particle/effect_bang.png"),
+        // gun_fire : await phi.imgLoad("src/img/entity/particle/sculpture.png")
+    },
+
+
     PAGE : {
         error : await phi.imgLoad("src/img/page/error.png"),
+        game_die : await phi.imgLoad("src/img/page/game_die.png"),
     },
 
     UI : {

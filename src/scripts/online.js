@@ -1,7 +1,7 @@
 import {wingAPI} from "../../wingAPI/src/script/wingAPI.js"
-import "./imgLoad.js" // webgl2 기반 그래픽조정  모듈
+import "./imgLoad.js"
 import './game.js'
-
+import "./particle.js"
 
 (async () => {
     window.wing = new wingAPI();
@@ -11,7 +11,7 @@ import './game.js'
     window.join = false
     window.isLogin = false
     window.host = 'localhost'
-    window.port = 1111
+    window.port = 4000
     window.isOnlineError = false
     const tmep = (Math.random())
 
@@ -22,7 +22,7 @@ import './game.js'
 
     wing.close(()=>{
         if (wing.isManualClose){
-            window.SCENE = 'close'
+            // window.SCENE = 'close'd
         } else {
             window.SCENE = 'error'
         }
@@ -31,7 +31,6 @@ import './game.js'
     wing.error((error)=>{
         isOnlineError = trued
         window.SCENE = 'error'
-        console.log(SCENE)
     });
     
     wing.recv((recvData)=>{
@@ -129,8 +128,6 @@ import './game.js'
                 const id = DATA.id
                 // const motion = DATA.motion
                 if (DATA.id == playerId)break;
-                
-                console.log(motion)
                 entity.editEntityTag(id,'motionKeyData',DATA)
                 
                 
@@ -138,8 +135,35 @@ import './game.js'
                 
             }
             case('playerHealthChange'):{
-                
-                
+                const id = DATA.id
+                const mode = DATA.mode
+                const health = DATA.health
+                const ntt = entity.get(id)
+                ntt.health = health
+
+                if (id == playerId){
+                    const w = ntt.motion.retObj.width
+                    const h = ntt.motion.retObj.height
+                    window.particle('sculpture',[
+                        ntt.pos[0]+w/2,
+                        ntt.pos[1]+h/2
+                    ],3,100)
+                    window.cameraShake(40)
+
+                    if (ntt.health <= 0){
+                        window.SCENE = 'game_die'
+                        wing.disconnect()
+                    }
+                } else {
+                    const w = ntt.motion.retObj.width
+                    const h = ntt.motion.retObj.height
+                    window.particle('sculpture',[
+                        ntt.pos[0]+w/2,
+                        ntt.pos[1]+h/2
+                    ],3,100)
+                    window.cameraShake(20)
+
+                }
                 break;
             }
         }

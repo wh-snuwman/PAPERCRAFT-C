@@ -1,6 +1,7 @@
 import "./phiInit.js" // webgl2 기반 그래픽조정  모듈
 import "./imgLoad.js" // webgl2 기반 그래픽조정  모듈
 import "./online.js" // webgl2 기반 그래픽조정  모듈
+import "./particle.js"
 import { EntitySys } from "./entity.js" // webgl2 기반 그래픽조정  모듈
 
 (async () => {
@@ -21,7 +22,8 @@ window.SCENE = 'error'; // 현재장면
 const SCENE_LIST = [ // 모든 장면을 처음에 선언(장면사용시 필수)
     'menu_start','menu_main','menu_load',
     'game_main',
-    'error'
+    'error',
+    'game_die'
 ]
 const SCENE_INF = {}// 장면전환,플래그등 장면에 대한 부가정보 저장
 for (let scene of SCENE_LIST){
@@ -39,10 +41,14 @@ let COBJ = { // Common OBJ. 자동으로 그려지고 위치가 조정되는 OBJ
         // title : phi.obj(IMG.UI.main_title,[0,0]),
     },
     "game_main":{
-        invenObj : phi.obj(IMG.UI.player_inventory,[phi.width/phi.screenRatio-IMG.UI.player_inventory.width,phi.height/phi.screenRatio-IMG.UI.player_inventory.height],null)
+        // invenObj : phi.obj(IMG.UI.player_inventory,[phi.width/phi.screenRatio-IMG.UI.player_inventory.width,phi.height/phi.screenRatio-IMG.UI.player_inventory.height],null)
     },
     'error':{
         art : phi.obj(IMG.PAGE.error,[(phi.width-IMG.PAGE.error.width)/2,(phi.height-IMG.PAGE.error.height)/2],null)
+    },
+    'game_die':{
+        art : phi.obj(IMG.PAGE.game_die,[(phi.width-IMG.PAGE.game_die.width)/2,(phi.height-IMG.PAGE.game_die.height)/2],null)
+
     }
 }
 
@@ -51,8 +57,9 @@ function CBOJ_RESIZE(){ // COBJ에서 장면에 따라 위치가 자동으로 �
     phi.goto(COBJ['menu_start'].back,[(phi.width/sr-IMG.UI.main_back.width)/2,(phi.height/sr-IMG.UI.main_back.height)/2])
     phi.goto(COBJ['menu_start'].title,[(phi.width/sr-IMG.UI.main_title.width)/2,((phi.height-IMG.UI.main_title.height)/2/sr)])
     phi.goto(COBJ['menu_start'].list_btn,[(phi.width/sr-IMG.UI.common_msgbox.width)/2,phi.height/sr*0.6]) 
-    phi.goto(COBJ['game_main'].invenObj,[phi.width/phi.screenRatio-IMG.UI.player_inventory.width,phi.height/phi.screenRatio-IMG.UI.player_inventory.height])
+    // phi.goto(COBJ['game_main'].invenObj,[phi.width/phi.screenRatio-IMG.UI.player_inventory.width,phi.height/phi.screenRatio-IMG.UI.player_inventory.height])
     phi.goto(COBJ['error'].art,[0,0])
+    phi.goto(COBJ['game_die'].art,[0,0])
 }
 
 CBOJ_RESIZE() 
@@ -128,7 +135,7 @@ let cameraShakeY = 0
 let attackCancelTime = 0
 
 
-function cameraShake(power){
+window.cameraShake = function(power){
     cameraShakeX += phi.random(-power,power)
     cameraShakeY += phi.random(-power,power)
 }
@@ -257,6 +264,15 @@ window.motion = class {
     }
     renderOther(pos,frame,isFlip,isMove){
         this.retObj = phi.obj(IMG.PLAYER[frame],pos)
+        if (isMove){
+            this.sinN++;
+            this.rotate += (0 - this.rotate) /10
+            this.rotate = Math.sin(this.sinN/7)*5
+            phi.moveY(this.retObj,Math.cos(this.sinN/3.5)*5)   
+        } else {
+            this.rotate = 0
+            this.sinN = 0
+        }
 
         if (isFlip){phi.flip(this.retObj,'hor')}
         phi.rotate(this.retObj,this.rotate)
@@ -302,6 +318,10 @@ tileRelocation()
 let objSortList = []
 function sortRender(obj){objSortList.push(obj)}
 
+let particleBlitList = []
+function particleRender(obj){particleBlitList.push(obj)}
+
+
 window.entity = new EntitySys();
 
 // 카메라의 움직임을 제어할떄 사용하는 함수
@@ -326,10 +346,9 @@ function renderTileSlecter(pos) {
     phi.blit(tileSelecterObj[1])
 }
 
-
-
 let connectTrigger_flag = false
 let test = true;
+
 
 phi.loop(() => {
     if (!connectTrigger_flag && wing.nickname){
@@ -344,7 +363,10 @@ phi.loop(() => {
         isMove = false
     }
     phi.fill(254, 227, 120);
+    console.log(SCENE)
     switch (SCENE){ // 스위치 케이스 문을 사용하여 d장면나누기
+
+
         case 'menu_start' : {// 접속시 첫메뉴s
             for (const name in COBJ['menu_start']){
                 let obj = COBJ['menu_start'][name]
@@ -358,9 +380,17 @@ phi.loop(() => {
                 let obj = COBJ['error'][name]
                 phi.blit(obj)
             }
-
             break;
         }
+
+        case 'game_die': {
+            for (const name in COBJ['game_die']){
+                let obj = COBJ['game_die'][name]
+                phi.blit(obj)
+            }
+            break;
+        }
+
 
         // 실제 인게임
         case 'game_main' : { 
@@ -498,6 +528,7 @@ phi.loop(() => {
                     ntt.pos[1] +(cameraAdjY+ cameraY)
                 ]);
 
+
                 if (ntt.type == 'player' && !obj.img){
                     if (window.playerId == ntt.id){obj = ntt.motion.render([obj.x,obj.y],{Rk:rightKey,Lk:leftKey,isMv:isMove,CL:click_l,CR:click_r,mousePos:mousePos})} 
                     else {
@@ -506,11 +537,38 @@ phi.loop(() => {
                             obj = ntt.motion.renderOther([obj.x,obj.y],motionData.frame,motionData.isFlip,motionData.isMove)
                         }
                     }
+                    phi.text(`HP: ${ntt.health}`,[obj.x,obj.y-20],`${30*phi.screenRatio}px`,null,'center');
+
+                    
+
+
+
+                
                 } else if (ntt.type == 'bullet'){
                     phi.rotate(obj,20)
-                }
+                } else if (ntt.type == 'particle'){
+                    switch(ntt.tag.particleType){
+                        case('sculpture'):{
 
-                sortRender(obj)
+                            ntt.tag.adjX = ntt.tag.addX
+                            if (20 > ntt.tag.adjY){
+                                ntt.tag.gravity += 1
+                                ntt.tag.adjY = ntt.tag.gravity
+                            } else entity.removeEntity(ntt.id)
+                            ntt.pos = [ntt.pos[0]+ntt.tag.adjX,ntt.pos[1]+ntt.tag.adjY]
+                            phi.rotate(obj,8)
+                            
+                            if (obj.y > phi.height/phi.screenRatio*phi.dpr){
+                                entity.removeEntity(ntt.id)
+                            }
+                        }
+                    }
+                }
+                if (ntt.type != 'particle'){
+                    sortRender(obj)
+                } else {
+                    particleRender(obj)
+                }
 
                 if (window.playerId == ntt.id){
                     ntt.pos = [moveX,moveY]
@@ -533,6 +591,7 @@ phi.loop(() => {
 
 
                     if (click_l){
+                        window.particle('sculpture',[obj.width/2 + moveX,obj.height/2 + moveY],1,100)
                         cameraShake(70)
                         attackCancelTime = Date.now() + 1500
                         const centerX = obj.x + moveX + (obj.width / 2) - cameraAdjX ;
@@ -559,12 +618,18 @@ phi.loop(() => {
                     ((-moveX+cameraShakeX) - cameraX) / 8,
                     ((-moveY+cameraShakeY) - cameraY) / 8,
                 )
-            }    
+            }
             objSortList = objSortList.sort((a,b) => (a.y + a.height) - (b.y + b.height));
             for (let obj of objSortList){
                 phi.blit(obj);
             }
             objSortList = [];
+
+            particleBlitList = particleBlitList.sort((a,b) => (a.y + a.height) - (b.y + b.height));
+            for (let obj of particleBlitList){
+                phi.blit(obj);
+            }
+            particleBlitList = [];
         }
 
         for (const name in COBJ['game_main']){
