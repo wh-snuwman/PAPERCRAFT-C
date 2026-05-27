@@ -10,7 +10,11 @@ import "./particle.js"
     window.clientId = ''// 클라이언트 고요 ID
     window.join = false
     window.isLogin = false
+<<<<<<< HEAD
     window.host = 'papercraft-s-production.up.railway.app'
+=======
+    window.host = 'papversus.com'
+>>>>>>> eb8a9ce (주소버그 수정)
     window.port = 4000
     window.isOnlineError = false
     const tmep = (Math.random())
@@ -31,6 +35,7 @@ import "./particle.js"
     wing.error((error)=>{
         isOnlineError = trued
         window.SCENE = 'error'
+        console.error(error)
     });
     
     wing.recv((recvData)=>{
@@ -169,7 +174,7 @@ import "./particle.js"
         }
     })
     
-    await wing.connect(host,port);
+    await wing.connect(`wss://${host}/ws`);
     wing.signup(`${tmep}`,'12345')
     wing.login(`${tmep}`,'12345')
 
