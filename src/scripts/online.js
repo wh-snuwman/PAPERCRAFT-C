@@ -10,7 +10,7 @@ import "./particle.js"
     window.clientId = ''// 클라이언트 고요 ID
     window.join = false
     window.isLogin = false
-    window.host = 'papercraft-s-production.up.railway.app'
+    window.host = 'localhost'
     window.port = 4000
     window.isOnlineError = false
     const tmep = (Math.random())
