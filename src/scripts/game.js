@@ -439,26 +439,26 @@ phi.loop(() => {
                     // ================================ SPEED CONTROL ========================= //
 
 
-                    // if (click_l){ // 총쏘기
-                    //     window.particle('sculpture',[obj.width/2 + moveX,obj.height/2 + moveY],1,100)
-                    //     cameraShake(70)
-                    //     attackCancelTime = Date.now() + 1500
-                    //     const centerX = obj.x + moveX + (obj.width / 2) - cameraAdjX ;
-                    //     const centerY = obj.y + moveY + (obj.height / 2) - cameraAdjY;
-                    //     const mouseWorldX = (mousePos[0]) + moveX - cameraAdjX;
-                    //     const mouseWorldY = (mousePos[1]) + moveY - cameraAdjY;
-                    //     const dx =  centerX - mouseWorldX;
-                    //     const dy = centerY - mouseWorldY;
-                    //     const rad = (-1* Math.atan2(dy, dx))
-                    //     let deg = rad * (180 / Math.PI) - 90
-                    //     wing.send(
-                    //     "entitySpwan",
-                    //     {
-                    //     'entityType':'bullet',
-                    //     'entityPos':[centerX,centerY],
-                    //     'entityDirection': deg
-                    //     })
-                    // }
+                    if (click_l){ // 총쏘기
+                        window.particle('sculpture',[obj.width/2 + moveX,obj.height/2 + moveY],1,100)
+                        cameraShake(70)
+                        attackCancelTime = Date.now() + 1500
+                        const centerX = obj.x + moveX + (obj.width / 2) - cameraAdjX ;
+                        const centerY = obj.y + moveY + (obj.height / 2) - cameraAdjY;
+                        const mouseWorldX = (mousePos[0]) + moveX - cameraAdjX;
+                        const mouseWorldY = (mousePos[1]) + moveY - cameraAdjY;
+                        const dx =  centerX - mouseWorldX;
+                        const dy = centerY - mouseWorldY;
+                        const rad = (-1* Math.atan2(dy, dx))
+                        let deg = rad * (180 / Math.PI) - 90
+                        wing.send(
+                        "entitySpwan",
+                        {
+                        'entityType':'bullet',
+                        'entityPos':[centerX,centerY],
+                        'entityDirection': deg
+                        })
+                    }
 
 
 
