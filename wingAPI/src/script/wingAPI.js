@@ -18,8 +18,8 @@ export class wingAPI {
         // this.nickname = ''
     }
 
-    async connect(domain,port){
-        this.url = `ws://${domain}:${port}`;
+    async connect(addr){
+        this.url = addr;
         
         if (this.isOpen || this.openPromise !== null){
             this.log.Warn('이미 서버에 연결 되었습니다! '+ this.url)

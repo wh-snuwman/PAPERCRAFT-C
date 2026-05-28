@@ -4,13 +4,19 @@ import './game.js'
 import "./particle.js"
 
 (async () => {
+    //====== DEV =======
+    window.isDev = false;
+    //==================
+
     window.wing = new wingAPI();
     window.startLoadFinish = false // 게임파일의 완전한 로딩 끝남 여부
     window.playerId = ''//  내 아이디 
     window.clientId = ''// 클라이언트 고요 ID
     window.join = false
     window.isLogin = false
-    window.host = 'papversus.com'
+    window.host = ''
+    if (isDev) window.host = 'localhost'
+    else window.host = 'papversus.com'
     window.port = 4000
     window.isOnlineError = false
     const tmep = (Math.random())
@@ -31,6 +37,7 @@ import "./particle.js"
     wing.error((error)=>{
         isOnlineError = trued
         window.SCENE = 'error'
+        // console.error(error)
     });
     
     wing.recv((recvData)=>{
@@ -67,17 +74,12 @@ import "./particle.js"
                 window.entity.removeEntity(DATA)
                 break;
              
-            // case('loadComplete'):{ // 게임내에서 완전히 로딩이 끝나면 수신받는 명령
-            //     startLoadFinish = true;
-            //     wing.send('playerJoin',{})
-            //     break;
             }   
             case("entityDataEdit"):{
                 // 엔티티의 부가적인 모든 데이터를 수정하기 위해 서버에서 받는 신뢰성이
                 // 보장되어야 하는 명령
                 const EDIT = DATA.edit;
                 const ID = DATA.id;
-                
                 for (let editCODE of EDIT){
                     if (editCODE == 'pos'){
                         if (ID != playerId){
@@ -169,7 +171,8 @@ import "./particle.js"
         }
     })
     
-    await wing.connect(host,port);
+    if (isDev)await wing.connect(`ws://${host}:4000`);
+    else await wing.connect(`ws://${host}/ws`);
     wing.signup(`${tmep}`,'12345')
     wing.login(`${tmep}`,'12345')
 
