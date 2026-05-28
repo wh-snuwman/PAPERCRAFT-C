@@ -75,7 +75,7 @@ window.motion = class {
                 }
             }
         } else {
-            if (mousePos[0] < pos[0]){
+            if (this.mousePos[0] < pos[0]){
                 this.isFlip = 1
             } else {
                 this.isFlip = 0
@@ -90,7 +90,7 @@ window.motion = class {
             } else {
                 this.rotate += (0 - this.rotate) /10
 
-                if (click_l){
+                if (this.click_l){
                     if (this.isFlip){
                         this.rotate += 7
                     } else {

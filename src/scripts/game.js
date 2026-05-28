@@ -383,7 +383,7 @@ phi.loop(() => {
 
 
                 if (ntt.type == 'player' && !obj.img){
-                    if (window.playerId == ntt.id){obj = ntt.motion.render([obj.x,obj.y],{Rk:rightKey,Lk:leftKey,isMv:isMove,CL:click_l,CR:click_r,mousePos:mousePos,haveGun:false})} 
+                    if (window.playerId == ntt.id){obj = ntt.motion.render([obj.x,obj.y],{Rk:rightKey,Lk:leftKey,isMv:isMove,CL:click_l,CR:click_r,mousePos:mousePos,haveGun:true})} 
                     else {
                         if (ntt.tag && 'motionKeyData' in ntt.tag){
                             const motionData = ntt.tag['motionKeyData']         
