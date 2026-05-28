@@ -124,6 +124,7 @@ const adjY = -tileSize*1.5;  // 전체타일의 위치조정
 
 let renderLimitUse = false;
 let renderLimitDistant = tileSize * 5; // 기기의 성능이 너무 낮을시 렌더링되는 타일의 수를 낮춘다.(화면중앙 기준 거리)=-9
+let attackCancelTime = 0
 
 // ========================= CAMERA ========================= //
 let cameraRun = 1; // 카메라의 사용여부(고정여부)
@@ -131,10 +132,6 @@ window.cameraAdjX = 0 // 카메라 위치조정
 window.cameraAdjY = 0 //
 let cameraShakeX = 0
 let cameraShakeY = 0
-
-let attackCancelTime = 0
-
-
 window.cameraShake = function(power){
     cameraShakeX += phi.random(-power,power)
     cameraShakeY += phi.random(-power,power)
@@ -363,7 +360,6 @@ phi.loop(() => {
         isMove = false
     }
     phi.fill(254, 227, 120);
-    console.log(SCENE)
     switch (SCENE){ // 스위치 케이스 문을 사용하여 d장면나누기
 
 
@@ -491,7 +487,6 @@ phi.loop(() => {
                     }
             
                     const TILE_DATA = MAP_DATA[String(TINF.chunkId)][TINF.innerChunkId]; // 진짜 맵데이터
-                    // console.log(TILE_DATA)
                     const TILE = MAP_DATA_TRANSLATOR[TILE_DATA.tile]; // (정수x) 엔티티 이름 문자열
                     if (TILE != null){
                         if (TINF.TILE == TILE_DATA.tile){
