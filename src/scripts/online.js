@@ -10,11 +10,7 @@ import "./particle.js"
     window.clientId = ''// 클라이언트 고요 ID
     window.join = false
     window.isLogin = false
-<<<<<<< HEAD
-    window.host = 'papercraft-s-production.up.railway.app'
-=======
     window.host = 'papversus.com'
->>>>>>> eb8a9ce (주소버그 수정)
     window.port = 4000
     window.isOnlineError = false
     const tmep = (Math.random())

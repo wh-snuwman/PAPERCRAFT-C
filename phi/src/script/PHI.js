@@ -1,5 +1,5 @@
  
-import { easyWebgl2 } from "/@phi/src/script/easyWebgl2.js"
+import { easyWebgl2 } from "/phi/src/script/easyWebgl2.js"
 
 export class PHI {
     constructor(id){
