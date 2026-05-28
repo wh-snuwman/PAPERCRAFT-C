@@ -172,8 +172,7 @@ import "./particle.js"
     })
     
     if (isDev)await wing.connect(`ws://${host}:4000`);
-    else await wing.connect(`wss://${host}/ws`);
-    
+    else await wing.connect(`ws://${host}/ws`);
     wing.signup(`${tmep}`,'12345')
     wing.login(`${tmep}`,'12345')
 
