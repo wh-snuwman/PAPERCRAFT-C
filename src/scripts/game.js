@@ -2,6 +2,7 @@ import "./phiInit.js" // webgl2 기반 그래픽조정  모듈
 import "./imgLoad.js" // webgl2 기반 그래픽조정  모듈
 import "./online.js" // webgl2 기반 그래픽조정  모듈
 import "./particle.js"
+import "./motion.js"
 import { EntitySys } from "./entity.js" // webgl2 기반 그래픽조정  모듈
 
 (async () => {
@@ -69,12 +70,10 @@ window.addEventListener('resize',()=>{
     tileRelocation() // 타일재배치
 })
 
-function tileRelaod(tile){ // 게임내의 시스템에서 사용하는 타일특성 초기화 함수
-    tile.Isblock = false
-}
 
+// #region 기본선언
+function tileRelaod(tile){tile.Isblock = false}; // 게임내의 시스템에서 사용하는 타일특성 초기화 함수
 function mod(n, m){return ((n % m) + m) % m;}// % 보정함수. 나머지가 음수여도 다시양수로 변환.ex) (-1 % 5 = -1 [x]) => (-1 % 5 = 4 [o])
-
 let mousePos = [0,0]; // 마우스좌표
 let click_l = false; // 클릭여부(한번)
 let click_r = false; // 클릭여부(한번)
@@ -82,13 +81,14 @@ let upKey = false;
 let leftKey= false;
 let downKey = false;
 let rightKey = false;
+let isMove = false // 움직이고 있는가
+let interaction = false // 상호작용 (기본: E)
 let moveR = 0; // 이동로직에 쓰이는 변수
 let moveL = 0; //
 let moveU = 0; //
 let moveD = 0; //
 let moveX = 0; //
 let moveY = 0; //
-// ============================================================== CAMERA ============================================================== //
 //  <!! 주의 !! >
 // 로직에서 실제 움직임과 카메라의 움직임은 완전 개별이다.
 // 플레이어가 아무리 많이 움직여도 카메라가 움직이지 않는다면 계속 같은곳만 렌더링 된다.
@@ -100,25 +100,25 @@ let moveUc = 0; //
 let moveDc = 0; //
 let cameraX = 0;
 let cameraY = 0;
-// ============================================================== CAMERA ============================================================== //
-
 // 모든맵데이터 저장
+const tileSize_Default = 160; // 타일크기는 120의 배수를 상용한다(권장사항). FHD(1920X1080) 의최대공약수.
+const tileSize = 120; // 타일크기는 120의 배수를 상용한다(권장사항). FHD(1920X1080) 의최대공약수.
+window.tileRatio = tileSize/tileSize_Default
+
 window.MAP_DATA = {}
-window.reqeustChunkId=[] // 데이터 요청을 보낸 청크아이디(중복요청 방지)
-
 window.TILE = []; // 타일객체 저장
+window.reqeustChunkId=[] // 데이터 요청을 보낸 청크아이디(중복요청 방지)
+let connectTrigger_flag = false
 let smooth = 0.9 // 움직임 보정용(부드럽기)
-let speed = 10// 플레이어 이동속도
+let speed = 10 * ( tileSize/tileSize_Default )// 플레이어 이동속도
 
-const chunkSize = 10; // 청크사이즈 // 청크는 맵생성 최적화를 위해 사용한다.(마인크래프트 생각하세요.꽤 유사할 겁니다.)
 // 청크 시스템 예시(청크사이즈 = 10)
 // 1 2 3 4 5 ...
 // 10 11 12 ...
 // 타일내에서 청크저장 : [<청크가로ID>,<청크세로ID>,<청크내부에서 부여숫자>]
-
-const tileSize = 160; // 타일크기는 120의 배수를 상용한다(권장사항). FHD(1920X1080) 의최대공약수.
 // 아래두 변수는 무조건 정수여야 한다.
 // 메모 : 뒷쪽의 정수는 설정에 따라 직접 조정하여 사용한다. 2정도로 설정하면 왠만하면 자연스럽게 렌더링된다.
+const chunkSize = 10; // 청크사이즈 // 청크는 맵생성 최적화를 위해 사용한다.(마인크래프트 생각하세요.꽤 유사할 겁니다.)
 const adjX = -tileSize*1.5; // 전체타일의 위치조정
 const adjY = -tileSize*1.5;  // 전체타일의 위치조정
 
@@ -137,155 +137,15 @@ window.cameraShake = function(power){
     cameraShakeY += phi.random(-power,power)
 }
 // ========================= CAMERA ========================= //
-
-// ========================= MOTION ========================= //
-let isMove = false // 움직이고 있는가
-let interaction = false // 상호작용 (기본: E)
-// ========================= MOTION ========================= //
-
-window.motion = class {
-    constructor() {
-        this.type = '';
-        this.retObj = phi.obj(null,[0,0],[0,0]);
-        this.isFlip = false;
-        this.frame = null
-        this.sinN = 0
-        this.onHand = false
-        this.isMove = false;
-        this.interaction = false;
-        this.leftKey = false;
-        this.rightKey = false;
-        this.click_l = false
-        this.click_r = false
-        this.mousePos
-        this.isAttack = false
-        this.attackCancelTime = 0
-        this.rotate = 0
-    }
-
-
-    _devtest(pos){
-        this.retObj = phi.obj(IMG.PLAYER[0],pos)
-        phi.reSizeBy(this.retObj,0.7,'default');
-        return this.retObj
-    }
-
-    render(pos,data={Rk:false,Lk:false,isMv:false,CL:false,CR:false,mousePos:false}){
-        this.rightKey = data.Rk
-        this.leftKey = data.Lk
-        this.isMove = data.isMv
-        this.click_l = data.CL
-        this.click_r = data.CR
-        this.mousePos = data.mousePos
-        
-        if (this.click_l){
-            this.attackCancelTime = Date.now() + 1500
-            this.isAttack = true
-        }
-        if (this.attackCancelTime < Date.now()){
-            this.isAttack = false
-        }
-        
-        if (!this.isAttack){
-            if (this.leftKey) this.isFlip = 1;
-            if (this.rightKey) this.isFlip = 0;
-        }
-
-        if (!this.isAttack){
-            if (this.isMove && !(this.rightKey && this.leftKey)){
-                this.sinN++;
-
-                if (this.onHand){
-                    this.retObj = phi.obj(IMG.PLAYER[3],pos)
-                    this.frame = 3
-                } else {
-                    this.retObj = phi.obj(IMG.PLAYER[1],pos)
-                    this.frame = 1
-                    this.rotate += (0 - this.rotate) /10
-                }
-
-                // phi.rotate(this.retObj,Math.sin(this.sinN/7)*5)
-                this.rotate = Math.sin(this.sinN/7)*5
-                phi.moveY(this.retObj,Math.cos(this.sinN/3.5)*5)
-            } else {
-                if (this.onHand){
-                    this.retObj = phi.obj(IMG.PLAYER[2],pos)
-                    this.frame = 2
-                } else {
-                    this.retObj = phi.obj(IMG.PLAYER[0],pos)
-                    this.rotate += (0 - this.rotate) /10
-                    this.frame = 0
-                }
-            }
-        } else {
-            if (mousePos[0] < pos[0]){
-                this.isFlip = 1
-            } else {
-                this.isFlip = 0
-            }
-            if (this.isMove && !(this.rightKey && this.leftKey)){
-                this.sinN++;
-                this.retObj = phi.obj(IMG.PLAYER[7],pos)
-                this.frame = 7
-                this.rotate = Math.sin(this.sinN/7)*5
-                phi.moveY(this.retObj,Math.cos(this.sinN/3.5)*5)
-
-            } else {
-                this.rotate += (0 - this.rotate) /10
-
-                if (click_l){
-                    if (this.isFlip){
-                        this.rotate += 7
-                    } else {
-                        this.rotate -= 7
-                    } 
-                }
-                if (Math.abs(this.rotate) > 2){
-                    this.retObj = phi.obj(IMG.PLAYER[7],pos)
-                    this.frame = 7
-                } else {
-                    this.retObj = phi.obj(IMG.PLAYER[6],pos)
-                    this.frame = 6
-                }
-            }
-        }
-
-        // 텍스쳐반전   
-        if (this.isFlip){phi.flip(this.retObj,'hor')}
-        
-        phi.rotate(this.retObj,this.rotate)
-        phi.reSizeBy(this.retObj,0.7,'default');
-
-        return this.retObj
-
-    }
-    renderOther(pos,frame,isFlip,isMove){
-        this.retObj = phi.obj(IMG.PLAYER[frame],pos)
-        if (isMove){
-            this.sinN++;
-            this.rotate += (0 - this.rotate) /10
-            this.rotate = Math.sin(this.sinN/7)*5
-            phi.moveY(this.retObj,Math.cos(this.sinN/3.5)*5)   
-        } else {
-            this.rotate = 0
-            this.sinN = 0
-        }
-
-        if (isFlip){phi.flip(this.retObj,'hor')}
-        phi.rotate(this.retObj,this.rotate)
-        phi.reSizeBy(this.retObj,0.7,'default');
-        return this.retObj
-
-    }
-}
+// #endregion
 
 // 타일맵 생성
 function  tileRelocation(){
     window.TILE = []
     cameraAdjX = ((phi.width-tileSize+(1920*(1-phi.screenRatio))) / 2) // 카메라 위치조정
     cameraAdjY = ((phi.height-(tileSize*2)+(1080*(1-phi.screenRatio))) / 2)// 카메라 위치조정
-    window.horTileCount = 14; // 화면의 가로에 채워지는 타일수
-    window.verTileCount = 10; // 화면의 세로에 채워지는 타일수
+    window.horTileCount = 18; // 화면의 가로에 채워지는 타일수
+    window.verTileCount = 12; // 화면의 세로에 채워지는 타일수
     for (let i=0; i<horTileCount; i++){ // 화면의 가로안에 들어가는 타일수 만큼 반복
         for (let j=0; j<verTileCount; j++){ // 화면의 세로안에 들어가는 타일수 만큼 반복
             window.TILE.push({
@@ -309,12 +169,11 @@ function  tileRelocation(){
         }
     }
 } 
-tileRelocation()
+
 
 // 정렬렌더링 초기화
 let objSortList = []
 function sortRender(obj){objSortList.push(obj)}
-
 let particleBlitList = []
 function particleRender(obj){particleBlitList.push(obj)}
 
@@ -335,7 +194,6 @@ let tileSelecterObj = [
     phi.reSizeBy(phi.obj(IMG.UI.tile_selecter_up,[0,0]),tileSize/IMG.UI.tile_selecter_up.width),
     phi.reSizeBy(phi.obj(IMG.UI.tile_selecter_down,[0,0]),tileSize/IMG.UI.tile_selecter_down.width),
 ]
-
 function renderTileSlecter(pos) {
     phi.goto(tileSelecterObj[0],pos)
     phi.goto(tileSelecterObj[1],[pos[0],pos[1]+tileSize/2 -  3])
@@ -343,9 +201,7 @@ function renderTileSlecter(pos) {
     phi.blit(tileSelecterObj[1])
 }
 
-let connectTrigger_flag = false
-let test = true;
-
+tileRelocation()
 
 phi.loop(() => {
     if (!connectTrigger_flag && wing.nickname){
@@ -359,7 +215,8 @@ phi.loop(() => {
     } else {
         isMove = false
     }
-    phi.fill(254, 227, 120);
+    // phi.fill(254, 227, 120);
+    phi.fill(0,0,0);
     switch (SCENE){ // 스위치 케이스 문을 사용하여 d장면나누기
 
 
@@ -494,6 +351,7 @@ phi.loop(() => {
                         } else {
                             TINF.TILE = TILE_DATA.tile;
                             TINF.TILEOBJ = phi.obj(IMG.TILE[TILE],[obj.x,obj.y],null);
+                            phi.reSizeBy(TINF.TILEOBJ,tileSize/tileSize_Default)
                         }
                         phi.move(TINF.TILEOBJ,[
                             -(TINF.TILEOBJ.width-tileSize)/2,
@@ -525,18 +383,14 @@ phi.loop(() => {
 
 
                 if (ntt.type == 'player' && !obj.img){
-                    if (window.playerId == ntt.id){obj = ntt.motion.render([obj.x,obj.y],{Rk:rightKey,Lk:leftKey,isMv:isMove,CL:click_l,CR:click_r,mousePos:mousePos})} 
+                    if (window.playerId == ntt.id){obj = ntt.motion.render([obj.x,obj.y],{Rk:rightKey,Lk:leftKey,isMv:isMove,CL:click_l,CR:click_r,mousePos:mousePos,haveGun:false})} 
                     else {
                         if (ntt.tag && 'motionKeyData' in ntt.tag){
                             const motionData = ntt.tag['motionKeyData']         
                             obj = ntt.motion.renderOther([obj.x,obj.y],motionData.frame,motionData.isFlip,motionData.isMove)
                         }
                     }
-                    phi.text(`HP: ${ntt.health}`,[obj.x,obj.y-20],`${30*phi.screenRatio}px`,null,'center');
-
-                    
-
-
+                    phi.text(`HP: ${ntt.health}`,[obj.x+(obj.width/2),obj.y-20],`${30*phi.screenRatio*tileRatio}px`,'black',null,'center');
 
                 
                 } else if (ntt.type == 'bullet'){
@@ -578,33 +432,37 @@ phi.loop(() => {
                     
                     // ================================ SPEED CONTROL ========================= //
                     if (attackCancelTime < Date.now()){
-                        speed = 10 
+                        speed = 10 * tileRatio
                     } else {
                         speed = 5
                     }
                     // ================================ SPEED CONTROL ========================= //
 
 
-                    if (click_l){
-                        window.particle('sculpture',[obj.width/2 + moveX,obj.height/2 + moveY],1,100)
-                        cameraShake(70)
-                        attackCancelTime = Date.now() + 1500
-                        const centerX = obj.x + moveX + (obj.width / 2) - cameraAdjX ;
-                        const centerY = obj.y + moveY + (obj.height / 2) - cameraAdjY;
-                        const mouseWorldX = (mousePos[0]) + moveX - cameraAdjX;
-                        const mouseWorldY = (mousePos[1]) + moveY - cameraAdjY;
-                        const dx =  centerX - mouseWorldX;
-                        const dy = centerY - mouseWorldY;
-                        const rad = (-1* Math.atan2(dy, dx))
-                        let deg = rad * (180 / Math.PI) - 90
-                        wing.send(
-                        "entitySpwan",
-                        {
-                        'entityType':'bullet',
-                        'entityPos':[centerX,centerY],
-                        'entityDirection': deg
-                        })
-                    }
+                    // if (click_l){ // 총쏘기
+                    //     window.particle('sculpture',[obj.width/2 + moveX,obj.height/2 + moveY],1,100)
+                    //     cameraShake(70)
+                    //     attackCancelTime = Date.now() + 1500
+                    //     const centerX = obj.x + moveX + (obj.width / 2) - cameraAdjX ;
+                    //     const centerY = obj.y + moveY + (obj.height / 2) - cameraAdjY;
+                    //     const mouseWorldX = (mousePos[0]) + moveX - cameraAdjX;
+                    //     const mouseWorldY = (mousePos[1]) + moveY - cameraAdjY;
+                    //     const dx =  centerX - mouseWorldX;
+                    //     const dy = centerY - mouseWorldY;
+                    //     const rad = (-1* Math.atan2(dy, dx))
+                    //     let deg = rad * (180 / Math.PI) - 90
+                    //     wing.send(
+                    //     "entitySpwan",
+                    //     {
+                    //     'entityType':'bullet',
+                    //     'entityPos':[centerX,centerY],
+                    //     'entityDirection': deg
+                    //     })
+                    // }
+
+
+
+
                 }
             }
 
@@ -632,6 +490,12 @@ phi.loop(() => {
             phi.blit(obj)
         }
 
+
+        // if (!document.fullscreenElement) {
+        //     document.documentElement.requestFullscreen()
+        // }
+
+
         cameraShakeX += (0 - cameraShakeX) / 10
         cameraShakeY += (0 - cameraShakeY) / 10
         phi.goto(pointerObj,mousePos)
@@ -643,13 +507,18 @@ phi.loop(() => {
     if (click_r) click_r=false;
 
 });
-document.addEventListener('mousemove',(e)=>{mousePos = [e.offsetX/phi.screenRatio*phi.dpr,e.offsetY/phi.screenRatio*phi.dpr]}); // 마우스좌표
+
+
+document.addEventListener('mousemove',(e)=>{
+    mousePos = [e.offsetX/phi.screenRatio*phi.dpr,e.offsetY/phi.screenRatio*phi.dpr]
+    
+}); // 마우스좌표
 document.addEventListener('mousedown',(e) => { // 클릭
     if (e.button == 0)click_l = true;
     if (e.button == 2)click_r = true;
 });
 document.addEventListener('keydown',(e)=>{ // 움직임(누르기)
-    if (e.key == 'w' || e.key == 'W')upKey = true; test = false;
+    if (e.key == 'w' || e.key == 'W')upKey = true;;
     if(e.key == 'a' || e.key == 'A') leftKey= true;
     if(e.key == 's' || e.key == 'S') downKey = true;
     if(e.key == 'd' || e.key == 'D') rightKey = true;
@@ -662,6 +531,13 @@ document.addEventListener('keyup',(e)=>{// 움직임(뗴기)
     if(e.key == 'd' || e.key == 'D') rightKey = false;
     if(e.key == 'e' || e.key == 'E') interaction = false;
 })
+window.addEventListener('contextmenu', function (e) {
+  e.preventDefault(); 
+});
+
+
+
+
 })();
 
 

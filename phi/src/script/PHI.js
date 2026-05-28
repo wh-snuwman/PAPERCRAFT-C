@@ -53,7 +53,7 @@ export class PHI {
     }
 
 
-    text(text,pos=[0,0],size='20px',color='balck',font=null,align='left'){
+    text(text,pos=[0,0],size='20px',color='black',font=null,align='left'){
         if (this.ctx == null){
             console.error('text canvas is not defined')
             return;
@@ -70,8 +70,8 @@ export class PHI {
         this.ctx.textAlign = align;
         this.ctx.textBaseline = 'alphabetic';
         this.ctx.fillText(text, pos[0]*this.screenRatio,pos[1]*this.screenRatio);
-        this.ctx.textAlign = 'left';
         this.ctx.restore();
+        this.ctx.textAlign = 'left';
     }
 
     resizeTextCanvas(baseWidth = 1920, baseHeight = 1080) {
