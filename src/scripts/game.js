@@ -118,12 +118,12 @@ let speed = 10 * ( tileSize/tileSize_Default )// 플레이어 이동속도
 // 타일내에서 청크저장 : [<청크가로ID>,<청크세로ID>,<청크내부에서 부여숫자>]
 // 아래두 변수는 무조건 정수여야 한다.
 // 메모 : 뒷쪽의 정수는 설정에 따라 직접 조정하여 사용한다. 2정도로 설정하면 왠만하면 자연스럽게 렌더링된다.
-const chunkSize = 10; // 청크사이즈 // 청크는 맵생성 최적화를 위해 사용한다.(마인크래프트 생각하세요.꽤 유사할 겁니다.)
+const chunkSize = 8; // 청크사이즈 // 청크는 맵생성 최적화를 위해 사용한다.(마인크래프트 생각하세요.꽤 유사할 겁니다.)
 const adjX = -tileSize*1.5; // 전체타일의 위치조정
 const adjY = -tileSize*1.5;  // 전체타일의 위치조정
 
 let renderLimitUse = true;
-let renderLimitDistant = tileSize * 5; // 기기의 성능이 너무 낮을시 렌더링되는 타일의 수를 낮춘다.(화면중앙 기준 거리)=-9
+let renderLimitDistant = tileSize * 7; // 기기의 성능이 너무 낮을시 렌더링되는 타일의 수를 낮춘다.(화면중앙 기준 거리)=-9
 let attackCancelTime = 0
 
 // ========================= CAMERA ========================= //
@@ -358,7 +358,7 @@ phi.loop(() => {
                             -TINF.TILEOBJ.height + tileSize*0.6,
                             // 0
                         ])
-                        if (!renderLimitUse || renderLimitUse && renderLimitDistant > phi.distanceGetObj(TINF.TILEOBJ,phi.obj(null,[phi.width/2,phi.height/2],[0,0]))){
+                        if (!renderLimitUse || renderLimitUse && renderLimitDistant > phi.distanceGetObj(TINF.TILEOBJ,phi.obj(null,[phi.width/2/phi.screenRatio,phi.height/2/phi.screenRatio],[0,0]))){
                             sortRender(TINF.TILEOBJ);
                         } 
                     }
