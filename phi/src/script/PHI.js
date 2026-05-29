@@ -255,6 +255,22 @@ export class PHI {
         return obj_
     }
 
+    reSize(obj_,size){
+        const an = obj_.angle;
+        const obj = {
+            ...obj_,
+            vertex: [...obj_.vertex]
+        };
+        obj_.width = size[0];
+        obj_.height = size[1];
+        const x1 = obj_.x;
+        const y1 = obj_.y;
+        const x2 = obj_.x + obj_.width;
+        const y2 = obj_.y + obj_.height;
+        obj_.vertex = [x1, y1,x2, y1,x1, y2,x1, y2,x2, y1,x2, y2]
+        this.rotate(obj_,an);
+        return obj_
+    }
 
     
     move(obj,pos=Array){

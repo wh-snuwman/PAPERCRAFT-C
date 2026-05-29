@@ -220,7 +220,7 @@ phi.loop(() => {
     switch (SCENE){ // 스위치 케이스 문을 사용하여 d장면나누기
 
 
-        case 'menu_start' : {// 접속시 첫메뉴s
+        case 'menu_start' : {// 접속시 첫메뉴
             for (const name in COBJ['menu_start']){
                 let obj = COBJ['menu_start'][name]
                 phi.blit(obsj)
@@ -388,13 +388,18 @@ phi.loop(() => {
                         if (ntt.tag && 'motionKeyData' in ntt.tag){
                             const motionData = ntt.tag['motionKeyData']         
                             obj = ntt.motion.renderOther([obj.x,obj.y],motionData.frame,motionData.isFlip,motionData.isMove)
+                            console.log(obj.x,obj.y)
                         }
                     }
                     phi.text(`HP: ${ntt.health}`,[obj.x+(obj.width/2),obj.y-20],`${30*phi.screenRatio*tileRatio}px`,'black',null,'center');
 
                 
                 } else if (ntt.type == 'bullet'){
-                    phi.rotate(obj,20)
+                    phi.reSize(obj,[20,20])
+                    phi.rotate(obj,8)
+                    phi.move(obj,[-obj.width/2,-obj.height/2])
+
+
                 } else if (ntt.type == 'particle'){
                     switch(ntt.tag.particleType){
                         case('sculpture'):{
@@ -405,14 +410,32 @@ phi.loop(() => {
                                 ntt.tag.adjY = ntt.tag.gravity
                             } else entity.removeEntity(ntt.id)
                             ntt.pos = [ntt.pos[0]+ntt.tag.adjX,ntt.pos[1]+ntt.tag.adjY]
+                            phi.rotate(obj,1)
+                            
+                            if (obj.y > phi.height/phi.screenRatio*phi.dpr){
+                                entity.removeEntity(ntt.id)
+                            }
+                            break
+                        }
+                        case('empty_shell'):{
+                            ntt.tag.adjX = ntt.tag.addX
+                            if (17 > ntt.tag.adjY){
+                                ntt.tag.gravity += 1
+                                ntt.tag.adjY = ntt.tag.gravity
+                            } else entity.removeEntity(ntt.id)
+                            ntt.pos = [ntt.pos[0]+ntt.tag.adjX,ntt.pos[1]+ntt.tag.adjY]
                             phi.rotate(obj,8)
                             
                             if (obj.y > phi.height/phi.screenRatio*phi.dpr){
                                 entity.removeEntity(ntt.id)
                             }
+                            break
                         }
                     }
                 }
+
+
+
                 if (ntt.type != 'particle'){
                     sortRender(obj)
                 } else {
@@ -440,7 +463,7 @@ phi.loop(() => {
 
 
                     if (click_l){ // 총쏘기
-                        window.particle('sculpture',[obj.width/2 + moveX,obj.height/2 + moveY],1,100)
+                        window.particle('empty_shell',[obj.width/2 + moveX,obj.height/2 + moveY],1,100)
                         cameraShake(70)
                         attackCancelTime = Date.now() + 1500
                         const centerX = obj.x + moveX + (obj.width / 2) - cameraAdjX ;

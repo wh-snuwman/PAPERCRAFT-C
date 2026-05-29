@@ -5,7 +5,7 @@ import "./particle.js"
 
 (async () => {
     //====== DEV =======
-    window.isDev = false;
+    window.isDev = true;
     //==================
 
     window.wing = new wingAPI();
@@ -75,18 +75,19 @@ import "./particle.js"
                 break;
              
             }   
-            case("entityDataEdit"):{
-                // 엔티티의 부가적인 모든 데이터를 수정하기 위해 서버에서 받는 신뢰성이
-                // 보장되어야 하는 명령
+            case("entityDataEdit"):{ // 엔티티의 부가적인 모든 데이터를 수정하기 위해 서버에서 받는 신뢰성이 보장되어야 하는 명령
                 const EDIT = DATA.edit;
+                const POS = DATA.pos;
                 const ID = DATA.id;
                 for (let editCODE of EDIT){
+                    if (entity.get(ID).type == 'player') continue;
+
                     if (editCODE == 'pos'){
-                        if (ID != playerId){
-                            entity.editEntity(ID,'pos',[DATA.pos[0],DATA.pos[1]])
+                        console.log()
+                        if (ID != playerId && entity.get(ID).type != 'player'){
+                            entity.editEntity(ID,'pos',POS)
                         }
                     }
-                    // elif 써서 다른 데이터 처리하기
                 }
                 break;
             }
@@ -111,14 +112,12 @@ import "./particle.js"
                 const pos = DATA.pos
                 const tag = DATA.tag
                 const type = DATA.type
-                let renderObj = null
-
+                let img = null
                 if (type == 'bullet'){
-                    // console.log(IMG.ITEM['apple'])
-                    renderObj = window.IMG.ITEM['apple']
+                    img = window.IMG.ENTITY.bullet
                 }
                 window.entity.newEntity(
-                    type,name,pos,{},tag,id,renderObj
+                    type,name,pos,{},tag,id,img
                 ); 
                 break;
             }
@@ -128,7 +127,6 @@ import "./particle.js"
             } 
             case('playerMotionEdit'):{
                 const id = DATA.id
-                // const motion = DATA.motion
                 if (DATA.id == playerId)break;
                 entity.editEntityTag(id,'motionKeyData',DATA)
                 
