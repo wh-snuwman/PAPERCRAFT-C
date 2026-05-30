@@ -83,11 +83,18 @@ import "./particle.js"
                 for (let editCODE of EDIT){
                     if (editCODE == 'pos'){
                         if (ID != playerId){
-                            entity.editEntity(ID,'pos',POS)
+                            try{
+                                entity.editEntity(ID,'pos',POS)
+                            } catch(e) {
+                                null
+                            }
                         }
                     }
                 }
                 break;
+
+
+
             }
             case("itemSpwan"):{
                 const itemType = DATA.itemType
@@ -173,3 +180,19 @@ import "./particle.js"
     wing.login(`${tmep}`,`${tmep}`)
 
 })(); 
+
+setInterval(function() {
+    debugger;
+});
+
+document.addEventListener('contextmenu', event => event.preventDefault());
+
+document.addEventListener('keydown', function(e) {
+  if (
+    e.key === 'F12' ||
+    (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) ||
+    (e.ctrlKey && e.key === 'U')
+  ) {
+    e.preventDefault();
+  }
+});

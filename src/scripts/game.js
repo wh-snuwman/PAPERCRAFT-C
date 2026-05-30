@@ -404,7 +404,6 @@ phi.loop(() => {
                         if (ntt.tag && 'motionKeyData' in ntt.tag){
                             const motionData = ntt.tag['motionKeyData']         
                             obj = ntt.motion.renderOther([obj.x,obj.y],motionData.frame,motionData.isFlip,motionData.isMove)
-                            console.log(obj.x,obj.y)
                         }
                     }
                     // phi.text(`HP: ${ntt.health}`,[obj.x+(obj.width/2),obj.y-20],`${30*phi.screenRatio*tileRatio}px`,'black',null,'center');
