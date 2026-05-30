@@ -218,10 +218,7 @@ let DT = 0;
 phi.loop(() => {
     currentTime = performance.now();
     DT = (currentTime - lastTime)/100;
-    console.log(DT)
-    // if (DT > 0.1) {
-    //     DT = 0.1;
-    // }
+    if (DT > 2) DT = 2;
 
     if (!connectTrigger_flag && wing.nickname){
         wing.send('playerJoin',{});

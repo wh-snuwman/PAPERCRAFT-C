@@ -55,8 +55,6 @@ import "./particle.js"
                 const id = DATA.ntt.id
                 const pos = DATA.ntt.pos
                 const tag = DATA.ntt.tag
-                console.log(DATA)
-
                 if (DATA.me){
                     playerId = id
                     join = true
@@ -170,14 +168,14 @@ import "./particle.js"
     })
     
     if (isDev)await wing.connect(`ws://${host}:4000`);
-    else await wing.connect(`ws://${host}/ws`);
-    wing.signup(`${tmep}`,'12345')
-    wing.login(`${tmep}`,'12345')
+    else await wing.connect(`wss://${host}/ws`);
+    wing.signup(`${tmep}`,`${tmep}`)
+    wing.login(`${tmep}`,`${tmep}`)
 
 })(); 
 
-document.addEventListener('keydown',(e)=>{
-    if (e.key == 'a'){
-        // console.log(MAP_DATA)
-    }
-})
+// document.addEventListener('keydown',(e)=>{
+//     if (e.key == 'a'){
+//         // console.log(MAP_DATA)
+//     }
+// })
