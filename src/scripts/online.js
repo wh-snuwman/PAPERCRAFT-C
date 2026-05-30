@@ -173,9 +173,3 @@ import "./particle.js"
     wing.login(`${tmep}`,`${tmep}`)
 
 })(); 
-
-// document.addEventListener('keydown',(e)=>{
-//     if (e.key == 'a'){
-//         // console.log(MAP_DATA)
-//     }
-// })
