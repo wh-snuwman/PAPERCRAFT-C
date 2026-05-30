@@ -60,7 +60,7 @@ export class PHI {
         }
         this.ctx.save();
         
-        if (font == null || font == undefined || typeof(font) != String){
+        if (font == null || font == undefined || typeof(font) != 'string'){
             this.ctx.font = `${size} serif`;
         } else {
             this.ctx.font = `${size} ${font}`;
@@ -71,7 +71,6 @@ export class PHI {
         this.ctx.textBaseline = 'alphabetic';
         this.ctx.fillText(text, pos[0]*this.screenRatio,pos[1]*this.screenRatio);
         this.ctx.restore();
-        this.ctx.textAlign = 'left';
     }
 
     resizeTextCanvas(baseWidth = 1920, baseHeight = 1080) {
@@ -332,10 +331,8 @@ export class PHI {
 
     blit(obj, mark = 'null') {  
         if (!obj.img) return;
-
         const { img, x, y, width, height, vertex, texcoord, fillColor } = obj;
         const ratioMulp =  this.screenRatio;
-
         const renderX = x * ratioMulp;
         const renderY = y * ratioMulp;
         const renderW = width * ratioMulp;

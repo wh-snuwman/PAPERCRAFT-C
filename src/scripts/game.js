@@ -77,6 +77,8 @@ function mod(n, m){return ((n % m) + m) % m;}// % 보정함수. 나머지가 음
 let mousePos = [0,0]; // 마우스좌표
 let click_l = false; // 클릭여부(한번)
 let click_r = false; // 클릭여부(한번)
+let press_l = false
+let press_r = false
 let upKey = false;
 let leftKey= false;
 let downKey = false;
@@ -89,6 +91,9 @@ let moveU = 0; //
 let moveD = 0; //
 let moveX = 0; //
 let moveY = 0; //
+
+let isFocus = true;
+
 //  <!! 주의 !! >
 // 로직에서 실제 움직임과 카메라의 움직임은 완전 개별이다.
 // 플레이어가 아무리 많이 움직여도 카메라가 움직이지 않는다면 계속 같은곳만 렌더링 된다.
@@ -171,6 +176,10 @@ function  tileRelocation(){
 } 
 
 
+// let gunFireDelay = \
+let gunFireDelay = 0
+
+
 // 정렬렌더링 초기화
 let objSortList = []
 function sortRender(obj){objSortList.push(obj)}
@@ -203,22 +212,32 @@ function renderTileSlecter(pos) {
 
 tileRelocation()
 
+let currentTime = performance.now();
+let lastTime = performance.now();
+let DT = 0;
 phi.loop(() => {
+    currentTime = performance.now();
+    DT = (currentTime - lastTime)/100;
+    console.log(DT)
+    // if (DT > 0.1) {
+    //     DT = 0.1;
+    // }
+
     if (!connectTrigger_flag && wing.nickname){
         wing.send('playerJoin',{});
         connectTrigger_flag = true
     }
 
 
-    if (rightKey || leftKey || upKey || downKey) {
+    if (rightKey || leftKey || upKey || downKey) {let lastTime = performance.now(); // 이전 프레임 시간 저장
         isMove = true
     } else {
         isMove = false
     }
-    // phi.fill(254, 227, 120);
+    
     phi.fill(0,0,0);
-    switch (SCENE){ // 스위치 케이스 문을 사용하여 d장면나누기
-
+   
+    switch (SCENE){
 
         case 'menu_start' : {// 접속시 첫메뉴
             for (const name in COBJ['menu_start']){
@@ -244,11 +263,11 @@ phi.loop(() => {
             break;
         }
 
-
         // 실제 인게임
         case 'game_main' : { 
             // #region 키입력
             // 유저의 플레이어 움직임
+            
             if (upKey){moveU = speed; } else {moveU = moveU * smooth; }
             if (leftKey){moveL  = speed;} else {moveL = moveL * smooth;}
             if (downKey){moveD  = speed;} else {moveD = moveD * smooth;}
@@ -377,8 +396,8 @@ phi.loop(() => {
                 let obj = ntt.renderObj;
 
                 phi.goto(obj,[
-                    ntt.pos[0] +(cameraAdjX+ cameraX),
-                    ntt.pos[1] +(cameraAdjY+ cameraY)
+                    ntt.pos[0]-obj.width/2 +(cameraAdjX+ cameraX),
+                    ntt.pos[1]-obj.height/2 +(cameraAdjY+ cameraY)
                 ]);
 
 
@@ -391,8 +410,14 @@ phi.loop(() => {
                             console.log(obj.x,obj.y)
                         }
                     }
-                    phi.text(`HP: ${ntt.health}`,[obj.x+(obj.width/2),obj.y-20],`${30*phi.screenRatio*tileRatio}px`,'black',null,'center');
-
+                    // phi.text(`HP: ${ntt.health}`,[obj.x+(obj.width/2),obj.y-20],`${30*phi.screenRatio*tileRatio}px`,'black',null,'center');
+                    
+                    let nameText = ntt.name
+                    if (nameText.length > 15){
+                        nameText = nameText.slice(0,15) + '...'
+                    } 
+                    
+                    phi.text(`${nameText}`,[obj.x+(obj.width/2),obj.y-20],`${30*phi.screenRatio*tileRatio}px`,'black','Roboto sans-serif','center');
                 
                 } else if (ntt.type == 'bullet'){
                     phi.reSize(obj,[20,20])
@@ -403,7 +428,6 @@ phi.loop(() => {
                 } else if (ntt.type == 'particle'){
                     switch(ntt.tag.particleType){
                         case('sculpture'):{
-
                             ntt.tag.adjX = ntt.tag.addX
                             if (20 > ntt.tag.adjY){
                                 ntt.tag.gravity += 1
@@ -419,22 +443,47 @@ phi.loop(() => {
                         }
                         case('empty_shell'):{
                             ntt.tag.adjX = ntt.tag.addX
-                            if (17 > ntt.tag.adjY){
+                            if (14 > ntt.tag.adjY){
                                 ntt.tag.gravity += 1
                                 ntt.tag.adjY = ntt.tag.gravity
                             } else entity.removeEntity(ntt.id)
-                            ntt.pos = [ntt.pos[0]+ntt.tag.adjX,ntt.pos[1]+ntt.tag.adjY]
-                            phi.rotate(obj,8)
                             
+                            ntt.pos = [ntt.pos[0]+ntt.tag.adjX,ntt.pos[1]+ntt.tag.adjY]
+                            phi.rotate(obj,4)
+                            
+
+                            break
+                        }
+                        case('bang'):{
+                            ntt.tag.adjX = ntt.tag.addX
+                            if (17 > ntt.tag.adjY){
+                                ntt.tag.gravity += 1.5
+                                ntt.tag.adjY = ntt.tag.gravity
+                            } else entity.removeEntity(ntt.id)
+                            ntt.pos = [ntt.pos[0]+ntt.tag.adjX,ntt.pos[1]+ntt.tag.adjY]
+                            phi.reSizeBy(obj,0.87)
                             if (obj.y > phi.height/phi.screenRatio*phi.dpr){
+                                entity.removeEntity(ntt.id)
+                            }
+                            break
+                        }
+                        case('gun_fire'):{
+                            entity.removeEntity(ntt.id)
+                            break
+                        }
+                        case('gun_fire_flip'):{
+                            if (ntt.tag.flip){
+                                phi.flip(obj,'hor')
+                                ntt.tag.flip = false
+                                
+                            }
+                            if (ntt.tag.delTime < Date.now()){
                                 entity.removeEntity(ntt.id)
                             }
                             break
                         }
                     }
                 }
-
-
 
                 if (ntt.type != 'particle'){
                     sortRender(obj)
@@ -455,32 +504,45 @@ phi.loop(() => {
                     
                     // ================================ SPEED CONTROL ========================= //
                     if (attackCancelTime < Date.now()){
-                        speed = 10 * tileRatio
+                        speed = 50 * DT * tileRatio
                     } else {
-                        speed = 5
+                        speed = 25 * DT * tileRatio
                     }
                     // ================================ SPEED CONTROL ========================= //
 
 
                     if (click_l){ // 총쏘기
-                        window.particle('empty_shell',[obj.width/2 + moveX,obj.height/2 + moveY],1,100)
-                        cameraShake(70)
-                        attackCancelTime = Date.now() + 1500
-                        const centerX = obj.x + moveX + (obj.width / 2) - cameraAdjX ;
-                        const centerY = obj.y + moveY + (obj.height / 2) - cameraAdjY;
-                        const mouseWorldX = (mousePos[0]) + moveX - cameraAdjX;
-                        const mouseWorldY = (mousePos[1]) + moveY - cameraAdjY;
-                        const dx =  centerX - mouseWorldX;
-                        const dy = centerY - mouseWorldY;
-                        const rad = (-1* Math.atan2(dy, dx))
-                        let deg = rad * (180 / Math.PI) - 90
-                        wing.send(
-                        "entitySpwan",
-                        {
-                        'entityType':'bullet',
-                        'entityPos':[centerX,centerY],
-                        'entityDirection': deg
-                        })
+                        if (gunFireDelay < Date.now()){
+                            // #region  bullet 데이터보내기
+                            attackCancelTime = Date.now() + 1200
+                            const centerX = obj.x + moveX + (obj.width / 2) - cameraAdjX ;
+                            const centerY = obj.y + moveY + (obj.height / 2) - cameraAdjY;
+                            const mouseWorldX = (mousePos[0]) + moveX - cameraAdjX;
+                            const mouseWorldY = (mousePos[1]) + moveY - cameraAdjY;
+                            const dx =  centerX - mouseWorldX;
+                            const dy = centerY - mouseWorldY;
+                            const rad = (-1* Math.atan2(dy, dx))
+                            let deg = rad * (180 / Math.PI) - 90
+                            wing.send("entitySpwan",{
+                                'entityType':'bullet',
+                                'entityPos':[centerX,centerY],
+                                'entityDirection': deg
+                            })
+                            // #endregion
+                            window.particle('empty_shell',[obj.width/2 + moveX,obj.height/2 + moveY],1,100)
+                            if (ntt.motion.isFlip){
+                                window.particle('gun_fire_flip',[obj.width/2 + moveX - 170,obj.height/2 + moveY-20],1,5)
+                                window.particle('bang',[obj.width/2 + moveX-100,(-obj.height/2 + moveY + 120)],1,0)
+    
+                            } else {
+                                window.particle('gun_fire',[obj.width/2 + moveX + 170,obj.height/2 + moveY-20],1,5)
+                                window.particle('bang',[obj.width/2 + moveX+100,(-obj.height/2 + moveY + 120)],1,0)
+                                
+                            }
+                            cameraShake(70)
+                            gunFireDelay = Date.now() + 100
+                        }
+
                     }
 
 
@@ -528,17 +590,21 @@ phi.loop(() => {
 
     if (click_l) click_l=false;
     if (click_r) click_r=false;
-
+    lastTime = currentTime;
 });
 
-
+// #region
 document.addEventListener('mousemove',(e)=>{
     mousePos = [e.offsetX/phi.screenRatio*phi.dpr,e.offsetY/phi.screenRatio*phi.dpr]
     
 }); // 마우스좌표
 document.addEventListener('mousedown',(e) => { // 클릭
-    if (e.button == 0)click_l = true;
-    if (e.button == 2)click_r = true;
+    if (e.button == 0){click_l = true; press_l=true};
+    if (e.button == 2)click_r = true; press_r=true;
+});
+document.addEventListener('mouseup',(e) => { // 클릭
+    if (e.button == 0)press_l=false;
+    if (e.button == 2)press_r=false;
 });
 document.addEventListener('keydown',(e)=>{ // 움직임(누르기)
     if (e.key == 'w' || e.key == 'W')upKey = true;;
@@ -557,9 +623,21 @@ document.addEventListener('keyup',(e)=>{// 움직임(뗴기)
 window.addEventListener('contextmenu', function (e) {
   e.preventDefault(); 
 });
+window.addEventListener('focus', () => {
+    isFocus = true;
+    lastTime = performance.now(); 
+});
 
+window.addEventListener('blur', () => {
+    isFocus = false;
+    upKey = false;
+    leftKey = false;
+    downKey = false;
+    rightKey = false;
+    interaction = false;
+});
 
-
+// #endregion
 
 })();
 

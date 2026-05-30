@@ -5,7 +5,7 @@ import "./particle.js"
 
 (async () => {
     //====== DEV =======
-    window.isDev = true;
+    window.isDev = false;
     //==================
 
     window.wing = new wingAPI();
@@ -55,12 +55,15 @@ import "./particle.js"
                 const id = DATA.ntt.id
                 const pos = DATA.ntt.pos
                 const tag = DATA.ntt.tag
+                console.log(DATA)
+
                 if (DATA.me){
                     playerId = id
                     join = true
                 } 
 
                 let n = new window.motion()
+                
                 window.entity.newEntity(
                     'player',name,pos,n,tag,id
                 ); 
@@ -80,11 +83,8 @@ import "./particle.js"
                 const POS = DATA.pos;
                 const ID = DATA.id;
                 for (let editCODE of EDIT){
-                    if (entity.get(ID).type == 'player') continue;
-
                     if (editCODE == 'pos'){
-                        console.log()
-                        if (ID != playerId && entity.get(ID).type != 'player'){
+                        if (ID != playerId){
                             entity.editEntity(ID,'pos',POS)
                         }
                     }
@@ -135,7 +135,7 @@ import "./particle.js"
                 
             }
             case('playerHealthChange'):{
-                const id = DATA.id
+                const id = DATA.idx
                 const mode = DATA.mode
                 const health = DATA.health
                 const ntt = entity.get(id)

@@ -17,6 +17,7 @@ window.motion = class {
         this.attackCancelTime = 0
         this.rotate = 0
         this.haveGun = false
+        this.gunFireDelay = 0
     }
 
 
@@ -36,7 +37,7 @@ window.motion = class {
         this.haveGun = data.haveGun
         
         if (this.click_l && this.haveGun){
-            this.attackCancelTime = Date.now() + 1500
+            this.attackCancelTime = Date.now() + 1200
             this.isAttack = true
         }
         if (this.attackCancelTime < Date.now()){
@@ -91,11 +92,14 @@ window.motion = class {
                 this.rotate += (0 - this.rotate) /10
 
                 if (this.click_l){
-                    if (this.isFlip){
-                        this.rotate += 7
-                    } else {
-                        this.rotate -= 7
-                    } 
+                    if (this.gunFireDelay < Date.now()){
+                        if (this.isFlip){
+                            this.rotate += 7
+                        } else {
+                            this.rotate -= 7
+                        } 
+                        this.gunFireDelay = Date.now() + 100
+                    }
                 }
                 if (Math.abs(this.rotate) > 2){
                     this.retObj = phi.obj(IMG.PLAYER[7],pos)

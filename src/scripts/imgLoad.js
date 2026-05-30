@@ -24,7 +24,7 @@ window.IMG = { // 게임내의 모든 이미지저장
         sculpture : await phi.imgLoad("src/img/entity/particle/sculpture.png"),
         bang : await phi.imgLoad("src/img/entity/particle/effect_bang.png"),
         empty_shell : await phi.imgLoad("src/img/entity/particle/empty_shell.png"),
-        // gun_fire : await phi.imgLoad("src/img/entity/particle/sculpture.png")
+        gun_fire : await phi.imgLoad("src/img/entity/particle/effect_gun_fire.png")
     },
 
 
