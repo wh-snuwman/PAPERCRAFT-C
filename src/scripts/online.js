@@ -5,7 +5,7 @@ import "./particle.js"
 
 (async () => {
     //====== DEV =======
-    window.isDev = true;
+    window.isDev = false;
     //==================
 
     window.wing = new wingAPI();
