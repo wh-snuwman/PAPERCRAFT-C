@@ -321,7 +321,8 @@ phi.loop(() => {
             if (downKey){moveD  = speed;} else {moveD = moveD * smooth;}
             if (rightKey){moveR  = speed;} else {moveR = moveR * smooth;}
             // #endregion
-            for (let TINF of window.TILE){
+            for (let index in window.TILE){
+                let TINF = window.TILE[index]
                 const obj = TINF.obj
                 
                 // 타일 물리엔진. 타일이 통과불가능 특성일때 플레이어가 통과하지 못하도록 막음.
@@ -391,37 +392,35 @@ phi.loop(() => {
                     }
                     if (phi.isEncounterPos(obj,mousePos)){
                         renderTileSlecter([obj.x,obj.y])
-
                         if (click_r){
                             if (window.inventory[inventory_select] != null && selectTile == 0 && phi.distanceGetObj(playerObj,obj) > tileSize){
-                                wing.send("itemDel",{
-                                    'itemType':inventory[inventory_select],
-                                    'invenIndex':inventory_select,
-                                })
-                                wing.send("tileEdit",{
-                                    'mode':'build',
-                                    'id':TINF.id,
-                                    'tile':changedTile,
+                                if (window.inventory[inventory_select] == 'plank_block'){
+                                    wing.send("itemDel",{
+                                        'itemType':inventory[inventory_select],
+                                        'invenIndex':inventory_select,
+                                    })
+                                    wing.send("tileEdit",{
+                                        'mode':'build',
+                                        'id':TINF.id,
+                                        'tile':changedTile,
+                                    })
+                                    window.inventory[inventory_select] = null
                                     
-                                })
-                                window.inventory[inventory_select] = null
+                                }
                             }
                         }
 
-                        if (press_l){
-                            if (action == 'build'){
+                        if (press_l && action == 'destroy'){
+                            if (!destroy_flag){
+                                destroyTimeStart = Date.now() + 2000
+                                destroy_flag = true
                                 
-                            } 
-                            else if (action == 'destroy'){
-                                if (!destroy_flag){
-                                    destroyTimeStart = Date.now() + 2000
-                                    destroy_flag = true
-                                }
                             }
                         }
                         
                         if (destroyTimeStart < Date.now() && destroy_flag){
                             if (TINF.TILE == 0){ destroyTimeStart = Date.now() + 2000; continue; }
+                            
                             window.particle('sculpture_1',[
                                 obj.x + moveX - cameraAdjX + obj.width/2,
                                 obj.y + moveY - cameraAdjY + obj.height/2
@@ -436,9 +435,12 @@ phi.loop(() => {
                                 'itemType':'plank_block',
                                 'itemPos':[obj.x+obj.width/2- cameraAdjX+moveX,obj.y+obj.height/2 - cameraAdjY+moveY],
                             })
-                            destroy_flag = false
+                            
+                            TINF.isBlock = true
+                            console.log(TINF.isBlock)
                             isChangeBlock  = [true,false]
-
+                            destroy_flag = false
+                            
                         }
                         if (!press_l || isMove){
                             destroy_flag = false
@@ -488,7 +490,7 @@ phi.loop(() => {
             }
             moveX -= moveL - moveR;
             moveY -= moveU - moveD;
-
+            // console.log(selectTile)
             // 엔티티 시스템
             for (let key in entity.allEntity){
                 let ntt = entity.allEntity[key];

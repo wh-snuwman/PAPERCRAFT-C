@@ -5,7 +5,7 @@ import "./particle.js"
 
 (async () => {
     //====== DEV =======
-    window.isDev = false;
+    window.isDev = true;
     //==================
 
     window.wing = new wingAPI();
@@ -111,9 +111,14 @@ import "./particle.js"
 
                 const tileData = DATA.tileData
                 const chunkId = `${id[0]},${id[1]}`
-                MAP_DATA[chunkId][id[2]] = tileData
-                for (let TINF of window.TILE){
+                window.MAP_DATA[chunkId][id[2]] = tileData
+                // console.log(window.MAP_DATA[chunkId][id[2]])
+                // TINF.TILE = 0
+                
+                for (let index in window.TILE){
+                    const TINF = window.TILE[index]
                     TINF.isBlock = false
+                    // TINF.TILE = MAP_DATA[String(TINF.chunkId)][TINF.innerChunkId]
                 }
                 break;
             }
