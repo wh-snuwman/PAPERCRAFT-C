@@ -1,4 +1,5 @@
 window.IMG = { // 게임내의 모든 이미지저장
+    HITBOX :await phi.imgLoad("src/img/entity/hitbox/0.png"),
     MOUSE : await phi.imgLoad("src/img/mouse/0.png"),
     GROUND : {
         0 : await phi.imgLoad("src/img/ground/0.png"),
@@ -10,15 +11,15 @@ window.IMG = { // 게임내의 모든 이미지저장
         log : await phi.imgLoad("src/img/entity/item/log.png"),
         apple : await phi.imgLoad("src/img/entity/item/apple.png"),
         plank : await phi.imgLoad("src/img/entity/item/plank.png"),
+        plank_block : await phi.imgLoad("src/img/entity/item/plank_block.png"),
+        gun : await phi.imgLoad("src/img/entity/item/gun.png"),
         // log : await phi.imgLoad("src/img/entity/item/log.png"),
-
     },
 
     ENTITY : {
         bullet : await phi.imgLoad("src/img/entity/bullet/0.png"),
 
     },
-
 
     PARTICLE : {
         sculpture : await phi.imgLoad("src/img/entity/particle/sculpture.png"),
@@ -58,6 +59,7 @@ window.IMG = { // 게임내의 모든 이미지저장
         fence : await phi.imgLoad("src/img/tile/fence.png"),
         bush : await phi.imgLoad("src/img/tile/bush.png"),
         error_block : await phi.imgLoad("src/img/tile/error_block.png"),
+        plank_block : await phi.imgLoad("src/img/tile/plank.png"),
         // chest : await phi.imgLoad("src/img/tile/chest.png"),
         // chest : await phi.imgLoad("src/img/tile/chest.png"),
         // chest : await phi.imgLoad("src/img/tile/chest.png"),

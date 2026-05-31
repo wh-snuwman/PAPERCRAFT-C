@@ -5,7 +5,7 @@ import "./particle.js"
 
 (async () => {
     //====== DEV =======
-    window.isDev = false;
+    window.isDev = true;
     //==================
 
     window.wing = new wingAPI();
@@ -19,6 +19,7 @@ import "./particle.js"
     else window.host = 'papversus.com'
     window.port = 4000
     window.isOnlineError = false
+    window.isFinishLoading = false
     const tmep = (Math.random())
 
 
@@ -55,17 +56,18 @@ import "./particle.js"
                 const id = DATA.ntt.id
                 const pos = DATA.ntt.pos
                 const tag = DATA.ntt.tag
+                const inventory = DATA.ntt.inventory
+                
                 if (DATA.me){
                     playerId = id
                     join = true
+                    window.inventory = inventory
+                    isFinishLoading = true
                 } 
-
                 let n = new window.motion()
-                
                 window.entity.newEntity(
                     'player',name,pos,n,tag,id
                 ); 
-                
                 break;
             }
             case('playerLeft'):{
@@ -106,9 +108,13 @@ import "./particle.js"
             case("tileEdit"):{
                 const mode = DATA.mode
                 const id = DATA.id
+                
                 const tileData = DATA.tileData
                 const chunkId = `${id[0]},${id[1]}`
                 MAP_DATA[chunkId][id[2]] = tileData
+                for (let TINF of window.TILE){
+                    TINF.isBlock = false
+                }
                 break;
             }
             case('entitySpwan'):{
@@ -140,7 +146,7 @@ import "./particle.js"
                 
             }
             case('playerHealthChange'):{
-                const id = DATA.idx
+                const id = DATA.id
                 const mode = DATA.mode
                 const health = DATA.health
                 const ntt = entity.get(id)
@@ -171,6 +177,13 @@ import "./particle.js"
                 }
                 break;
             }
+            case('playerGetItem'):{
+                const playerId = DATA.playerId; 
+                const itemId = DATA.id;
+                inventoryAdd(entity.get(itemId).tag.itemType)
+                entity.removeEntity(itemId)
+                break;
+            }
         }
     })
     
@@ -178,21 +191,23 @@ import "./particle.js"
     else await wing.connect(`wss://${host}/ws`);
     wing.signup(`${tmep}`,`${tmep}`)
     wing.login(`${tmep}`,`${tmep}`)
+    // wing.signup('1234','1234')
+    // wing.login('1234','1234')
 
+    if (!window.isDev){   
+        setInterval(function() {
+            debugger;
+        });
+        
+        document.addEventListener('contextmenu', event => event.preventDefault());
+        document.addEventListener('keydown', function(e) {
+          if (
+            e.key === 'F12' ||
+            (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) ||
+            (e.ctrlKey && e.key === 'U')
+          ) {
+            e.preventDefault();
+          }
+        });
+    }
 })(); 
-
-setInterval(function() {
-    debugger;
-});
-
-document.addEventListener('contextmenu', event => event.preventDefault());
-
-document.addEventListener('keydown', function(e) {
-  if (
-    e.key === 'F12' ||
-    (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) ||
-    (e.ctrlKey && e.key === 'U')
-  ) {
-    e.preventDefault();
-  }
-});

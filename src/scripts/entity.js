@@ -17,7 +17,7 @@ export class Entity {
         this.tag = {}   
         this.id = ''    
         this.renderObj = null;
-        this.health = 100;
+        this.health = 300;
     }
     
 

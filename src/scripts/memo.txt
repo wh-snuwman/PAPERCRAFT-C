@@ -1,0 +1,6 @@
+// wing.send("itemSpwan",
+//     {
+//     'itemType':'log',
+//     'itemPos':[obj.x+obj.width/2- cameraAdjX+moveX,obj.y+obj.height/2 - cameraAdjY+moveY],
+//     }
+// )
