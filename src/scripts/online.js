@@ -5,7 +5,7 @@ import "./particle.js"
 
 (async () => {
     //====== DEV =======
-    window.isDev = false;
+    window.isDev = true;
     //==================
 
     window.wing = new wingAPI();
@@ -108,17 +108,23 @@ import "./particle.js"
             case("tileEdit"):{
                 const mode = DATA.mode
                 const id = DATA.id
-
-                const tileData = DATA.tileData
-                const chunkId = `${id[0]},${id[1]}`
-                window.MAP_DATA[chunkId][id[2]] = tileData
-                // console.log(window.MAP_DATA[chunkId][id[2]])
-                // TINF.TILE = 0
                 
+                const tileData = DATA.tileData
+                const chunkId = [id[0],id[1]]
+                window.MAP_DATA[chunkId][id[2]] = tileData
+                
+                // console.log(DATA)
                 for (let index in window.TILE){
                     const TINF = window.TILE[index]
-                    TINF.isBlock = false
-                    // TINF.TILE = MAP_DATA[String(TINF.chunkId)][TINF.innerChunkId]
+                    // console.log(id,TINF.id22)
+                    // consolezz
+                    if ( id == TINF.id ){
+                        // console.log('asd')
+                        let obj = TINF.obj
+                        const TILE_DATA = MAP_DATA[String(TINF.chunkId)][TINF.innerChunkId];
+                        MAP_DATA_TRANSLATOR[TILE_DATA.tile] = 0
+                        // console.log(TILE_DATA2)
+                    } 
                 }
                 break;
             }

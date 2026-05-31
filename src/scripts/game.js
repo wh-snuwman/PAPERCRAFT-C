@@ -8,7 +8,7 @@ import { EntitySys } from "./entity.js" // webgl2 기반 그래픽조정  모듈
 (async () => {
 
 // #region
-const MAP_DATA_TRANSLATOR = {
+window.MAP_DATA_TRANSLATOR = {
     0 : null,
     1 : 'chest',
     2 : 'tree_m',
@@ -85,7 +85,7 @@ window.addEventListener('resize',()=>{
 // #region 기본선언
 function tileRelaod(tile){tile.isBlock = false}; // 게임내의 시스템에서 사용하는 타일특성 초기화 함수
 function mod(n, m){return ((n % m) + m) % m;}// % 보정함수. 나머지가 음수여도 다시양수로 변환.ex) (-1 % 5 = -1 [x]) => (-1 % 5 = 4 [o])
-let mousePos = [0,0]; // 마우스좌표
+window.mousePos = [0,0]; // 마우스좌표
 let click_l = false; // 클릭여부(한번)
 let click_r = false; // 클릭여부(한번)
 let press_l = false
@@ -153,7 +153,7 @@ window.cameraShake = function(power){
     cameraShakeY += phi.random(-power,power)
 }
 // ========================= CAMERA ========================= //
-// #endregion
+// #endregion   
 
 // 타일맵 생성
 function  tileRelocation(){
@@ -405,7 +405,8 @@ phi.loop(() => {
                                         'tile':changedTile,
                                     })
                                     window.inventory[inventory_select] = null
-                                    
+                                    // TINF.TILE = 0
+                                    // TINF.isBlock = false
                                 }
                             }
                         }
@@ -419,7 +420,6 @@ phi.loop(() => {
                         }
                         
                         if (destroyTimeStart < Date.now() && destroy_flag){
-                            if (TINF.TILE == 0){ destroyTimeStart = Date.now() + 2000; continue; }
                             
                             window.particle('sculpture_1',[
                                 obj.x + moveX - cameraAdjX + obj.width/2,
@@ -436,9 +436,10 @@ phi.loop(() => {
                                 'itemPos':[obj.x+obj.width/2- cameraAdjX+moveX,obj.y+obj.height/2 - cameraAdjY+moveY],
                             })
                             
-                            TINF.isBlock = true
-                            console.log(TINF.isBlock)
+                            TINF.TILE = 0
+                            TINF.isBlock = false
                             isChangeBlock  = [true,false]
+                            console.log(TINF.isBlock)
                             destroy_flag = false
                             
                         }
@@ -449,6 +450,7 @@ phi.loop(() => {
             
                     const TILE_DATA = MAP_DATA[String(TINF.chunkId)][TINF.innerChunkId]; // 진짜 맵데이터
                     const _TILE = MAP_DATA_TRANSLATOR[TILE_DATA.tile];
+                    
                     if (_TILE != null){
                         if (TINF.TILE == TILE_DATA.tile){
                             phi.goto(TINF.TILEOBJ,[obj.x,obj.y]);
@@ -473,6 +475,7 @@ phi.loop(() => {
                     
                     // 현재 포커스중인 타일의 종류저장
                     if (phi.isEncounterPos(obj,mousePos)) {
+                        // TINF.TILE = 02
                         selectTile = TINF.TILE
                     }
                     
@@ -487,10 +490,19 @@ phi.loop(() => {
                     )
                     reqeustChunkId.push(String(TINF.chunkId)) // 중복요청 방지
                 }
+
+                // TINF.TILE = 0
+                // TINF.isBlock = false
+
             }
+
+
+
+
+
             moveX -= moveL - moveR;
             moveY -= moveU - moveD;
-            // console.log(selectTile)
+            console.log(selectTile)
             // 엔티티 시스템
             for (let key in entity.allEntity){
                 let ntt = entity.allEntity[key];
