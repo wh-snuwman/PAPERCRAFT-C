@@ -5,7 +5,7 @@ import "./particle.js"
 
 (async () => {
     //====== DEV =======
-    window.isDev = true;
+    window.isDev = false;
     //==================
 
     window.wing = new wingAPI();
@@ -108,7 +108,7 @@ import "./particle.js"
             case("tileEdit"):{
                 const mode = DATA.mode
                 const id = DATA.id
-                
+
                 const tileData = DATA.tileData
                 const chunkId = `${id[0]},${id[1]}`
                 MAP_DATA[chunkId][id[2]] = tileData
