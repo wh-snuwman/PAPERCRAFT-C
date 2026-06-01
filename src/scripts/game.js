@@ -439,7 +439,7 @@ phi.loop(() => {
                             TINF.TILE = 0
                             TINF.isBlock = false
                             isChangeBlock  = [true,false]
-                            console.log(TINF.isBlock)
+                            // console.log(TINF.isBlock)
                             destroy_flag = false
                             
                         }
@@ -502,7 +502,7 @@ phi.loop(() => {
 
             moveX -= moveL - moveR;
             moveY -= moveU - moveD;
-            console.log(selectTile)
+            // console.log(selectTile)
             // 엔티티 시스템
             for (let key in entity.allEntity){
                 let ntt = entity.allEntity[key];

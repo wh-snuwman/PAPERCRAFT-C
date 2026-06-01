@@ -65,7 +65,10 @@ export class EntitySys {
     }
     
     editEntityTag(id,Intag,data){
-        this.allEntity[id]['tag'][Intag] = data
+        // console.log(allEntity[id])
+        if (id in this.allEntity){
+            this.allEntity[id]['tag'][Intag] = data
+        }
     }
 
     removeEntity(id_){

@@ -57,6 +57,7 @@ import "./particle.js"
                 const pos = DATA.ntt.pos
                 const tag = DATA.ntt.tag
                 const inventory = DATA.ntt.inventory
+                console.log(DATA)
                 
                 if (DATA.me){
                     playerId = id
@@ -65,10 +66,15 @@ import "./particle.js"
                     isFinishLoading = true
                 } 
                 let n = new window.motion()
+
+                // console.log(DAT/A.ntt.tag)
+
                 window.entity.newEntity(
                     'player',name,pos,n,tag,id
                 ); 
+                // console.log('새로운 플레이어 참가함!')
                 break;
+
             }
             case('playerLeft'):{
                 if (DATA == window.playerId){
@@ -123,7 +129,7 @@ import "./particle.js"
                         let obj = TINF.obj
                         const TILE_DATA = MAP_DATA[String(TINF.chunkId)][TINF.innerChunkId];
                         MAP_DATA_TRANSLATOR[TILE_DATA.tile] = 0
-                        // console.log(TILE_DATA2)
+                        // console.log(TILE_DATA2)아-++++-
                     } 
                 }
                 break;
@@ -149,6 +155,7 @@ import "./particle.js"
             } 
             case('playerMotionEdit'):{
                 const id = DATA.id
+                // console.log(DATA)
                 if (DATA.id == playerId)break;
                 entity.editEntityTag(id,'motionKeyData',DATA)
                 
