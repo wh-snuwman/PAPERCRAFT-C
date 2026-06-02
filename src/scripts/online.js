@@ -52,8 +52,11 @@ import "./particle.js"
                 break;
             }
             case('playerJoin'):{ // 플레이어가 참가했을때 최초로 실행되는 코드
+                
+                // console.log('디버깅 : ',DATA)
+                
+                const id = DATA.id
                 const name = DATA.ntt.name
-                const id = DATA.ntt.id
                 const pos = DATA.ntt.pos
                 const tag = DATA.ntt.tag
                 const inventory = DATA.ntt.inventory
@@ -155,11 +158,10 @@ import "./particle.js"
             } 
             case('playerMotionEdit'):{
                 const id = DATA.id
-                // console.log(DATA)
                 if (DATA.id == playerId)break;
                 entity.editEntityTag(id,'motionKeyData',DATA)
                 
-                
+
                 break;  
                 
             }

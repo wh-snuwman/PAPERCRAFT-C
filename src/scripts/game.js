@@ -138,8 +138,8 @@ const chunkSize = 8; // 청크사이즈 // 청크는 맵생성 최적화를 위�
 const adjX = -tileSize*1.5; // 전체타일의 위치조정
 const adjY = -tileSize*1.5;  // 전체타일의 위치조정
 
-let renderLimitUse = false;
-let renderLimitDistant = tileSize * 7; // 기기의 성능이 너무 낮을시 렌더링되는 타일의 수를 낮춘다.(화면중앙 기준 거리)=-9
+let renderLimitUse = true;
+let renderLimitDistant = tileSize * 4; // 기기의 성능이 너무 낮을시 렌더링되는 타일의 수를 낮춘다.(화면중앙 기준 거리)=-9
 let attackCancelTime = 0
 
 // ========================= CAMERA ========================= //
