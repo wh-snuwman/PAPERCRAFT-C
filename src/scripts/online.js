@@ -5,7 +5,7 @@ import "./particle.js"
 
 (async () => {
     //====== DEV =======
-    window.isDev = false;
+    window.isDev = true;
     //==================
 
     await isAllImgLoad
@@ -16,6 +16,7 @@ import "./particle.js"
     window.join = false
     window.isLogin = false
     window.host = ''
+    
     if (isDev) window.host = 'localhost'
     else window.host = 'papversus.com'
     window.port = 4000
@@ -114,6 +115,7 @@ import "./particle.js"
                 window.MAP_DATA[chunkId][id[2]] = tileData
                 for (let index in window.TILE){
                     const TINF = window.TILE[index]
+                    TINF.isBlock = false
                     if ( id == TINF.id ){
                         let obj = TINF.obj
                         const TILE_DATA = MAP_DATA[String(TINF.chunkId)][TINF.innerChunkId];
