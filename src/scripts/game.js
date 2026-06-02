@@ -438,7 +438,7 @@ phi.loop(() => {
                             
                             TINF.TILE = 0
                             TINF.isBlock = false
-                            isChangeBlock  = [true,false]
+                            // isChangeBlock  = [true,false]
                             destroy_flag = false
                             
                         }
@@ -479,7 +479,7 @@ phi.loop(() => {
                     }
                     
                     // 벽인가? 를 초기화
-                    if (isChangeBlock[0]) TINF.isBlock = isChangeBlock[1] 
+                    // if (isChangeBlock[0]) TINF.isBlock = isChangeBlock[1] 
 
 
                 } else {
