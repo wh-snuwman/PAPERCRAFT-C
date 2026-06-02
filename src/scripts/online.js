@@ -1,5 +1,5 @@
 import {wingAPI} from "../../wingAPI/src/script/wingAPI.js"
-import "./imgLoad.js"
+// import "./imgLoad.js"
 import './game.js'
 import "./particle.js"
 
@@ -8,6 +8,7 @@ import "./particle.js"
     window.isDev = false;
     //==================
 
+    await isAllImgLoad
     window.wing = new wingAPI();
     window.startLoadFinish = false // 게임파일의 완전한 로딩 끝남 여부
     window.playerId = ''//  내 아이디 

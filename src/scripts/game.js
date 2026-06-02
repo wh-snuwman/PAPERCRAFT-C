@@ -1,5 +1,5 @@
 import "./phiInit.js" // webgl2 기반 그래픽조정  모듈
-import "./imgLoad.js" // webgl2 기반 그래픽조정  모듈
+// import "./imgLoad.js" // webgl2 기반 그래픽조정  모듈
 import "./online.js" // webgl2 기반 그래픽조정  모듈
 import "./particle.js"
 import "./motion.js"
@@ -267,7 +267,11 @@ tileRelocation()
 let DT = 0;
 let currentTime = performance.now();
 let lastTime = performance.now();
+
 phi.loop(() => {
+    console.log(window.isEssentialImgLoad,window.isAllImgLoad)
+
+
     //#region 
     currentTime = performance.now();
     DT = (currentTime - lastTime)/100;
@@ -435,7 +439,6 @@ phi.loop(() => {
                             TINF.TILE = 0
                             TINF.isBlock = false
                             isChangeBlock  = [true,false]
-                            // console.log(TINF.isBlock)
                             destroy_flag = false
                             
                         }
@@ -496,7 +499,6 @@ phi.loop(() => {
 
             moveX -= moveL - moveR;
             moveY -= moveU - moveD;
-            // console.log(selectTile)
             // 엔티티 시스템
             for (let key in entity.allEntity){
                 let ntt = entity.allEntity[key];
@@ -686,8 +688,6 @@ phi.loop(() => {
                             }
                         }
                     }
-                    // console.log(action)
-
 
 
                     if (click_l && inventory[inventory_select] == 'gun' && action == 'attack'){ // 총쏘기
@@ -748,8 +748,26 @@ phi.loop(() => {
             for (let obj of particleBlitList) phi.blit(obj);
             particleBlitList = [];
             
+            for (const name in COBJ['game_main']){
+                let obj = COBJ['game_main'][name]
+    
+                if (name == 'inventory'){
+                    phi.blit(obj)
+                    for (let i in inventory){
+                        if (inventory[i] == null) continue;
+                        let itemObj = inventory_innereObj[i]
+                        itemObj.img = IMG.ITEM[inventory[i]]
+                        phi.goto(itemObj,[obj.x+(i*inventory_Interval)+18,obj.y+13])
+                        phi.blit(itemObj)
+                    }
+                }
+                else if (name == 'inventory_select'){
+                    const obj_ = phi.obj(obj.img,[obj.x+(inventory_select*inventory_Interval)+36-inventory_Interval*5,obj.y-5],null) 
+                    phi.blit(obj_)
+    
+                }
+            }
         }
-
         for (const name in COBJ['game_main']){
             let obj = COBJ['game_main'][name]
 
@@ -787,6 +805,7 @@ phi.loop(() => {
 });
 
 // #region
+
 document.addEventListener('mousemove',(e)=>{
     mousePos = [e.offsetX/phi.screenRatio*phi.dpr,e.offsetY/phi.screenRatio*phi.dpr]
     
