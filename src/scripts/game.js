@@ -494,8 +494,6 @@ phi.loop(() => {
 
 
 
-
-
             moveX -= moveL - moveR;
             moveY -= moveU - moveD;
             // console.log(selectTile)
