@@ -138,7 +138,7 @@ const chunkSize = 8; // 청크사이즈 // 청크는 맵생성 최적화를 위�
 const adjX = -tileSize*1.5; // 전체타일의 위치조정
 const adjY = -tileSize*1.5;  // 전체타일의 위치조정
 
-let renderLimitUse = true;
+let renderLimitUse = false;
 let renderLimitDistant = tileSize * 4; // 기기의 성능이 너무 낮을시 렌더링되는 타일의 수를 낮춘다.(화면중앙 기준 거리)=-9
 let attackCancelTime = 0
 
@@ -395,20 +395,18 @@ phi.loop(() => {
                         if (click_r){
                             if (window.inventory[inventory_select] != null && selectTile == 0 && phi.distanceGetObj(playerObj,obj) > tileSize){
                                 if (window.inventory[inventory_select] == 'plank_block'){
-                                    wing.send("itemDel",{
+                                    wing.send("playerItemRemove",{
                                         'itemType':inventory[inventory_select],
                                         'invenIndex':inventory_select,
                                     })
                                     wing.send("tileEdit",{
                                         'mode':'build',
                                         'id':TINF.id,
+                                        'pos':[moveX,moveY],
                                         'tile':changedTile,
                                     })
-                                    window.inventory[inventory_select] = null
-                                    // TINF.TILE = 0
-                                    // TINF.isBlock = false
                                 }
-                            }
+                            }2
                         }
 
                         if (press_l && action == 'destroy'){
@@ -429,11 +427,9 @@ phi.loop(() => {
                             wing.send("tileEdit",{
                                 'mode':'destroy',
                                 'id':TINF.id,
+                                'pos':[obj.x + moveX - cameraAdjX + obj.width/2,
+                                    obj.y + moveY - cameraAdjY + obj.height/2],
                                 'tile':0,
-                            })
-                            wing.send("itemSpwan",{
-                                'itemType':'plank_block',
-                                'itemPos':[obj.x+obj.width/2- cameraAdjX+moveX,obj.y+obj.height/2 - cameraAdjY+moveY],
                             })
                             
                             TINF.TILE = 0
@@ -547,7 +543,8 @@ phi.loop(() => {
                     phi.text(`${nameText}`,[obj.x+playerSize[0]/2,obj.y-20],`${30*phi.screenRatio*tileRatio}px`,'black','Roboto sans-serif','center');
                     
                 
-                } else if (ntt.type == 'bullet'){
+                }
+                else if (ntt.type == 'bullet'){
                     phi.reSize(obj,[20,20])
                     phi.rotate(obj,8)
                     phi.move(obj,[-obj.width/2,-obj.height/2])
@@ -565,7 +562,8 @@ phi.loop(() => {
                         }
                     }
                        
-                } else if (ntt.type == 'particle'){
+                } 
+                else if (ntt.type == 'particle'){
                     switch(ntt.tag.particleType){
                         case('sculpture'):{
                             ntt.tag.adjX = ntt.tag.addX
@@ -638,7 +636,21 @@ phi.loop(() => {
                             break
                         }
                     }
+                
+                
+                
+                
                 }
+                else if (ntt.type == 'item'){
+                    if ( interaction && phi.distanceGetObj(obj,playerObj) < tileSize*0.8){
+                        window.wing.send(
+                            'requestGetItem',{
+                                'nttId':ntt.id,
+                            }
+                        )
+                    }
+                }
+                
                 if (ntt.type != 'particle'){
                     sortRender(obj)
                 } else {
@@ -720,7 +732,7 @@ phi.loop(() => {
                                 (mousePos[1]) + moveY - cameraAdjY
                             ],
                         })
-                        window.inventory[inventory_select] = null
+                        // window.inventory[inventory_select] = null
                     }
                 }
             }
@@ -771,6 +783,7 @@ phi.loop(() => {
 
     if (drop) drop=false;
     if (click_l) click_l=false;
+    if (interaction) interaction=false;
     if (click_r) click_r=false;
     lastTime = currentTime;
 });
@@ -812,7 +825,7 @@ document.addEventListener('keyup',(e)=>{// 움직임(뗴기)
     if(e.key == 'a' || e.key == 'A') leftKey = false;
     if(e.key == 's' || e.key == 'S') downKey = false;
     if(e.key == 'd' || e.key == 'D') rightKey = false;
-    if(e.key == 'e' || e.key == 'E') interaction = false;
+    // if(e.key == 'e' || e.key == 'E') interaction = false;
 })
 window.addEventListener('contextmenu', function (e) {
   e.preventDefault(); 

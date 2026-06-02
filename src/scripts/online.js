@@ -44,7 +44,6 @@ import "./particle.js"
     wing.recv((recvData)=>{
         const CODE = recvData.code // code은 무조건 받음.
         const DATA = recvData.data
-
         switch(CODE){
             case('chunkData'):{ // 게임내의 청크데이터 불러오기
                 const chunkId = DATA.chunkId;
@@ -52,15 +51,11 @@ import "./particle.js"
                 break;
             }
             case('playerJoin'):{ // 플레이어가 참가했을때 최초로 실행되는 코드
-                
-                // console.log('디버깅 : ',DATA)
-                
                 const id = DATA.id
                 const name = DATA.ntt.name
                 const pos = DATA.ntt.pos
                 const tag = DATA.ntt.tag
                 const inventory = DATA.ntt.inventory
-                console.log(DATA)
                 
                 if (DATA.me){
                     playerId = id
@@ -69,13 +64,9 @@ import "./particle.js"
                     isFinishLoading = true
                 } 
                 let n = new window.motion()
-
-                // console.log(DAT/A.ntt.tag)
-
                 window.entity.newEntity(
                     'player',name,pos,n,tag,id
                 ); 
-                // console.log('새로운 플레이어 참가함!')
                 break;
 
             }
@@ -117,22 +108,15 @@ import "./particle.js"
             case("tileEdit"):{
                 const mode = DATA.mode
                 const id = DATA.id
-                
                 const tileData = DATA.tileData
                 const chunkId = [id[0],id[1]]
                 window.MAP_DATA[chunkId][id[2]] = tileData
-                
-                // console.log(DATA)
                 for (let index in window.TILE){
                     const TINF = window.TILE[index]
-                    // console.log(id,TINF.id22)
-                    // consolezz
                     if ( id == TINF.id ){
-                        // console.log('asd')
                         let obj = TINF.obj
                         const TILE_DATA = MAP_DATA[String(TINF.chunkId)][TINF.innerChunkId];
                         MAP_DATA_TRANSLATOR[TILE_DATA.tile] = 0
-                        // console.log(TILE_DATA2)아-++++-
                     } 
                 }
                 break;
@@ -172,6 +156,7 @@ import "./particle.js"
                 const ntt = entity.get(id)
                 ntt.health = health
 
+
                 if (id == playerId){
                     const w = ntt.motion.retObj.width
                     const h = ntt.motion.retObj.height
@@ -196,12 +181,25 @@ import "./particle.js"
 
                 }
                 break;
+                
             }
             case('playerGetItem'):{
                 const playerId = DATA.playerId; 
                 const itemId = DATA.id;
-                inventoryAdd(entity.get(itemId).tag.itemType)
+                if (playerId == window.playerId){
+                    inventoryAdd(entity.get(itemId).tag.itemType)
+                }
                 entity.removeEntity(itemId)
+                break;
+            }
+            case('playerItemRemove'):{
+                const index = DATA.index
+                const id = DATA.id
+                if (id == window.playerId){
+                    window.inventory[index] = null
+                }
+                
+                
                 break;
             }
         }
@@ -213,7 +211,7 @@ import "./particle.js"
     wing.login(`${tmep}`,`${tmep}`)
     // wing.signup('1234','1234')
     // wing.login('1234','1234')
-
+ 
     if (!window.isDev){   
         setInterval(function() {
             debugger;
