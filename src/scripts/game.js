@@ -269,7 +269,7 @@ let currentTime = performance.now();
 let lastTime = performance.now();
 
 phi.loop(() => {
-    console.log(window.isEssentialImgLoad,window.isAllImgLoad)
+    // console.log(window.isEssentialImgLoad,window.isAllImgLoad)
 
 
     //#region 

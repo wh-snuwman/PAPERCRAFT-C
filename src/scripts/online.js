@@ -118,7 +118,7 @@ import "./particle.js"
 
                     if (mode == 'destroy'){
                         if ( JSON.stringify(id) == JSON.stringify(TINF.id) ){
-                            console.log('asd')
+                            // console.log('asd')
                             let obj = TINF.obj
                             TINF.isBlock = false
                             TINF.TILE = 0
