@@ -38,7 +38,7 @@ import "./particle.js"
     });
 
     wing.error((error)=>{
-        isOnlineError = trued
+        isOnlineError = true
         window.SCENE = 'error'
         // console.error(error)
     });
