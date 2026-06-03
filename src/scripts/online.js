@@ -5,7 +5,7 @@ import "./particle.js"
 
 (async () => {
     //====== DEV =======
-    window.isDev = true;
+    window.isDev = false;
     //==================
 
     await isAllImgLoad
@@ -115,12 +115,15 @@ import "./particle.js"
                 window.MAP_DATA[chunkId][id[2]] = tileData
                 for (let index in window.TILE){
                     const TINF = window.TILE[index]
-                    TINF.isBlock = false
-                    if ( id == TINF.id ){
-                        let obj = TINF.obj
-                        const TILE_DATA = MAP_DATA[String(TINF.chunkId)][TINF.innerChunkId];
-                        MAP_DATA_TRANSLATOR[TILE_DATA.tile] = 0
-                    } 
+
+                    if (mode == 'destroy'){
+                        if ( JSON.stringify(id) == JSON.stringify(TINF.id) ){
+                            console.log('asd')
+                            let obj = TINF.obj
+                            TINF.isBlock = false
+                            TINF.TILE = 0
+                        }
+                    }
                 }
                 break;
             }

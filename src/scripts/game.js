@@ -466,8 +466,9 @@ phi.loop(() => {
                         ])
                         
                         if (!renderLimitUse || renderLimitUse && renderLimitDistant > phi.distanceGetObj(TINF.TILEOBJ,phi.obj(null,[phi.width/2/phi.screenRatio,phi.height/2/phi.screenRatio],[0,0]))){
-                            
-                            sortRender(TINF.TILEOBJ);
+                            if (_TILE != null){
+                                sortRender(TINF.TILEOBJ);
+                            }
                         } 
                         TINF.isBlock = wallTile.includes(TINF.TILE) ? true : false;
                     }
@@ -477,10 +478,6 @@ phi.loop(() => {
                         // TINF.TILE = 02
                         selectTile = TINF.TILE
                     }
-                    
-                    // 벽인가? 를 초기화
-                    // if (isChangeBlock[0]) TINF.isBlock = isChangeBlock[1] 
-
 
                 } else {
                     window.wing.send( // 데이터 요청
@@ -489,10 +486,6 @@ phi.loop(() => {
                     )
                     reqeustChunkId.push(String(TINF.chunkId)) // 중복요청 방지
                 }
-
-                // TINF.TILE = 0
-                // TINF.isBlock = false
-
             }
 
 
