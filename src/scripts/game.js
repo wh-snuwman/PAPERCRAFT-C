@@ -20,10 +20,10 @@ window.MAP_DATA_TRANSLATOR = {
 
 }
 
-window.SCENE = 'error'; // 현재장면
+window.SCENE = 'menu_main'; // 현재장면
 
 const SCENE_LIST = [ // 모든 장면을 처음에 선언(장면사용시 필수)
-    'menu_start','menu_main','menu_load',
+    'menu_main','menu_load',
     'game_main',
     'error',
     'game_die'
@@ -37,10 +37,11 @@ for (let scene of SCENE_LIST){
 }
 
 let COBJ = { // Common OBJ. 자동으로 그려지고 위치가 조정되는 OBJ를 저장.
-    'menu_start':{ // 이코드에서는 선언과 이미지적용만 한다
+    'menu_main':{ // 이코드에서는 선언과 이미지적용만 한다
         back : phi.obj(IMG.UI.main_back,[0,0]), 
         title : phi.obj(IMG.UI.main_title,[0,0]),
-        list_btn : phi.obj(IMG.UI.common_msgbox,[0,0]),
+        connect_btn : phi.obj(IMG.UI.server_banner_apple,[0,0]),
+        // server_apple_btn : phi.obj(IMG.UI.server_banner_apple,[0,0]),
         // title : phi.obj(IMG.UI.main_title,[0,0]),
     },
     "game_main":{
@@ -58,17 +59,21 @@ let COBJ = { // Common OBJ. 자동으로 그려지고 위치가 조정되는 OBJ
 
 function CBOJ_RESIZE(){ // COBJ에서 장면에 따라 위치가 자동으로 조정되게 하는 함수.  
     const sr = phi.screenRatio
-    phi.goto(COBJ['menu_start'].back,[(phi.width/sr-IMG.UI.main_back.width)/2,(phi.height/sr-IMG.UI.main_back.height)/2])
-    phi.goto(COBJ['menu_start'].title,[(phi.width/sr-IMG.UI.main_title.width)/2,((phi.height-IMG.UI.main_title.height)/2/sr)])
-    phi.goto(COBJ['menu_start'].list_btn,[(phi.width/sr-IMG.UI.common_msgbox.width)/2,phi.height/sr*0.6]) 
+    phi.goto(COBJ['menu_main'].back,[0,0])
+    // phi.goto(COBJ['menu_main'].back,[(phi.width/sr-IMG.UI.main_back.width)/2,(phi.height/sr-IMG.UI.main_back.height)/2])
+    // phi.goto(COBJ['menu_main'].title,[(phi.width/sr-IMG.UI.main_title.width)/2,((phi.height-IMG.UI.main_title.height)/2/sr)])
+    phi.goto(COBJ['menu_main'].title,[(IMG.UI.main_back.width-IMG.UI.main_title.width)/2,(IMG.UI.main_back.height-IMG.UI.main_title.height)/2 - 180])
+    phi.goto(COBJ['menu_main'].connect_btn,[(IMG.UI.main_back.width-IMG.UI.server_banner_apple.width)/2,(IMG.UI.main_back.height-IMG.UI.server_banner_apple.height)/2 + 180]) 
+    
+    
     phi.goto(COBJ['game_main'].inventory,[
         (phi.width/phi.screenRatio-IMG.UI.player_inventory.width)/2,
-        phi.height/phi.screenRatio-IMG.UI.player_inventory.height
-    ])
+        phi.height/phi.screenRatio-IMG.UI.player_inventory.height])
     phi.goto(COBJ['game_main'].inventory_select,[
         (phi.width/phi.screenRatio-IMG.UI.player_inventory_select.width)/2,
-        phi.height/phi.screenRatio-IMG.UI.player_inventory_select.height
-    ])
+        phi.height/phi.screenRatio-IMG.UI.player_inventory_select.height])
+
+
     phi.goto(COBJ['error'].art,[0,0])
     phi.goto(COBJ['game_die'].art,[0,0])
 }
@@ -102,6 +107,7 @@ let moveU = 0; //
 let moveD = 0; //
 let moveX = 0; //
 let moveY = 0; //
+let wheel = 0;
 
 let isFocus = true;
 
@@ -262,16 +268,22 @@ let destroyTime = 0
 let selectTile = 0;
 
 
-
+await isAllImgLoad
 tileRelocation()
 let DT = 0;
 let currentTime = performance.now();
 let lastTime = performance.now();
-
 phi.loop(() => {
     // console.log(window.isEssentialImgLoad,window.isAllImgLoad)
+    
+    if (window.connect && !connect_flag){
+        const tmep = (Math.random())
+        wing.signup(`${tmep}`,`${tmep}`)
+        wing.login(`${tmep}`,`${tmep}`)
+        window.connect_flag =true
+    } 
 
-
+    
     //#region 
     currentTime = performance.now();
     DT = (currentTime - lastTime)/100;
@@ -294,10 +306,19 @@ phi.loop(() => {
 
     switch (SCENE){
 
-        case 'menu_start' : {// 접속시 첫메뉴
-            for (const name in COBJ['menu_start']){
-                let obj = COBJ['menu_start'][name]
-                phi.blit(obsj)
+        case 'menu_main' : {// 접속시 첫메뉴
+            for (const name in COBJ['menu_main']){
+                let obj = COBJ['menu_main'][name]
+                phi.blit(obj)
+                if (name == 'connect_btn'){
+                    if (phi.isEncounterPos(obj,mousePos) && click_l){
+                        wing.connect(`ws://${host}:4000`);
+                        
+                    }
+                    // phi.text(`White Server`,[obj.x+20,obj.y+30],`${30*phi.screenRatio*tileRatio}px`,'black','Roboto sans-serif');
+                    // phi.blit(COBJ['menu_main'].)
+                    // console.log('asd')
+                }
             }
             break;
         }
@@ -741,6 +762,19 @@ phi.loop(() => {
             for (let obj of particleBlitList) phi.blit(obj);
             particleBlitList = [];
             
+            if (wheel > 0){
+                inventory_select ++
+                if (inventory_select > 9){
+                    inventory_select = 0
+                }   
+            } 
+            else if (wheel < 0){
+                inventory_select --
+                if (inventory_select < 0){
+                    inventory_select = 9
+                }   
+            }
+            
             for (const name in COBJ['game_main']){
                 let obj = COBJ['game_main'][name]
     
@@ -760,36 +794,18 @@ phi.loop(() => {
     
                 }
             }
-        }
-        for (const name in COBJ['game_main']){
-            let obj = COBJ['game_main'][name]
-
-            if (name == 'inventory'){
-                phi.blit(obj)
-                for (let i in inventory){
-                    if (inventory[i] == null) continue;
-                    let itemObj = inventory_innereObj[i]
-                    itemObj.img = IMG.ITEM[inventory[i]]
-                    phi.goto(itemObj,[obj.x+(i*inventory_Interval)+18,obj.y+13])
-                    phi.blit(itemObj)
-                }
-            }
-            else if (name == 'inventory_select'){
-                const obj_ = phi.obj(obj.img,[obj.x+(inventory_select*inventory_Interval)+36-inventory_Interval*5,obj.y-5],null) 
-                phi.blit(obj_)
-
-            }
+            cameraShakeX += (0 - cameraShakeX) / 10
+            cameraShakeY += (0 - cameraShakeY) / 10
+            phi.goto(pointerObj,mousePos)
+            phi.blit(pointerObj)
+            break;
         }
 
 
 
-        cameraShakeX += (0 - cameraShakeX) / 10
-        cameraShakeY += (0 - cameraShakeY) / 10
-        phi.goto(pointerObj,mousePos)
-        phi.blit(pointerObj)
-        break;ㅇ
     }
 
+    if (wheel) wheel = 0;
     if (drop) drop=false;
     if (click_l) click_l=false;
     if (interaction) interaction=false;
@@ -807,6 +823,14 @@ document.addEventListener('mousedown',(e) => { // 클릭
     if (e.button == 0){click_l = true; press_l=true};
     if (e.button == 2)click_r = true; press_r=true;
 });
+document.addEventListener('wheel',(e)=>{
+    if (e.deltaY > 0){
+        wheel = 1 
+    } else {
+        wheel = -1
+    }
+})
+
 document.addEventListener('mouseup',(e) => { // 클릭
     if (e.button == 0)press_l=false;
     if (e.button == 2)press_r=false;

@@ -5,10 +5,11 @@ import "./particle.js"
 
 (async () => {
     //====== DEV =======
-    window.isDev = false;
+    window.isDev = true;
     //==================
 
     await isAllImgLoad
+    
     window.wing = new wingAPI();
     window.startLoadFinish = false // 게임파일의 완전한 로딩 끝남 여부
     window.playerId = ''//  내 아이디 
@@ -24,9 +25,14 @@ import "./particle.js"
     window.isFinishLoading = false
     const tmep = (Math.random())
 
+    window.connect = false
+    window.connect_flag = false
+
+
 
     wing.start(()=>{
         window.SCENE = 'game_main'
+        window.connect = true
     })
 
     wing.close(()=>{
@@ -211,27 +217,27 @@ import "./particle.js"
         }
     })
     
-    if (isDev)await wing.connect(`ws://${host}:4000`);
-    else await wing.connect(`wss://${host}/ws`);
-    wing.signup(`${tmep}`,`${tmep}`)
-    wing.login(`${tmep}`,`${tmep}`)
+
+    
+    
+
     // wing.signup('1234','1234')
     // wing.login('1234','1234')
  
-    if (!window.isDev){   
-        setInterval(function() {
-            debugger;
-        });
+    // if (!window.isDev){   
+        // setInterval(function() {
+        //     debugger;
+        // });
         
-        document.addEventListener('contextmenu', event => event.preventDefault());
-        document.addEventListener('keydown', function(e) {
-          if (
-            e.key === 'F12' ||
-            (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) ||
-            (e.ctrlKey && e.key === 'U')
-          ) {
-            e.preventDefault();
-          }
-        });
-    }
+        // document.addEventListener('contextmenu', event => event.preventDefault());
+        // document.addEventListener('keydown', function(e) {
+        //   if (
+        //     e.key === 'F12' ||
+        //     (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) ||
+        //     (e.ctrlKey && e.key === 'U')
+        //   ) {
+        //     e.preventDefault();
+        //   }
+        // });
+    // }
 })(); 
