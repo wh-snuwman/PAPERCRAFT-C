@@ -1,7 +1,8 @@
 window.motion = class {
-    constructor() {
-        this.type = '';
+    constructor(type='') {
+        this.type = type;
         this.retObj = phi.obj(null,[0,0],[0,0]);
+
         this.isFlip = false;
         this.frame = null;
         this.sinN = 0;
@@ -28,7 +29,7 @@ window.motion = class {
 
     _devtest(pos){
         this.retObj = phi.obj(IMG.PLAYER[0],pos)
-        phi.reSizeBy(this.retObj,0.7  *tileRatio,'default');
+        phi.reSizeBy(this.retObj,0.7*tileRatio,'default');
         return this.retObj
     }
 
@@ -198,6 +199,34 @@ window.motion = class {
         phi.rotate(this.retObj,this.rotate)
         phi.reSizeBy(this.retObj,0.7 * tileRatio,'default');
         return this.retObj
+
+    }
+
+    renderNotPLayer(type,pos,isFlip,isMove){
+        if (type == 'soldier'){
+            if (isMove){
+                this.retObj = phi.obj(IMG.ENTITY['soldier'][1],pos)
+            } else {
+                this.retObj = phi.obj(IMG.ENTITY['soldier'][0],pos)
+            }
+
+
+            if (isMove){
+                this.sinN++;
+                this.rotate += (0 - this.rotate) /10
+                this.rotate = Math.sin(this.sinN/7)*5
+                // if isMove
+                phi.moveY(this.retObj,Math.cos(this.sinN/3.5)*5)   
+            } else {
+                this.rotate = 0
+                this.sinN = 0
+            }
+    
+            if (isFlip){phi.flip(this.retObj,'hor')}
+            phi.rotate(this.retObj,this.rotate)
+            phi.reSizeBy(this.retObj,0.7 * tileRatio,'default');
+            return this.retObj
+        }
 
     }
 }

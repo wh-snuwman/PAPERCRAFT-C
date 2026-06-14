@@ -71,7 +71,7 @@ import "./particle.js"
                     window.inventory = inventory
                     isFinishLoading = true
                 } 
-                let n = new window.motion()
+                let n = new window.motion('player')
                 window.entity.newEntity(
                     'player',name,pos,n,tag,id
                 ); 
@@ -90,21 +90,22 @@ import "./particle.js"
                 const EDIT = DATA.edit;
                 const POS = DATA.pos;
                 const ID = DATA.id;
+                const TAG = DATA.tag;
                 for (let editCODE of EDIT){
                     if (editCODE == 'pos'){
                         if (ID != playerId){
                             try{
                                 entity.editEntity(ID,'pos',POS)
-                            } catch(e) {
+                            } catch(e){
                                 null
                             }
                         }
                     }
+                    else if (editCODE == 'tag') {
+                        entity.editEntity(ID,'tag',TAG)
+                    }
                 }
                 break;
-
-
-
             }
             case("itemSpwan"):{
                 const itemType = DATA.itemType
@@ -140,12 +141,23 @@ import "./particle.js"
                 const tag = DATA.tag
                 const type = DATA.type
                 let img = null
+
                 if (type == 'bullet'){
                     img = window.IMG.ENTITY.bullet
+                    window.entity.newEntity(
+                        type,name,pos,{},tag,id,img
+                    ); 
                 }
-                window.entity.newEntity(
-                    type,name,pos,{},tag,id,img
-                ); 
+                if (type == 'soldier'){
+                    img = window.IMG.PLAYER[7]
+                    tag['motionKeyData'] = ''
+                    let n = new window.motion()
+                    entity.newEntity(
+                        type,name,pos,n,tag,id,img
+                    ); 
+                }
+                
+                // console.log(size_)
                 break;
             }
             case('entityRemove'):{

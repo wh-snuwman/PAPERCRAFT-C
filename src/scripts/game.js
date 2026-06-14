@@ -221,7 +221,7 @@ function renderTileSlecter(pos) {
 
 const wallTile = [4,5]
 const playerObj_thick = 3
-const playerSize = [tileSize,tileSize*2]
+window.playerSize = [tileSize,tileSize*2]
 const playerObjSize = [tileSize*0.6,tileSize*2]
 let playerObj = phi.obj(IMG.HITBOX,[0,0],[playerObjSize[0],playerObj_thick]);
 let gunFireDelay = 0
@@ -303,27 +303,23 @@ phi.loop(() => {
     phi.fill(0,0,0);
     //#endregion
 
-
+    
     switch (SCENE){
-
+        
         case 'menu_main' : {// 접속시 첫메뉴
             for (const name in COBJ['menu_main']){
                 let obj = COBJ['menu_main'][name]
+                wing.connect(`ws://${host}:4000`);
                 phi.blit(obj)
-                if (name == 'connect_btn'){
-                    if (phi.isEncounterPos(obj,mousePos) && click_l){
-                        wing.connect(`ws://${host}:4000`);
-                        
-                    }
-                    // phi.text(`White Server`,[obj.x+20,obj.y+30],`${30*phi.screenRatio*tileRatio}px`,'black','Roboto sans-serif');
-                    // phi.blit(COBJ['menu_main'].)
-                    // console.log('asd')
-                }
+                // if (name == 'conndect_btn'){
+                    // if (phi.isEncounterPos(obj,mousePos) && click_l){
+                    // }
+                // }
             }
             break;
         }
 
-        case "error" : {
+        case "error" : {s
             for (const name in COBJ['error']){
                 let obj = COBJ['error'][name]
                 phi.blit(obj)
@@ -525,6 +521,7 @@ phi.loop(() => {
                 
                 if (window.playerId == ntt.id){
                     phi.goto(playerObj,[obj.x+playerObjSize[0]/2,obj.y + playerObjSize[1] - playerObj_thick])
+                    
                     // phi.blit(playerObj)
                 }
 
@@ -664,12 +661,17 @@ phi.loop(() => {
                         )
                     }
                 }
-                
-                if (ntt.type != 'particle'){
-                    sortRender(obj)
-                } else {
-                    particleRender(obj)
+                else if (ntt.type == 'soldier'){
+                    const motionData = ntt.tag['motionKeyDasta']     
+                    // obj = ntt.motion.renderOther([obj.x,obj.y],motionData.frame,motionData.isFlip,motionData.isMove)
+                    const nttTag = ntt.tag
+                    
+                    // console.log(ntt)
+                    obj = ntt.motion.renderNotPLayer('soldier',[obj.x,obj.y],nttTag['isFlip'],true)
                 }
+                
+                if (ntt.type != 'particle') sortRender(obj)
+                else particleRender(obj)
 
                 if (window.playerId == ntt.id){
                     ntt.pos = [moveX,moveY]
@@ -748,12 +750,12 @@ phi.loop(() => {
                     }
                 }
             }
-
             if (cameraRun){
                 cameraMove(
                     ((-moveX+cameraShakeX) - cameraX) / 8,
                     ((-moveY+cameraShakeY) - cameraY) / 8,
                 )
+                
             }
             objSortList = objSortList.sort((a,b) => (a.y + a.height) - (b.y + b.height));
             for (let obj of objSortList) phi.blit(obj);

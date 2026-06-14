@@ -38,10 +38,10 @@ export class EntitySys {
         // 엔티티 시스템에서 엔티티(객체)의 데이터를 저장
         this.allEntity = {} 
     }
-    newEntity(type_,name_,pos_,motion_,tag_,id_,img_=null){
-        let size = [0,0];
-        if (img_){ size = null}
-        else size = [0,0]
+    newEntity(type_,name_,pos_,motion_,tag_,id_,img_=null,size_=[0,0]){
+        let size = size_;
+        // if (img_){ size = null}
+        // else size = [0,0]
         const ntt = new Entity()
         ntt.type = type_
         ntt.name = name_

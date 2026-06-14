@@ -22,6 +22,10 @@ async function loadImg(){
 
         ENTITY : {
             bullet : await phi.imgLoad("src/img/entity/bullet/0.png"),
+            soldier : [
+                await phi.imgLoad("src/img/entity/soldier/0.png"),
+                await phi.imgLoad("src/img/entity/soldier/1.png"),
+            ]
 
         },
 
