@@ -322,7 +322,7 @@ phi.loop(() => {
             break;
         }
 
-        case "error" : {s
+        case "error" : {
             for (const name in COBJ['error']){
                 let obj = COBJ['error'][name]
                 phi.blit(obj)
