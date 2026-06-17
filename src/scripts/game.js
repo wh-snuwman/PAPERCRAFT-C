@@ -315,7 +315,7 @@ phi.loop(() => {
                 phi.blit(obj)
                 if (name == 'connect_btn'){
                     if (phi.isEncounterPos(obj,mousePos) && click_l){
-                        wing.connect(`ws://${host}:4000`);
+                        wing.connect(`wss://${host}:4000`);
                     }
                 }
             }
