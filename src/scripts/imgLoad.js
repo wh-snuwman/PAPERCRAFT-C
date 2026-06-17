@@ -66,9 +66,10 @@ async function loadImg(){
             bush : await phi.imgLoad("src/img/tile/bush.png"),
             error_block : await phi.imgLoad("src/img/tile/error_block.png"),
             plank_block : await phi.imgLoad("src/img/tile/plank.png"),
-            // chest : await phi.imgLoad("src/img/tile/chest.png"),
-            // chest : await phi.imgLoad("src/img/tile/chest.png"),
-            // chest : await phi.imgLoad("src/img/tile/chest.png"),
+
+            stack_plank : await phi.imgLoad("src/img/tile/stack_plank.png"),
+            iron_block : await phi.imgLoad("src/img/tile/iron_block.png"),
+            street_lamp : await phi.imgLoad("src/img/tile/street_lamp.png"),
         },
 
         PLAYER : {

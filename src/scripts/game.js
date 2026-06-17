@@ -17,6 +17,9 @@ window.MAP_DATA_TRANSLATOR = {
     5 : 'craft_table',
     6 : 'bush',
     7 : 'plank_block',
+    8 : 'stack_plank',
+    9 : 'iron_block',
+    10: 'street_lamp'
 
 }
 
@@ -140,7 +143,7 @@ let speed = 10 * ( tileSize/tileSize_Default )// 플레이어 이동속도
 // 타일내에서 청크저장 : [<청크가로ID>,<청크세로ID>,<청크내부에서 부여숫자>]
 // 아래두 변수는 무조건 정수여야 한다.
 // 메모 : 뒷쪽의 정수는 설정에 따라 직접 조정하여 사용한다. 2정도로 설정하면 왠만하면 자연스럽게 렌더링된다.
-const chunkSize = 8; // 청크사이즈 // 청크는 맵생성 최적화를 위해 사용한다.(마인크래프트 생각하세요.꽤 유사할 겁니다.)
+const chunkSize = 6; // 청크사이즈 // 청크는 맵생성 최적화를 위해 사용한다.(마인크래프트 생각하세요.꽤 유사할 겁니다.)
 const adjX = -tileSize*1.5; // 전체타일의 위치조정
 const adjY = -tileSize*1.5;  // 전체타일의 위치조정
 
@@ -219,7 +222,7 @@ function renderTileSlecter(pos) {
     phi.blit(tileSelecterObj[1])
 }
 
-const wallTile = [4,5]
+const wallTile = [4,5,8,9,7]
 const playerObj_thick = 3
 window.playerSize = [tileSize,tileSize*2]
 const playerObjSize = [tileSize*0.6,tileSize*2]
@@ -309,12 +312,12 @@ phi.loop(() => {
         case 'menu_main' : {// 접속시 첫메뉴
             for (const name in COBJ['menu_main']){
                 let obj = COBJ['menu_main'][name]
-                wing.connect(`ws://${host}:4000`);
                 phi.blit(obj)
-                // if (name == 'conndect_btn'){
-                    // if (phi.isEncounterPos(obj,mousePos) && click_l){
-                    // }
-                // }
+                if (name == 'connect_btn'){
+                    if (phi.isEncounterPos(obj,mousePos) && click_l){
+                        wing.connect(`ws://${host}:4000`);
+                    }
+                }
             }
             break;
         }
