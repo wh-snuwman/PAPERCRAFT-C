@@ -309,17 +309,18 @@ phi.loop(() => {
         case 'menu_main' : {// 접속시 첫메뉴
             for (const name in COBJ['menu_main']){
                 let obj = COBJ['menu_main'][name]
-                wing.connect(`ws://${host}:4000`);
                 phi.blit(obj)
-                // if (name == 'conndect_btn'){
-                    // if (phi.isEncounterPos(obj,mousePos) && click_l){
-                    // }
-                // }
+                if (name == 'connect_btn'){
+                    if (phi.isEncounterPos(obj,mousePos) && click_l){
+                        wing.connect(`wss://${host}:4000`);
+                    
+                    }
+                }
             }
             break;
         }
 
-        case "error" : {s
+        case "error" : {
             for (const name in COBJ['error']){
                 let obj = COBJ['error'][name]
                 phi.blit(obj)
