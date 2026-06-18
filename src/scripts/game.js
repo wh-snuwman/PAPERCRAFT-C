@@ -316,13 +316,8 @@ phi.loop(() => {
                 phi.blit(obj)
                 if (name == 'connect_btn'){
                     if (phi.isEncounterPos(obj,mousePos) && click_l){
-                        
-                        
-
-                        
+                        null
                     }
-                    //  window.scene = 'game_main'
-                    // window.connect = true
                 }
             }
             break;
