@@ -281,6 +281,7 @@ phi.loop(() => {
     
     if (window.connect && !connect_flag){
         const tmep = (Math.random())
+        // console.log('asd')
         wing.signup(`${tmep}`,`${tmep}`)
         wing.login(`${tmep}`,`${tmep}`)
         window.connect_flag =true
@@ -315,8 +316,13 @@ phi.loop(() => {
                 phi.blit(obj)
                 if (name == 'connect_btn'){
                     if (phi.isEncounterPos(obj,mousePos) && click_l){
-                        wing.connect(`wss://${host}:4000`);
+                        
+                        
+
+                        
                     }
+                    //  window.scene = 'game_main'
+                    // window.connect = true
                 }
             }
             break;

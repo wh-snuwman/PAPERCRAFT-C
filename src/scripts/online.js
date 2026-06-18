@@ -31,6 +31,7 @@ import "./particle.js"
 
 
     wing.start(()=>{
+        console.log('asd')
         window.SCENE = 'game_main'
         window.connect = true
     })
@@ -229,27 +230,28 @@ import "./particle.js"
         }
     })
     
-
     
     
-
-    // wing.signup('1234','1234')
-    // wing.login('1234','1234')
- 
+    if (window.isDev){
+        wing.connect(`ws://${host}:${port}`);
+    } else {
+        wing.connect(`wss://${host}:${port}`);
+    }
     // if (!window.isDev){   
-        // setInterval(function() {
-        //     debugger;
-        // });
+    //     setInterval(function() {
+    //         debugger;
+    //     });
         
-        // document.addEventListener('contextmenu', event => event.preventDefault());
-        // document.addEventListener('keydown', function(e) {
-        //   if (
-        //     e.key === 'F12' ||
-        //     (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) ||
-        //     (e.ctrlKey && e.key === 'U')
-        //   ) {
-        //     e.preventDefault();
-        //   }
-        // });
+    //     document.addEventListener('contextmenu', event => event.preventDefault());
+    //     document.addEventListener('keydown', function(e) {
+    //       if (
+    //         e.key === 'F12' ||
+    //         (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) ||
+    //         (e.ctrlKey && e.key === 'U')
+    //       ) {
+    //         e.preventDefault();
+    //       }
+    //     });
     // }
+
 })(); 

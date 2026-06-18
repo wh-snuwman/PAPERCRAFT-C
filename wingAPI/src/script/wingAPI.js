@@ -35,6 +35,7 @@ export class wingAPI {
                 
         })
         await this.openPromise
+        console.log('asd')
     }
 
     disconnect(){
