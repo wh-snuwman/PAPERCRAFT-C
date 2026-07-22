@@ -1,4 +1,6 @@
 import "./imgLoad.js"
+import  { state }  from './init.js'
+import { phi, wing } from "./api.js"
 
 // type         // 엔티티 타입
 // name         // 엔티티 이름(예: 플레이어 닉네임, 플레이어가 지정해주는 별명)

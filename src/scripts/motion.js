@@ -1,3 +1,8 @@
+
+import  { state }  from './init.js'
+import { phi, wing } from "./api.js"
+
+
 window.motion = class {
     constructor(type='') {
         this.type = type;
@@ -15,7 +20,7 @@ window.motion = class {
         this.click_r = false;
         this.press_l = false;
         this.press_r = false;
-        this.mousePos = [0,0];
+        // phi.mousepos = [0,0];
         this.isAttack = false;
         this.attackCancelTime = 0;
         this.rotate = 0;
@@ -41,7 +46,6 @@ window.motion = class {
         this.click_r = data.CR
         this.press_l = data.PL
         this.press_r = data.PR
-        this.mousePos = data.mousePos
         this.haveGun = data.haveGun
         this.action = data.action
         
@@ -59,7 +63,7 @@ window.motion = class {
 
         
         if (this.action == 'attack'){
-            if (this.mousePos[0] < pos[0]){
+            if (phi.mousepos[0] < pos[0]){
                 this.isFlip = 1
             } else {
                 this.isFlip = 0
@@ -102,7 +106,7 @@ window.motion = class {
                 this.rotate = Math.sin(this.sinN/7)*5
                 phi.moveY(this.retObj,Math.cos(this.sinN/3.5)*5)
             } else {
-                if (this.mousePos[0] < pos[0]){
+                if (phi.mousepos[0] < pos[0]){
                     this.isFlip = 1
                 } else {
                     this.isFlip = 0
@@ -177,7 +181,7 @@ window.motion = class {
         
         if (this.isFlip){phi.flip(this.retObj,'hor')}// 텍스쳐반전 
         phi.rotate(this.retObj,this.rotate)
-        phi.reSizeBy(this.retObj,0.7 * tileRatio,'default');
+        phi.reSizeBy(this.retObj,0.7 * state.tileRatio,'default');
         return this.retObj
 
     }
@@ -197,7 +201,7 @@ window.motion = class {
 
         if (isFlip){phi.flip(this.retObj,'hor')}
         phi.rotate(this.retObj,this.rotate)
-        phi.reSizeBy(this.retObj,0.7 * tileRatio,'default');
+        phi.reSizeBy(this.retObj,0.7 * state.tileRatio,'default');
         return this.retObj
 
     }

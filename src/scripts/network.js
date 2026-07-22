@@ -1,53 +1,22 @@
-import {wingAPI} from "../../wingAPI/src/script/wingAPI.js"
-// import "./imgLoad.js"
 import './game.js'
 import "./particle.js"
+import  { state }  from './init.js'
+import { phi, wing } from "./api.js"
 
 (async () => {
-    //====== DEV =======
-    window.isDev = false;
-    //==================
-
     await isAllImgLoad
-    
-    window.wing = new wingAPI();
-    window.startLoadFinish = false // 게임파일의 완전한 로딩 끝남 여부
-    window.playerId = ''//  내 아이디 
-    window.clientId = ''// 클라이언트 고요 ID
-    window.join = false
-    window.isLogin = false
-    window.host = ''
-    
-    if (isDev) window.host = 'localhost'
-    else window.host = 'papversus.com'
-    window.port = 4000
-    window.isOnlineError = false
-    window.isFinishLoading = false
     const tmep = (Math.random())
-
-    window.connect = false
-    window.connect_flag = false
-
-
-
-    wing.start(()=>{
-        console.log('asd')
-        window.SCENE = 'game_main'
-        window.connect = true
-    })
-
+    
     wing.close(()=>{
         if (wing.isManualClose){
-            // window.SCENE = 'close'd
         } else {
-            window.SCENE = 'error'
+            phi.sceneChange('error')
         }
     });
 
     wing.error((error)=>{
         isOnlineError = true
-        window.SCENE = 'error'
-        // console.error(error)
+        phi.sceneChange('error')
     });
     
     wing.recv((recvData)=>{
@@ -56,8 +25,10 @@ import "./particle.js"
         switch(CODE){
             case('chunkData'):{ // 게임내의 청크데이터 불러오기
                 const chunkId = DATA.chunkId;
-                window.MAP_DATA[ chunkId] = DATA.data;
+                window.MAP_DATA[chunkId] = DATA.data;
+                    // console.log(window.MAP_DATA[chunkId])
                 break;
+
             }
             case('playerJoin'):{ // 플레이어가 참가했을때 최초로 실행되는 코드
                 const id = DATA.id
@@ -121,12 +92,11 @@ import "./particle.js"
                 const tileData = DATA.tileData
                 const chunkId = [id[0],id[1]]
                 window.MAP_DATA[chunkId][id[2]] = tileData
-                for (let index in window.TILE){
-                    const TINF = window.TILE[index]
+                for (let index in state.TILE){
+                    const TINF = state.TILE[index]
 
                     if (mode == 'destroy'){
                         if ( JSON.stringify(id) == JSON.stringify(TINF.id) ){
-                            // console.log('asd')
                             let obj = TINF.obj
                             TINF.isBlock = false
                             TINF.TILE = 0
@@ -189,10 +159,10 @@ import "./particle.js"
                         ntt.pos[0]+w/2,
                         ntt.pos[1]+h/2
                     ],3,100)
-                    window.cameraShake(40)
+                    state.cameraShake(40)
 
                     if (ntt.health <= 0){
-                        window.SCENE = 'game_die'
+                        phi.sceneChange('game_die')
                         wing.disconnect()
                     }
                 } else {
@@ -202,7 +172,7 @@ import "./particle.js"
                         ntt.pos[0]+w/2,
                         ntt.pos[1]+h/2
                     ],3,100)
-                    window.cameraShake(20)
+                    state.cameraShake(20)
 
                 }
                 break;
@@ -230,28 +200,21 @@ import "./particle.js"
         }
     })
     
-    
-    
-    if (window.isDev){
-        wing.connect(`ws://${host}:${port}`);
-    } else {
-        wing.connect(`wss://${host}:${port}`);
-    }
-    // if (!window.isDev){   
-    //     setInterval(function() {
-    //         debugger;
-    //     });
-        
-    //     document.addEventListener('contextmenu', event => event.preventDefault());
-    //     document.addEventListener('keydown', function(e) {
-    //       if (
-    //         e.key === 'F12' ||
-    //         (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) ||
-    //         (e.ctrlKey && e.key === 'U')
-    //       ) {
-    //         e.preventDefault();
-    //       }
-    //     });
-    // }
+
+    wing.start(()=>{
+        // console.log('asdasdasd')
+        window.connect = true
+    })
+
+    wing.signupOk(()=>{
+        wing.login(`${window.tmep}`,`${window.tmep}`)
+    })
+
+    wing.loginOk(()=>{
+        phi.sceneChange('game_main')
+        // console.log('i love code')
+    })
+
+
 
 })(); 

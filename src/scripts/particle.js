@@ -1,5 +1,8 @@
 import "./imgLoad.js"
 import "./newId.js"
+import  { state }  from './init.js'
+import { phi, wing } from "./api.js"
+
 
 window.particle = function(type,pos,count,spread=0){
     for (let i=0; i<count; i++){

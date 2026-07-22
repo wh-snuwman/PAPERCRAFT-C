@@ -1,8 +1,11 @@
+import { phi } from './api.js'
 
 window.isAllImgLoad = false
+window.IMG = {}
 
 async function loadImg(){
-    window.IMG = { // 게임내의 모든 이미지저장
+    // 게임내의 모든 이미지로드
+    window.IMG = { 
         HITBOX :await phi.imgLoad("src/img/entity/hitbox/0.png"),
         MOUSE : await phi.imgLoad("src/img/mouse/0.png"),
         GROUND : {
@@ -85,6 +88,6 @@ async function loadImg(){
         }
         
     }
-} 
+}
 await loadImg()
 window.isAllImgLoad = true
