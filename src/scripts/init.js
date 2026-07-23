@@ -111,6 +111,9 @@ class stateManager{
         this.attackCancelTime = 0
         this.objSortList = []// 정렬렌더링 초기화
         this.particleBlitList = []
+
+        this.inventory_select = 0;
+        this.drop= false;
     }
     
 
@@ -143,11 +146,8 @@ class stateManager{
         this.cameraAdjX = ((phi.width-this.tileSize+(1920*(1-phi.screenRatio))) / 2)
         this.cameraAdjY = ((phi.height-(this.tileSize*2)+(1080*(1-phi.screenRatio))) / 2)
         
-        console.log(phi.screenRatio)
-
         for (let i=0; i<this.horTileCount; i++){ // 화면의 가로안에 들어가는 타일수 만큼 반복
             for (let j=0; j<this.verTileCount; j++){ // 화면의 세로안에 들어가는 타일수 만큼 반복
-                console.log('asd')
                 this.TILE.push({
                     obj: phi.object(  // 로직및 시스템용 obj
                         IMG.GROUND[phi.random(0,3)],
@@ -177,7 +177,6 @@ class stateManager{
 export let state = new stateManager();
 
 // await isAllImgLoad
-// console.log(IMG)
 
 window.isDev = false;
 window.MAP_DATA = {} // 모든맵데이터 저장
@@ -217,3 +216,33 @@ window.inventory_spaceSize = 69
 window.inventory_Interval = 75;
 window.inventory_itemSize = 64;
 window.inventory_innereObj = [] //아이템 표시용
+
+for (let i=0; i<10;i++){
+    inventory_innereObj.push(phi.obj(null,[0,0],[inventory_itemSize,inventory_itemSize]))
+}
+window.inventory = [null,null,null,null,null,null,null,null,null,null]
+
+
+// 저장형식 : [<아이템>,<아이템>,<아이템>]
+// 데이터만 저장하면 자동으로 화면에 렌더링 해준다
+window.inventoryAdd = function(item){
+    for (let i=0;i<10;i++){
+        if (window.inventory[i] == null){
+            window.inventory[i] = item
+            break;
+        }
+    }
+}
+
+window.pointerObj = phi.obj(IMG.MOUSE,[0,0]) // 게임전용 포인터 지정
+window.tileSelecterObj = [
+    phi.reSizeBy(phi.obj(IMG.UI.tile_selecter_up,[0,0]),state.tileSize /IMG.UI.tile_selecter_up.width),
+    phi.reSizeBy(phi.obj(IMG.UI.tile_selecter_down,[0,0]),state.tileSize /IMG.UI.tile_selecter_down.width),
+]
+window.renderTileSlecter = (pos) => {
+    phi.goto(tileSelecterObj[0],pos)
+    phi.goto(tileSelecterObj[1],[pos[0],pos[1]+state.tileSize /2 -  3])
+    phi.blit(tileSelecterObj[0])
+    phi.blit(tileSelecterObj[1])
+}
+

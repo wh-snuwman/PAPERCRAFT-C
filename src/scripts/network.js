@@ -202,8 +202,8 @@ import { phi, wing } from "./api.js"
     
 
     wing.start(()=>{
-        // console.log('asdasdasd')
         window.connect = true
+
     })
 
     wing.signupOk(()=>{

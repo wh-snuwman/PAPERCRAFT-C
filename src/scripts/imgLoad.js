@@ -50,7 +50,7 @@ async function loadImg(){
             box_1 : await phi.imgLoad("src/img/ui/box_1.png"),
 
             server_banner_apple : await phi.imgLoad("src/img/ui/server_title_0.png"),
-
+            
             main_back : await phi.imgLoad("src/img/ui/main_back.png"),
             main_title : await phi.imgLoad("src/img/ui/main_title.png"),
             player_inventory_select : await phi.imgLoad("src/img/ui/player_inventory_select.png"),
@@ -69,7 +69,6 @@ async function loadImg(){
             bush : await phi.imgLoad("src/img/tile/bush.png"),
             error_block : await phi.imgLoad("src/img/tile/error_block.png"),
             plank_block : await phi.imgLoad("src/img/tile/plank.png"),
-
             stack_plank : await phi.imgLoad("src/img/tile/stack_plank.png"),
             iron_block : await phi.imgLoad("src/img/tile/iron_block.png"),
             street_lamp : await phi.imgLoad("src/img/tile/street_lamp.png"),

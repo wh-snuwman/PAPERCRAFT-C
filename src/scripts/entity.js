@@ -44,6 +44,7 @@ export class EntitySys {
         let size = size_;
         // if (img_){ size = null}
         // else size = [0,0]
+
         const ntt = new Entity()
         ntt.type = type_
         ntt.name = name_
@@ -55,9 +56,9 @@ export class EntitySys {
         this.allEntity[id_] = ntt;
         return ntt;
     }
-
+    // window.inventory_itemSize
     newItem(type_,pos_,id_){
-        let ntt = this.newEntity('item',null,pos_,null,{'itemType':type_},id_,window.IMG.ITEM[type_])
+        let ntt = this.newEntity('item',null,pos_,null,{'itemType':type_},id_,window.IMG.ITEM[type_].window)
         this.allEntity[id_] = ntt;
         return ntt;
     }

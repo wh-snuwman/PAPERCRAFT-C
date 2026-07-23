@@ -1,9 +1,10 @@
 import "./api.js"
 import "./imgLoad.js"
+import "./network.js"
 import  { state }  from './init.js'
 import { phi, wing } from "./api.js"
-import "./network.js"
 import { EntitySys } from "./entity.js" 
+import { commonObjManager } from "./cobj.js"
 import "./particle.js"
 import "./motion.js"
 import "./event.js"
@@ -13,126 +14,104 @@ import "./event.js"
 // TINF.id // 타일의 ID. 리스트 형대로 저장되고 [<청크내애서의_아이디1>,<청크내애서의_아이디2>,<청크>]
 
 (async () => {
+await isAllImgLoad
 
-// const phi = phi
+
+
 window.entity = new EntitySys()
+let cobj = new commonObjManager(state.SCENE_LIST)
 
 
-let COBJ = { // Common OBJ. 자동으로 그려지고 위치가 조정되는 OBJ를 저장.
-    'menu_main':{ // 이코드에서는 선언과 이미지적용만 한다
-        back : phi.obj(IMG.UI.main_back,[0,0]), 
-        title : phi.obj(IMG.UI.main_title,[0,0]),
-        connect_btn : phi.obj(IMG.UI.server_banner_apple,[0,0]),
-    },
-    "game_main":{
-        inventory : phi.obj(IMG.UI.player_inventory,[phi.width/phi.screenRatio-IMG.UI.player_inventory.width,phi.height/phi.screenRatio-IMG.UI.player_inventory.height],null),
-        inventory_select : phi.obj(IMG.UI.player_inventory_select,[0,0],null)
-    },
-    'error':{
-        art : phi.obj(IMG.PAGE.error,[(phi.width-IMG.PAGE.error.width)/2,(phi.height-IMG.PAGE.error.height)/2],null)
-    },
-    'game_die':{
-        art : phi.obj(IMG.PAGE.game_die,[(phi.width-IMG.PAGE.game_die.width)/2,(phi.height-IMG.PAGE.game_die.height)/2],null)
 
-    }
-}
-
-function CBOJ_RESIZE(){ // COBJ에서 장면에 따라 위치가 자동으로 조정되게 하는 함수.  
-    phi.goto(COBJ['menu_main'].back,[0,0])
-    phi.goto(COBJ['menu_main'].title,[(IMG.UI.main_back.width-IMG.UI.main_title.width)/2,(IMG.UI.main_back.height-IMG.UI.main_title.height)/2 - 180])
-    phi.goto(COBJ['menu_main'].connect_btn,[(IMG.UI.main_back.width-IMG.UI.server_banner_apple.width)/2,(IMG.UI.main_back.height-IMG.UI.server_banner_apple.height)/2 + 180]) 
-    
-    phi.goto(COBJ['game_main'].inventory,[
-        (phi.width/phi.screenRatio-IMG.UI.player_inventory.width)/2,
-        phi.height/phi.screenRatio-IMG.UI.player_inventory.height])
-    phi.goto(COBJ['game_main'].inventory_select,[
-        (phi.width/phi.screenRatio-IMG.UI.player_inventory_select.width)/2,
-        phi.height/phi.screenRatio-IMG.UI.player_inventory_select.height])
-
-
-    phi.goto(COBJ['error'].art,[0,0])
-    phi.goto(COBJ['game_die'].art,[0,0])
-}
-
-CBOJ_RESIZE() 
-window.addEventListener('resize',()=>{
+function resize(){
     phi.reSizeDisplay() // 화면 비율및 해상도 자동조정
-    CBOJ_RESIZE() // 자동 위치재조정
-    state.tileRelocation() // 타일재배치
+    if (phi.nowScene === 'game_main') state.tileRelocation() // 타일재배치
+}   
+resize()
+
+window.addEventListener('resize',()=>{
+    resize()
 })
 
 
-let pointerObj = phi.obj(IMG.MOUSE,[0,0]) // 게임전용 포인터 지정
-let tileSelecterObj = [
-    phi.reSizeBy(phi.obj(IMG.UI.tile_selecter_up,[0,0]),state.tileSize /IMG.UI.tile_selecter_up.width),
-    phi.reSizeBy(phi.obj(IMG.UI.tile_selecter_down,[0,0]),state.tileSize /IMG.UI.tile_selecter_down.width),
-]
-function renderTileSlecter(pos) {
-    phi.goto(tileSelecterObj[0],pos)
-    phi.goto(tileSelecterObj[1],[pos[0],pos[1]+state.tileSize /2 -  3])
-    phi.blit(tileSelecterObj[0])
-    phi.blit(tileSelecterObj[1])
-}
 
 
-for (let i=0; i<10;i++){
-    inventory_innereObj.push(phi.obj(null,[0,0],[inventory_itemSize,inventory_itemSize]))
-}
-window.inventory = [null,null,null,null,null,null,null,null,null,null]
-let inventory_select = 0;
-let drop = false;
-// 저장형식 : [<아이템>,<아이템>,<아이템>]
-// 데이터만 저장하면 자동으로 화면에 렌더링 해준다
-window.inventoryAdd = function(item){
-    for (let i=0;i<10;i++){
-        if (window.inventory[i] == null){
-            window.inventory[i] = item
-            break;
-        }
-    }
-}
+
+cobj.add('menu_main','back',IMG.UI.main_back,[0,0])
+cobj.add('menu_main','title',IMG.UI.main_title,[(IMG.UI.main_back.width-IMG.UI.main_title.width)/2,(IMG.UI.main_back.height-IMG.UI.main_title.height)/2 - 180])
+cobj.add('menu_main','connect_btn',IMG.UI.server_banner_apple,[(IMG.UI.main_back.width-IMG.UI.server_banner_apple.width)/2,(IMG.UI.main_back.height-IMG.UI.server_banner_apple.height)/2 + 180])
 
 
-await isAllImgLoad
-state.tileRelocation()
+cobj.add("game_main","inventory",IMG.UI.player_inventory,[
+    ((phi.width/phi.screenRatio)-IMG.UI.player_inventory.width)/2,
+    ((phi.height/phi.screenRatio)-IMG.UI.player_inventory.height)
+])
+cobj.add("game_main",'inventory_select',IMG.UI.player_inventory_select,
+    (phi.width/phi.screenRatio-IMG.UI.player_inventory_select.width)/2,
+    phi.height/phi.screenRatio-IMG.UI.player_inventory_select.height
+)
+cobj.add("error",'art',IMG.PAGE.error,[(phi.width-IMG.PAGE.error.width)/2,(phi.height-IMG.PAGE.error.height)/2],null)
+cobj.add("game_die",'art',IMG.PAGE.game_die,[(phi.width-IMG.PAGE.game_die.width)/2,(phi.height-IMG.PAGE.game_die.height)/2],null)
 
-// console.log(state.TILE)
+
+
 
 phi.sceneChange('menu_main')
+cobj.setScene(phi.nowScene)
+wing.connect(`ws://${host}:${port}`);
 
 
-phi.sceneChangeDetect
-
-phi.scene('menu_main',()=>{
-    for (const name in COBJ['menu_main']){
-        let obj = COBJ['menu_main'][name]
-        if (name == 'connect_btn'){
-            phi.move(obj,[
-                (100 - obj.x) / 10,
-                (100 - obj.y) / 10
-            ])
-            if (phi.isEncounterPos(obj,phi.mousepos) && state.click_l){
-                phi.move(obj,[0,10])
-                wing.connect(`ws://${host}:${port}`);
-            }
+cobj.scene('menu_main',(obj,name)=>{
+    // //console .log('asd')
+    if (name == 'connect_btn'){
+        if (phi.isEncounterPos(obj,phi.mousepos) && state.click_l){
+            phi.move(obj,[0,10])
         }
-        phi.blit(obj)
-    }
+    }   
+    phi.blit(obj)
+})
+phi.scene('menu_main',()=>{
+    
 })
 
+
+
+cobj.scene('error',(obj,name)=>{
+    phi.blit(obj)
+})
 phi.scene('error',()=>{
-    for (const name in COBJ['error']){
-        let obj = COBJ['error'][name]
+})
+
+
+
+
+cobj.scene('game_die',(obj,name)=>{
+    phi.blit(obj)
+})
+phi.scene('game_die',()=>{
+})
+
+
+
+
+cobj.scene('game_main',(obj,name)=>{
+    if (name === 'inventory'){
         phi.blit(obj)
+        for (let i in inventory){
+            if (inventory[i] == null) continue;
+            let itemObj = inventory_innereObj[i]
+            itemObj.img = IMG.ITEM[inventory[i]]
+            phi.goto(itemObj,[obj.x+(i*inventory_Interval)+18,obj.y+13])
+            phi.blit(itemObj)
+        }
+        // //console .log(obj)
+    }
+    else if (name === 'inventory_select'){
+        const obj_ = phi.obj(obj.img,[obj.x+(state.inventory_select*inventory_Interval)+36-inventory_Interval*5,obj.y-5],null) 
+        phi.blit(obj_)
     }
 })
 
-phi.scene('game_die',()=>{
-    for (const name in COBJ['game_die']){
-        let obj = COBJ['game_die'][name]
-        phi.blit(obj)
-    }
-})
 
 phi.scene('game_main',()=>{
     // #region 키입력
@@ -141,8 +120,7 @@ phi.scene('game_main',()=>{
     if (state.downKey){state.moveD  = state.speed;} else {state.moveD = state.moveD * state.smooth;}
     if (state.rightKey){state.moveR  = state.speed;} else {state.moveR = state.moveR * state.smooth;}
     // #endregion
-        // console.log('asd')
-    
+
     for (let index in state.TILE){
         let TINF = state.TILE[index]
         const obj = TINF.obj
@@ -174,7 +152,7 @@ phi.scene('game_main',()=>{
             phi.moveX(obj,-wallCheckDistance)
         }
         // #region 타일물리엔진
-        // console.log(state.moveX)
+        // //console .log(state.moveX)
         phi.moveX(obj,state.moveLc); // 실제 이동량 적용
         phi.moveY(obj,-state.moveDc); // 실제 이동량 적용
         phi.moveY(obj,state.moveUc); // 실제 이동량 적용
@@ -214,11 +192,11 @@ phi.scene('game_main',()=>{
             if (phi.isEncounterPos(obj,phi.mousepos)){
                 renderTileSlecter([obj.x,obj.y])
                 if (state.click_r){
-                    if (window.inventory[inventory_select] != null && selectTile == 0 && phi.distanceGetObj(playerObj,obj) > state.tileSize ){
-                        if (window.inventory[inventory_select] == 'plank_block'){
+                    if (window.inventory[state.inventory_select] != null && selectTile == 0 && phi.distanceGetObj(playerObj,obj) > state.tileSize ){
+                        if (window.inventory[state.inventory_select] == 'plank_block'){
                             wing.send("playerItemRemove",{
-                                'itemType':inventory[inventory_select],
-                                'invenIndex':inventory_select,
+                                'itemType':inventory[state.inventory_select],
+                                'invenIndex':state.inventory_select,
                             })
                             wing.send("tileEdit",{
                                 'mode':'build',
@@ -278,7 +256,7 @@ phi.scene('game_main',()=>{
 
                 phi.move(TINF.TILEOBJ,[
                     -(TINF.TILEOBJ.width-state.tileSize )/2,
-                    -TINF.TILEOBJ.height + state.tileSize *0.6,
+                    -TINF.TILEOBJ.height + state.tileSize *0.9,
                 ])
                 
                 if (!state.renderLimitUse || state.renderLimitUse && state.renderLimitDistant > phi.distanceGetObj(TINF.TILEOBJ,phi.obj(null,[phi.width/2/phi.screenRatio,phi.height/2/phi.screenRatio],[0,0]))){
@@ -307,6 +285,8 @@ phi.scene('game_main',()=>{
         let ntt = entity.allEntity[key];
         let obj = ntt.renderObj;
 
+        // //console .log(ntt)
+
         phi.goto(obj,[
             ntt.pos[0]-obj.width/2 +(state.cameraAdjX+ state.cameraX),
             ntt.pos[1]-obj.height/2 +(state.cameraAdjY+ state.cameraY)
@@ -314,7 +294,6 @@ phi.scene('game_main',()=>{
         
         if (window.playerId == ntt.id){
             phi.goto(playerObj,[obj.x+playerObjSize[0]/2,obj.y + playerObjSize[1] - playerObj_thick])
-            
         }
 
         if (ntt.type == 'player' && !obj.img){
@@ -351,7 +330,6 @@ phi.scene('game_main',()=>{
             phi.reSize(obj,[20,20])
             phi.rotate(obj,8)
             phi.move(obj,[-obj.width/2,-obj.height/2])
-            
             if (ntt.tag.owner == playerId){
                 for (let TINF of state.TILE){
                     const tileObj = TINF.obj
@@ -431,10 +409,6 @@ phi.scene('game_main',()=>{
                     
                     ntt.pos = [ntt.pos[0]+ntt.tag.adjX,ntt.pos[1]+ntt.tag.adjY]
                     phi.rotate(obj,10)
-                    
-                    // if (obj.y > phi.height/phi.screenRatio*phi.dpr){
-                    //     entity.removeEntity(ntt.id)
-                    // }
                     break
                 }
             }
@@ -482,7 +456,7 @@ phi.scene('game_main',()=>{
             }
             // ================================ SPEED CONTROL ========================= //
 
-            if (inventory[inventory_select] == 'gun'){
+            if (inventory[state.inventory_select] == 'gun'){
                 action = 'attack'
             } else {
                 if (state.attackCancelTime < Date.now()){
@@ -495,7 +469,7 @@ phi.scene('game_main',()=>{
             }
 
 
-            if (state.click_l && inventory[inventory_select] == 'gun' && action == 'attack'){
+            if (state.click_l && inventory[state.inventory_select] == 'gun' && action == 'attack'){
                 if (gunFireDelay < Date.now()){
                     // #region  bullet 데이터보내기
                     state.attackCancelTime = Date.now() + 1200
@@ -526,19 +500,19 @@ phi.scene('game_main',()=>{
                         window.particle('bang',[obj.width/2 + state.moveX+100,(-obj.height/2 + state.moveY + 120)],1,0)
                     }
                     state.cameraShake(70)
-                    gunFireDelay = Date.now() + 100
+                    gunFireDelay = Date.now() + 70
                 }
             }
-            if (drop && window.inventory[inventory_select] != null){
+            if (state.drop&& window.inventory[state.inventory_select] != null){
                 wing.send("itemDrop",{
-                    'itemType':inventory[inventory_select],
-                    'invenIndex':inventory_select,
+                    'itemType':inventory[state.inventory_select],
+                    'invenIndex':state.inventory_select,
                     'itemPos':[
                         (phi.mousepos[0]) + state.moveX - state.cameraAdjX,
                         (phi.mousepos[1]) + state.moveY - state.cameraAdjY
                     ],
                 })
-                // window.inventory[inventory_select] = null
+                // window.inventory[state.inventory_select] = null
             }
         }
     }
@@ -546,48 +520,37 @@ phi.scene('game_main',()=>{
         state.cameraMove(
             ((-state.moveX+state.cameraShakeX) - state.cameraX) / 8,
             ((-state.moveY+state.cameraShakeY) - state.cameraY) / 8,
-        )
-        
+        )  
     }
+    
     state.objSortList = state.objSortList.sort((a,b) => (a.y + a.height) - (b.y + b.height));
-    for (let obj of state.objSortList) phi.blit(obj);
+    for (let obj of state.objSortList){
+        // phi.goto(obj,[0,0])
+        // phi.blit(obj);
+        // console .log(obj.x,obj.y)
+        phi.blit(obj);
+
+    }
+
     state.objSortList = [];
     state.particleBlitList = state.particleBlitList.sort((a,b) => (a.y + a.height) - (b.y + b.height));
     for (let obj of state.particleBlitList) phi.blit(obj);
     state.particleBlitList = [];
     
     if (state.wheel > 0){
-        inventory_select ++
-        if (inventory_select > 9){
-            inventory_select = 0
+        state.inventory_select ++
+        if (state.inventory_select > 9){
+            state.inventory_select = 0
         }   
     } 
     else if (state.wheel < 0){
-        inventory_select --
-        if (inventory_select < 0){
-            inventory_select = 9
+        state.inventory_select --
+        if (state.inventory_select < 0){
+            state.inventory_select = 9
         }   
-    }
+    }2
     
-    for (const name in COBJ['game_main']){
-        let obj = COBJ['game_main'][name]
-
-        if (name == 'inventory'){
-            phi.blit(obj)
-            for (let i in inventory){
-                if (inventory[i] == null) continue;
-                let itemObj = inventory_innereObj[i]
-                itemObj.img = IMG.ITEM[inventory[i]]
-                phi.goto(itemObj,[obj.x+(i*inventory_Interval)+18,obj.y+13])
-                phi.blit(itemObj)
-            }
-        }
-        else if (name == 'inventory_select'){
-            const obj_ = phi.obj(obj.img,[obj.x+(inventory_select*inventory_Interval)+36-inventory_Interval*5,obj.y-5],null) 
-            phi.blit(obj_)
-
-        }
-    }
+    
     state.cameraShakeX += (0 - state.cameraShakeX) / 10
     state.cameraShakeY += (0 - state.cameraShakeY) / 10
     phi.goto(pointerObj,phi.mousepos)
@@ -616,29 +579,29 @@ phi.loop(() => {
     if (state.rightKey || state.leftKey || state.upKey || state.downKey) state.isMove = true
     else state.isMove = false
     
-
-    if (phi.sceneChangeDetect){
-        // phi.reSizeDisplay() // 화면 비율및 해상도 자동조정
-        // CBOJ_RESIZE() // 자동 위치재조정
-        state.tileRelocation() // 타일재배치
-    }
-
-
+    
     phi.fill(0,0,0);
-
-
+    
+    if (phi.sceneChangeDetect){
+        resize()
+        cobj.setScene(phi.nowScene)
+    }
+    
+    console.log(entity.getAll())
 
 });
 
 phi.end(()=>{
+    // //console .log(inventory)
+    cobj.update()
     if (state.wheel) state.wheel = 0;
-    if (drop) drop=false;
+    if (state.drop) state.drop=false;
     if (state.click_l) state.click_l=false;
     if (state.click_r) state.click_r=false;
     if (state.interaction) state.interaction=false;
     lastTime = currentTime;
-})
 
+})
 
 })();
 

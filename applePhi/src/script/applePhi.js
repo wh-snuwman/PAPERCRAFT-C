@@ -532,7 +532,6 @@ export class applePhi {
         if (!obj.img) return;
         const { img, x, y, width, height, vertex, texcoord, fillColor, alpha } = obj;
         const ratioMulp = this.screenRatio;
-        
         const renderX = x * ratioMulp;
         const renderY = y * ratioMulp;
         const renderW = width * ratioMulp;
